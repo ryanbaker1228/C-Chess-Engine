@@ -14,7 +14,15 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="" />
+    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="Fixed GUI bugs with highlighted squares.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gui.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gui.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/gui.cpp" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -128,7 +136,7 @@
       <workItem from="1690411203995" duration="23067000" />
       <workItem from="1690488113362" duration="2583000" />
       <workItem from="1690490802402" duration="137000" />
-      <workItem from="1690490955667" duration="1000" />
+      <workItem from="1690490955667" duration="2046000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed GUI bugs with highlighted squares.">
       <created>1690487531163</created>
@@ -137,7 +145,14 @@
       <option name="project" value="LOCAL" />
       <updated>1690487531163</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Fixed GUI bugs with highlighted squares.">
+      <created>1690491089656</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1690491089656</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

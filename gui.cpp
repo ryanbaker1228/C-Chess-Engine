@@ -144,7 +144,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
     if ((gamestate->empty_sqs & 1ULL << selectedSquare) && selectedSqs.empty()) {
         /* The user has selected an empty square */
         selectedSqs.clear();
-        if (gamestate->move_log.size()) {
+        if (!gamestate->move_log.empty()) {
             highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq};
         } else {
             highlightedSqs.clear();
@@ -153,7 +153,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
     } else {
         /* The user has selected a piece */
         selectedSqs.push_back(selectedSquare);
-        if (gamestate->move_log.size()) {
+        if (!gamestate->move_log.empty()) {
             highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq, selectedSquare};
         } else {
             highlightedSqs = {selectedSquare};
@@ -163,22 +163,22 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
     if (selectedSqs.size() == 1) {
         /* The user selected a piece, check if the piece has any moves */
         moveIndicatorSqs.clear();
-        for (struct Move move : MoveGenerator::GenerateLegalMoves(gamestate)) {
+        for (struct Move move: MoveGenerator::GenerateLegalMoves(gamestate)) {
             if (move.start_sq == selectedSquare) {
                 moveIndicatorSqs.push_back(move.end_sq);
             }
         }
         if (moveIndicatorSqs.empty()) {
             /* The user has selected a piece that cannot move */
-            if (gamestate->move_log.size()) {
-                highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq, selectedSquare};
+            if (!gamestate->move_log.empty()) {
+                highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq,
+                                  selectedSquare};
             } else {
                 highlightedSqs = {selectedSquare};
             }
-            selectedSqs.clear();
             return;
         }
-        std::vector<int>::iterator uniqueIndicators = std::unique(moveIndicatorSqs.begin(), moveIndicatorSqs.end());
+        auto uniqueIndicators = std::unique(moveIndicatorSqs.begin(), moveIndicatorSqs.end());
         moveIndicatorSqs.resize(std::distance(moveIndicatorSqs.begin(), uniqueIndicators));
     }
 
@@ -187,7 +187,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
             /* User selected the same piece twice */
             selectedSqs.clear();
             moveIndicatorSqs.clear();
-            if (gamestate->move_log.size()) {
+            if (!gamestate->move_log.empty()) {
                 highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq};
             } else {
                 highlightedSqs.clear();
@@ -195,18 +195,31 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
             return;
         }
 
-        for (struct Move move : legalMoves) {
+        for (struct Move move: legalMoves) {
             if (move.start_sq == selectedSqs[0] && move.end_sq == selectedSqs[1]) {
                 if (move.flags & MoveFlags::promotion) {
                     int promotionPiece = PollPromotion(move.end_sq);
                     switch (promotionPiece) {
-                        case 2: case 10: move.flags |= MoveFlags::knightPromotion; break;
-                        case 3: case 11: move.flags |= MoveFlags::bishopPromotion; break;
-                        case 4: case 12: move.flags |= MoveFlags::rookPromotion; break;
-                        case 5: case 13: move.flags |= MoveFlags::queenPromotion; break;
+                        case 2:
+                        case 10:
+                            move.flags |= MoveFlags::knightPromotion;
+                            break;
+                        case 3:
+                        case 11:
+                            move.flags |= MoveFlags::bishopPromotion;
+                            break;
+                        case 4:
+                        case 12:
+                            move.flags |= MoveFlags::rookPromotion;
+                            break;
+                        case 5:
+                        case 13:
+                            move.flags |= MoveFlags::queenPromotion;
+                            break;
                         default:
-                            if (gamestate->move_log.size()) {
-                                highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq};
+                            if (!gamestate->move_log.empty()) {
+                                highlightedSqs = {gamestate->move_log.back().start_sq,
+                                                  gamestate->move_log.back().end_sq};
                             } else {
                                 highlightedSqs.clear();
                             }
@@ -226,20 +239,23 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
         moveIndicatorSqs.clear();
         selectedSqs = {selectedSquare};
 
-        for (struct Move move : MoveGenerator::GenerateLegalMoves(gamestate)) {
+        for (struct Move move: MoveGenerator::GenerateLegalMoves(gamestate)) {
             if (move.start_sq == selectedSquare) {
                 moveIndicatorSqs.push_back(move.end_sq);
             }
         }
-        if (moveIndicatorSqs.empty()) {
+        if (moveIndicatorSqs.empty() && gamestate->empty_sqs & 1ULL << selectedSquare) {
             selectedSqs.clear();
         }
-        std::vector<int>::iterator uniqueIndicators = std::unique(moveIndicatorSqs.begin(), moveIndicatorSqs.end());
+
+        auto uniqueIndicators = std::unique(moveIndicatorSqs.begin(), moveIndicatorSqs.end());
         moveIndicatorSqs.resize(std::distance(moveIndicatorSqs.begin(), uniqueIndicators));
-        if (gamestate->move_log.size()) {
+        if (!gamestate->move_log.empty()) {
             highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq, selectedSquare};
-        } else {
+        } else if (!(gamestate->empty_sqs & 1ULL << selectedSquare)) {
             highlightedSqs = {selectedSquare};
+        } else {
+            highlightedSqs.clear();
         }
     }
 }
@@ -249,7 +265,7 @@ void GUI::HandleKeyPress(SDL_Keycode key, GAMESTATE* gamestate) {
         case SDLK_LEFT:
             if (!gamestate->move_log.empty()) {
                 gamestate->undoMove();
-                if (gamestate->move_log.size()) {
+                if (!gamestate->move_log.empty()) {
                     highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq};
                 } else {
                     highlightedSqs.clear();
@@ -306,19 +322,25 @@ int GUI::PollPromotion(int promotionSquare) {
         bishopDestSquare = promotionSquare + 8 * 3;
     }
     color = 2 * ((row + col) % 2);
-    SDL_SetRenderDrawColor(renderer, sq_colors[color][0], sq_colors[color][1], sq_colors[color][2], sq_colors[color][3]);
+    SDL_SetRenderDrawColor(renderer, sq_colors[color][0], sq_colors[color][1], sq_colors[color][2],
+                           sq_colors[color][3]);
     SDL_RenderFillRect(renderer, &queenDestination);
     SDL_RenderFillRect(renderer, &rookDestination);
 
     color == 0 ? color = 2 : color = 0;
-    SDL_SetRenderDrawColor(renderer, sq_colors[color][0], sq_colors[color][1], sq_colors[color][2], sq_colors[color][3]);
+    SDL_SetRenderDrawColor(renderer, sq_colors[color][0], sq_colors[color][1], sq_colors[color][2],
+                           sq_colors[color][3]);
     SDL_RenderFillRect(renderer, &knightDestination);
     SDL_RenderFillRect(renderer, &bishopDestination);
 
-    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 4], nullptr, &queenDestination);
-    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 1], nullptr, &knightDestination);
-    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 3], nullptr, &rookDestination);
-    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 2], nullptr, &bishopDestination);
+    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 4], nullptr,
+                   &queenDestination);
+    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 1], nullptr,
+                   &knightDestination);
+    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 3], nullptr,
+                   &rookDestination);
+    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 2], nullptr,
+                   &bishopDestination);
 
     SDL_RenderPresent(renderer);
 

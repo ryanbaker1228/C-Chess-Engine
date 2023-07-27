@@ -1,0 +1,25 @@
+# ninja log v5
+3	1089	1690488449248160958	CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o	b8394bde3970c162
+2	1635	1690488449795311643	CMakeFiles/Chess_Engine.dir/evaluation.cpp.o	a9dcb21a9c72bb81
+2	1671	1690488449833301078	CMakeFiles/Chess_Engine.dir/move.cpp.o	ba0cba13eff3b952
+12	1218	1690488970053084263	CMakeFiles/Chess_Engine.dir/main.cpp.o	52f58468bb98be25
+1	1717	1690488449881117282	CMakeFiles/Chess_Engine.dir/gamestate.cpp.o	36414d985b1a6d17
+1	158	1690489335250556947	build.ninja	c46b186fa339aaf2
+2	1805	1690488449968325227	CMakeFiles/Chess_Engine.dir/movegen.cpp.o	220b3aacbff95f95
+13	1356	1690488970189311564	CMakeFiles/Chess_Engine.dir/gui.cpp.o	5eac3dc38b3662e7
+1356	1478	1690488970316628690	Chess_Engine	7e93edf060c65b71
+1	162	1690489335250556947	build.ninja	c46b186fa339aaf2
+15	924	1690489336184124643	CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o	22a9046f9f2800c2
+13	1417	1690489336674387835	CMakeFiles/Chess_Engine.dir/evaluation.cpp.o	ea69d1162d11480f
+14	1418	1690489336676597160	CMakeFiles/Chess_Engine.dir/move.cpp.o	1776219f1dc4b503
+12	1481	1690489336738869915	CMakeFiles/Chess_Engine.dir/gamestate.cpp.o	8029e05a167c82fb
+13	1606	1690489336865815825	CMakeFiles/Chess_Engine.dir/movegen.cpp.o	ec32422accc5263f
+12	1697	1690489336957505092	CMakeFiles/Chess_Engine.dir/main.cpp.o	c1b2441a1f634ff9
+12	1824	1690489337086256011	CMakeFiles/Chess_Engine.dir/gui.cpp.o	ce4f29c4a04da191
+1825	1930	1690489337194298867	Chess_Engine	4b10546dd7475e85
+8	1254	1690489467562251720	CMakeFiles/Chess_Engine.dir/main.cpp.o	c1b2441a1f634ff9
+8	1390	1690489467698627942	CMakeFiles/Chess_Engine.dir/gui.cpp.o	ce4f29c4a04da191
+1390	1476	1690489467785040373	Chess_Engine	4b10546dd7475e85
+12	1191	1690489663557676902	CMakeFiles/Chess_Engine.dir/main.cpp.o	c1b2441a1f634ff9
+13	1329	1690489663697015661	CMakeFiles/Chess_Engine.dir/gui.cpp.o	ce4f29c4a04da191
+1329	1412	1690489663781650119	Chess_Engine	4b10546dd7475e85

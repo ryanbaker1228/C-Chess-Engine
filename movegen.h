@@ -12,17 +12,17 @@
 
 
 namespace MoveGenerator {
-    std::vector<class Move> GenerateLegalMoves(GAMESTATE* gamestate);
+    std::vector<class Move> GenerateLegalMoves(GAMESTATE& gamestate);
 
-    U64 CreateCheckMask(GAMESTATE* gamestate, U64 kingPos);
-    U64 FindAttackedSquares(U64* bitboards, U64 friendlyPieces, U64 allPieces, int playerToMove);
-    void FindPinnedPieces(GAMESTATE* gamestate);
+    U64 CreateCheckMask(const GAMESTATE& gamestate, U64 kingPos);
+    U64 FindAttackedSquares(const GAMESTATE& gamestate, U64 friendlyPieces, U64 kingPos);
+    void FindPinnedPieces(GAMESTATE& gamestate);
 
-    void GeneratePawnMoves(GAMESTATE* gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
-    void GenerateKnightMoves(GAMESTATE* gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
-    void GenerateDiagonalSliderMoves(GAMESTATE* gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
-    void GenerateOrthogonalSliderMoves(GAMESTATE* gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
-    void GenerateKingMoves(GAMESTATE* gamestate, std::vector<class Move>& legalMoves, U64 enemyAttacks);
+    void GeneratePawnMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
+    void GenerateKnightMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
+    void GenerateDiagonalSliderMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
+    void GenerateOrthogonalSliderMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
+    void GenerateKingMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 enemyAttacks);
 
     void TestMoveGenerator();
 }
@@ -30,7 +30,7 @@ namespace MoveGenerator {
 const int WHITE_WIN = 999999;
 const int BLACK_WIN = -999999;
 
-int createMoveTree(GAMESTATE* gamestate, int depth_ply);
+int createMoveTree(const GAMESTATE& gamestate, int depth_ply);
 int MoveSearch(GAMESTATE* gamestate, int depth_ply, int alpha, int beta);
 
 namespace MovementTables {

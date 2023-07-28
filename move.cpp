@@ -5,17 +5,27 @@
 #include "move.h"
 #include "evaluation.h"
 
-Move::Move(int from_sq, int to_sq, GAMESTATE *gamestate, int moveFlag) {
+Move::Move(int from_sq, int to_sq, const GAMESTATE& gamestate, int moveFlag) {
     start_sq = from_sq;
     end_sq = to_sq;
-    moving_piece = gamestate->mailbox[from_sq];
-    captured_piece = gamestate->mailbox[to_sq];
+    moving_piece = gamestate.mailbox[from_sq];
+    captured_piece = gamestate.mailbox[to_sq];
     sqs = 1ULL << from_sq | 1ULL << to_sq;
     flags = moveFlag;
-    flags |= MoveFlags::capture * (gamestate->mailbox[to_sq] > 0);
+    flags |= MoveFlags::capture * (gamestate.mailbox[to_sq] > 0);
     //gamestate->makeMove(*this);
     //promise = StaticEvaluate(gamestate);
     //gamestate->undoMove();
+}
+
+Move::Move(int from_sq, int to_sq, int movingPiece, int capturedPiece, int moveFlag) {
+    start_sq = from_sq;
+    end_sq = to_sq;
+    moving_piece = movingPiece;
+    captured_piece = capturedPiece;
+    sqs = 1ULL << from_sq | 1ULL << to_sq;
+    flags = moveFlag;
+    flags |= MoveFlags::capture * (capturedPiece > 0);
 }
 
 bool Move::operator < (Move move) {

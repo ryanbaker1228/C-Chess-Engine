@@ -11,15 +11,15 @@
 #include <chrono>
 
 
-int createMoveTree(GAMESTATE* gamestate, int depth_ply) {
+int createMoveTree(GAMESTATE& gamestate, int depth_ply) {
     if (depth_ply == 1) {
         return static_cast<int>(MoveGenerator::GenerateLegalMoves(gamestate).size());
     }
     int num_pos = 0;
     for (struct Move move : MoveGenerator::GenerateLegalMoves(gamestate)) {
-        gamestate->makeMove(move);
+        gamestate.makeMove(move);
         num_pos += createMoveTree(gamestate, depth_ply - 1);
-        gamestate->undoMove();
+        gamestate.undoMove();
     }
     return num_pos;
 }
@@ -29,7 +29,7 @@ int MoveSearch(GAMESTATE* gamestate, int depth_ply, int alpha, int beta) {
         return StaticEvaluate(gamestate);
     }
 
-    std::vector<struct Move> legal_moves = MoveGenerator::GenerateLegalMoves(gamestate);
+    std::vector<struct Move> legal_moves = MoveGenerator::GenerateLegalMoves(*gamestate);
 
     if (gamestate->player_to_move) {
         int maxEval = BLACK_WIN;
@@ -60,31 +60,27 @@ int MoveSearch(GAMESTATE* gamestate, int depth_ply, int alpha, int beta) {
     }
 }
 
-std::vector<Move> MoveGenerator::GenerateLegalMoves(GAMESTATE* gamestate) {
-    U64 friendlyPieces, enemyPieces, kingPos;
-    U64* bitboards = *gamestate->bitboards;
-
-    for (Move move : gamestate->move_log) {
-        if (move.moving_piece == 6 || move.start_sq == Board::Squares::a1) gamestate->whiteCanLongCastle = false;
-        if (move.moving_piece == 6 || move.start_sq == Board::Squares::h1) gamestate->whiteCanShortCastle = false;
-        if (move.moving_piece == 14 || move.start_sq == Board::Squares::a8) gamestate->blackCanLongCastle = false;
-        if (move.moving_piece == 14 || move.start_sq == Board::Squares::h8) gamestate->blackCanShortCastle = false;
+std::vector<Move> MoveGenerator::GenerateLegalMoves(GAMESTATE& gamestate) {
+    for (Move move : gamestate.move_log) {
+        if (move.moving_piece == 6 || move.start_sq == Board::Squares::a1) gamestate.whiteCanLongCastle = false;
+        if (move.moving_piece == 6 || move.start_sq == Board::Squares::h1) gamestate.whiteCanShortCastle = false;
+        if (move.moving_piece == 14 || move.start_sq == Board::Squares::a8) gamestate.blackCanLongCastle = false;
+        if (move.moving_piece == 14 || move.start_sq == Board::Squares::h8) gamestate.blackCanShortCastle = false;
     }
 
     std::vector<Move> pseudoLegalMoves, legalMoves;
-    pseudoLegalMoves.reserve(200);
+    pseudoLegalMoves.reserve(218);
 
-    if (gamestate->player_to_move) {
-        friendlyPieces = gamestate->w_pieces;
-        enemyPieces = gamestate->b_pieces;
-        kingPos = gamestate->w_king;
+    U64 friendlyPieces, kingPos;
+    if (gamestate.player_to_move) {
+        friendlyPieces = gamestate.w_pieces;
+        kingPos = gamestate.w_king;
     } else {
-        friendlyPieces = gamestate->b_pieces;
-        enemyPieces = gamestate->w_pieces;
-        kingPos = gamestate->b_king;
+        friendlyPieces = gamestate.b_pieces;
+        kingPos = gamestate.b_king;
     }
 
-    U64 attackedSquares = FindAttackedSquares(*gamestate->bitboards, friendlyPieces, gamestate->all_pieces, gamestate->player_to_move);
+    U64 attackedSquares = FindAttackedSquares(gamestate, friendlyPieces, kingPos);
     U64 checkMask = (attackedSquares & kingPos) ? CreateCheckMask(gamestate, kingPos) : ~0ULL;
     FindPinnedPieces(gamestate);
 
@@ -93,20 +89,20 @@ std::vector<Move> MoveGenerator::GenerateLegalMoves(GAMESTATE* gamestate) {
     GenerateDiagonalSliderMoves(gamestate, pseudoLegalMoves, checkMask);
     GenerateOrthogonalSliderMoves(gamestate, pseudoLegalMoves, checkMask);
     GenerateKingMoves(gamestate, pseudoLegalMoves, attackedSquares);
-    pseudoLegalMoves.shrink_to_fit();
+
     legalMoves.reserve(pseudoLegalMoves.size());
 
     for (Move move : pseudoLegalMoves) {
-        if (1ULL << move.start_sq & gamestate->pinned_pieces) {
-            if (!(1ULL << move.end_sq & gamestate->pin_masks[move.start_sq])) {
+        if (1ULL << move.start_sq & gamestate.pinned_pieces) {
+            if (!(1ULL << move.end_sq & gamestate.pin_masks[move.start_sq])) {
                 continue;
             }
         }
         legalMoves.emplace_back(move);
     }
-    legalMoves.shrink_to_fit();
-    gamestate->whiteCanLongCastle = gamestate->whiteCanShortCastle =
-    gamestate->blackCanLongCastle = gamestate->blackCanShortCastle = true;
+
+    gamestate.whiteCanLongCastle = gamestate.whiteCanShortCastle =
+    gamestate.blackCanLongCastle = gamestate.blackCanShortCastle = true;
 
     //std::sort(legalMoves.begin(), legalMoves.end(), [](Move move1, Move move2) {
     //    return (move1.promise > move2.promise) * !(move1.moving_piece & 0b1000) +
@@ -116,18 +112,18 @@ std::vector<Move> MoveGenerator::GenerateLegalMoves(GAMESTATE* gamestate) {
     return legalMoves;
 }
 
-void MoveGenerator::GeneratePawnMoves(GAMESTATE* gamestate, std::vector<Move>& legalMoves, U64 checkMask) {
+void MoveGenerator::GeneratePawnMoves(const GAMESTATE& gamestate, std::vector<Move>& legalMoves, U64 checkMask) {
     U64 enemy_pieces, pawn_sqs, one_step, two_step, left_capt, right_capt, leftEnPassant = 0, leftEnPassantFrom, rightEnPassantFrom,
             one_step_from, two_step_from, left_capt_from, right_capt_from, rightEnPassant = 0, enPassantSquare = 0,
             promotion, promotion_from, promotion_capt_left, promotion_capt_left_from, promotion_capt_right, promotion_capt_right_from,
             checkMaskEnPassant = 0;
-    if (gamestate->player_to_move) {
-        pawn_sqs = gamestate->w_pawn;
-        enemy_pieces = gamestate->b_pieces;
-        if (gamestate->move_log.size()) {
-            if (gamestate->move_log.back().flags == MoveFlags::doublePawnPush) {
-                if (gamestate->move_log.back().flags == MoveFlags::doublePawnPush) {
-                    enPassantSquare = (1ULL << gamestate->move_log.back().end_sq) << 8;
+    if (gamestate.player_to_move) {
+        pawn_sqs = gamestate.w_pawn;
+        enemy_pieces = gamestate.b_pieces;
+        if (!gamestate.move_log.empty()) {
+            if (gamestate.move_log.back().flags == MoveFlags::doublePawnPush) {
+                if (gamestate.move_log.back().flags == MoveFlags::doublePawnPush) {
+                    enPassantSquare = (1ULL << gamestate.move_log.back().end_sq) << 8;
                     if ((enPassantSquare >> 8) & checkMask) checkMaskEnPassant = enPassantSquare;
                     leftEnPassant =
                             (pawn_sqs & ~Board::Files::aFile) << 7 & enPassantSquare & (checkMask | checkMaskEnPassant);
@@ -139,12 +135,12 @@ void MoveGenerator::GeneratePawnMoves(GAMESTATE* gamestate, std::vector<Move>& l
             }
         }
 
-        one_step = (pawn_sqs & ~Board::Ranks::rank_7) << 8 & gamestate->empty_sqs & checkMask;
-        two_step = (pawn_sqs & (Board::Ranks::rank_3 & gamestate->empty_sqs) >> 8) << 16 & gamestate->empty_sqs &
+        one_step = (pawn_sqs & ~Board::Ranks::rank_7) << 8 & gamestate.empty_sqs & checkMask;
+        two_step = (pawn_sqs & (Board::Ranks::rank_3 & gamestate.empty_sqs) >> 8) << 16 & gamestate.empty_sqs &
                    checkMask;
         left_capt = (pawn_sqs & ~Board::Files::aFile & ~Board::Ranks::rank_7) << 7 & enemy_pieces & checkMask;
         right_capt = (pawn_sqs & ~Board::Files::hFile & ~Board::Ranks::rank_7) << 9 & enemy_pieces & checkMask;
-        promotion = (pawn_sqs & Board::Ranks::rank_7) << 8 & gamestate->empty_sqs & checkMask;
+        promotion = (pawn_sqs & Board::Ranks::rank_7) << 8 & gamestate.empty_sqs & checkMask;
         promotion_capt_left =
                 (pawn_sqs & ~Board::Files::aFile & Board::Ranks::rank_7) << 7 & enemy_pieces & checkMask;
         promotion_capt_right =
@@ -159,12 +155,12 @@ void MoveGenerator::GeneratePawnMoves(GAMESTATE* gamestate, std::vector<Move>& l
         promotion_capt_right_from = promotion_capt_right >> 9;
 
     } else {
-        pawn_sqs = gamestate->b_pawn;
-        enemy_pieces = gamestate->w_pieces;
-        if (gamestate->move_log.size()) {
-            if (gamestate->move_log.back().flags == MoveFlags::doublePawnPush) {
-                if (gamestate->move_log.back().flags == MoveFlags::doublePawnPush) {
-                    enPassantSquare = (1ULL << gamestate->move_log.back().end_sq) >> 8;
+        pawn_sqs = gamestate.b_pawn;
+        enemy_pieces = gamestate.w_pieces;
+        if (!gamestate.move_log.empty()) {
+            if (gamestate.move_log.back().flags == MoveFlags::doublePawnPush) {
+                if (gamestate.move_log.back().flags == MoveFlags::doublePawnPush) {
+                    enPassantSquare = (1ULL << gamestate.move_log.back().end_sq) >> 8;
                     if ((enPassantSquare << 8) & checkMask) checkMaskEnPassant = enPassantSquare;
                     leftEnPassant |= (pawn_sqs & ~Board::Files::hFile) >> 7 & (enPassantSquare) &
                                      (checkMask | checkMaskEnPassant);
@@ -175,12 +171,12 @@ void MoveGenerator::GeneratePawnMoves(GAMESTATE* gamestate, std::vector<Move>& l
                 }
             }
         }
-        one_step = (pawn_sqs & ~Board::Ranks::rank_2) >> 8 & gamestate->empty_sqs & checkMask;
-        two_step = (pawn_sqs & (Board::Ranks::rank_6 & gamestate->empty_sqs) << 8) >> 16 & gamestate->empty_sqs &
+        one_step = (pawn_sqs & ~Board::Ranks::rank_2) >> 8 & gamestate.empty_sqs & checkMask;
+        two_step = (pawn_sqs & (Board::Ranks::rank_6 & gamestate.empty_sqs) << 8) >> 16 & gamestate.empty_sqs &
                    checkMask;
         left_capt = (pawn_sqs & ~Board::Files::hFile & ~Board::Ranks::rank_2) >> 7 & enemy_pieces & checkMask;
         right_capt = (pawn_sqs & ~Board::Files::aFile & ~Board::Ranks::rank_2) >> 9 & enemy_pieces & checkMask;
-        promotion = (pawn_sqs & Board::Ranks::rank_2) >> 8 & gamestate->empty_sqs & checkMask;
+        promotion = (pawn_sqs & Board::Ranks::rank_2) >> 8 & gamestate.empty_sqs & checkMask;
         promotion_capt_left =
                 (pawn_sqs & ~Board::Files::hFile & Board::Ranks::rank_2) >> 7 & enemy_pieces & checkMask;
         promotion_capt_right =
@@ -195,59 +191,47 @@ void MoveGenerator::GeneratePawnMoves(GAMESTATE* gamestate, std::vector<Move>& l
         promotion_capt_right_from = promotion_capt_right << 9;
     }
 
-    while (one_step)
-        legalMoves.emplace_back(BitUtils::popLSB(one_step_from), BitUtils::popLSB(one_step), gamestate);
-    while (two_step)
-        legalMoves.emplace_back(BitUtils::popLSB(two_step_from), BitUtils::popLSB(two_step), gamestate,
-                                MoveFlags::doublePawnPush);
-    while (two_step)
-        legalMoves.emplace_back(BitUtils::popLSB(two_step_from), BitUtils::popLSB(two_step), gamestate,
-                                MoveFlags::doublePawnPush);
-    while (left_capt)
-        legalMoves.emplace_back(BitUtils::popLSB(left_capt_from), BitUtils::popLSB(left_capt), gamestate);
-    while (right_capt)
-        legalMoves.emplace_back(BitUtils::popLSB(right_capt_from), BitUtils::popLSB(right_capt), gamestate);
-    while (leftEnPassant)
-        legalMoves.emplace_back(BitUtils::popLSB(leftEnPassantFrom), BitUtils::popLSB(leftEnPassant), gamestate,
-                                MoveFlags::enPassant);
-    while (rightEnPassant)
-        legalMoves.emplace_back(BitUtils::popLSB(rightEnPassantFrom), BitUtils::popLSB(rightEnPassant), gamestate,
-                                MoveFlags::enPassant);
+    while (one_step) legalMoves.emplace_back(BitUtils::popLSB(one_step_from), BitUtils::popLSB(one_step), gamestate);
+    while (two_step) legalMoves.emplace_back(BitUtils::popLSB(two_step_from), BitUtils::popLSB(two_step), gamestate, MoveFlags::doublePawnPush);
+    while (left_capt) legalMoves.emplace_back(BitUtils::popLSB(left_capt_from), BitUtils::popLSB(left_capt), gamestate, MoveFlags::capture);
+    while (right_capt) legalMoves.emplace_back(BitUtils::popLSB(right_capt_from), BitUtils::popLSB(right_capt), gamestate, MoveFlags::capture);
+    while (leftEnPassant) legalMoves.emplace_back(BitUtils::popLSB(leftEnPassantFrom), BitUtils::popLSB(leftEnPassant), gamestate, MoveFlags::enPassant);
+    while (rightEnPassant) legalMoves.emplace_back(BitUtils::popLSB(rightEnPassantFrom), BitUtils::popLSB(rightEnPassant), gamestate, MoveFlags::enPassant);
     while (promotion) {
-        int from_sq = BitUtils::popLSB(promotion_from);
-        int to_sq = BitUtils::popLSB(promotion);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::knightPromotion);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::bishopPromotion);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::rookPromotion);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::queenPromotion);
+        int fromSquare = BitUtils::popLSB(promotion_from);
+        int toSquare = BitUtils::popLSB(promotion);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::knightPromotion);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::bishopPromotion);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::rookPromotion);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::queenPromotion);
     }
     while (promotion_capt_left) {
-        int from_sq = BitUtils::popLSB(promotion_capt_left_from);
-        int to_sq = BitUtils::popLSB(promotion_capt_left);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::knightPromoCapt);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::bishopPromoCapt);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::rookPromoCapt);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::queenPromoCapt);
+        int fromSquare = BitUtils::popLSB(promotion_capt_left_from);
+        int toSquare = BitUtils::popLSB(promotion_capt_left);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::knightPromoCapt);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::bishopPromoCapt);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::rookPromoCapt);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::queenPromoCapt);
     }
     while (promotion_capt_right) {
-        int from_sq = BitUtils::popLSB(promotion_capt_right_from);
-        int to_sq = BitUtils::popLSB(promotion_capt_right);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::knightPromoCapt);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::bishopPromoCapt);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::rookPromoCapt);
-        legalMoves.emplace_back(from_sq, to_sq, gamestate, MoveFlags::queenPromoCapt);
+        int fromSquare = BitUtils::popLSB(promotion_capt_right_from);
+        int toSquare = BitUtils::popLSB(promotion_capt_right);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::knightPromoCapt);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::bishopPromoCapt);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::rookPromoCapt);
+        legalMoves.emplace_back(fromSquare, toSquare, gamestate, MoveFlags::queenPromoCapt);
     }
 }
 
-void MoveGenerator::GenerateKnightMoves(GAMESTATE* gamestate, std::vector<Move>& legalMoves, U64 checkMask) {
+void MoveGenerator::GenerateKnightMoves(const GAMESTATE& gamestate, std::vector<Move>& legalMoves, U64 checkMask) {
     U64 friendly_pieces, to_squares, knight_sqs;
     int knightSq;
-    if (gamestate->player_to_move) {
-        knight_sqs = gamestate->w_knight;
-        friendly_pieces = gamestate->w_pieces;
+    if (gamestate.player_to_move) {
+        knight_sqs = gamestate.w_knight;
+        friendly_pieces = gamestate.w_pieces;
     } else {
-        knight_sqs = gamestate->b_knight;
-        friendly_pieces = gamestate->b_pieces;
+        knight_sqs = gamestate.b_knight;
+        friendly_pieces = gamestate.b_pieces;
     }
 
     while (knight_sqs) {
@@ -257,26 +241,26 @@ void MoveGenerator::GenerateKnightMoves(GAMESTATE* gamestate, std::vector<Move>&
     }
 }
 
-void MoveGenerator::GenerateDiagonalSliderMoves(GAMESTATE* gamestate, std::vector<Move>& legalMoves, U64 checkMask) {
+void MoveGenerator::GenerateDiagonalSliderMoves(const GAMESTATE& gamestate, std::vector<Move>& legalMoves, U64 checkMask) {
     U64 friendly_pieces, sliders, northwest, southwest, northeast, southeast,
             most_significant_bit, difference, target_squares = 0;
     int slider;
 
-    if (gamestate->player_to_move) {
-        friendly_pieces = gamestate->w_pieces;
-        sliders = gamestate->w_bishop | gamestate->w_queen;
+    if (gamestate.player_to_move) {
+        friendly_pieces = gamestate.w_pieces;
+        sliders = gamestate.w_bishop | gamestate.w_queen;
     } else {
-        friendly_pieces = gamestate->b_pieces;
-        sliders = gamestate->b_bishop | gamestate->b_queen;
+        friendly_pieces = gamestate.b_pieces;
+        sliders = gamestate.b_bishop | gamestate.b_queen;
     }
 
     while (sliders) {
         slider = BitUtils::popLSB(sliders);
 
-        northwest = gamestate->all_pieces & MovementTables::bishopMoves[slider][0];
-        southeast = gamestate->all_pieces & MovementTables::bishopMoves[slider][2];
-        northeast = gamestate->all_pieces & MovementTables::bishopMoves[slider][1];
-        southwest = gamestate->all_pieces & MovementTables::bishopMoves[slider][3];
+        northwest = gamestate.all_pieces & MovementTables::bishopMoves[slider][0];
+        southeast = gamestate.all_pieces & MovementTables::bishopMoves[slider][2];
+        northeast = gamestate.all_pieces & MovementTables::bishopMoves[slider][1];
+        southwest = gamestate.all_pieces & MovementTables::bishopMoves[slider][3];
 
         most_significant_bit = BitUtils::getMSB(southeast);
         difference = northwest ^ (northwest - most_significant_bit);
@@ -290,25 +274,25 @@ void MoveGenerator::GenerateDiagonalSliderMoves(GAMESTATE* gamestate, std::vecto
     }
 }
 
-void MoveGenerator::GenerateOrthogonalSliderMoves(GAMESTATE* gamestate, std::vector<Move>& legalMoves, U64 checkMask) {
+void MoveGenerator::GenerateOrthogonalSliderMoves(const GAMESTATE& gamestate, std::vector<Move>& legalMoves, U64 checkMask) {
     U64 friendly_pieces, sliders, north, south, east, west, most_significant_bit, difference, target_squares = 0;
     int slider;
 
-    if (gamestate->player_to_move) {
-        friendly_pieces = gamestate->w_pieces;
-        sliders = gamestate->w_rook | gamestate->w_queen;
+    if (gamestate.player_to_move) {
+        friendly_pieces = gamestate.w_pieces;
+        sliders = gamestate.w_rook | gamestate.w_queen;
     } else {
-        friendly_pieces = gamestate->b_pieces;
-        sliders = gamestate->b_rook | gamestate->b_queen;
+        friendly_pieces = gamestate.b_pieces;
+        sliders = gamestate.b_rook | gamestate.b_queen;
     }
 
     while(sliders) {
         slider = BitUtils::popLSB(sliders);
 
-        north = gamestate->all_pieces & MovementTables::rookMoves[slider][0];
-        south = gamestate->all_pieces & MovementTables::rookMoves[slider][2];
-        east = gamestate->all_pieces & MovementTables::rookMoves[slider][1];
-        west = gamestate->all_pieces & MovementTables::rookMoves[slider][3];
+        north = gamestate.all_pieces & MovementTables::rookMoves[slider][0];
+        south = gamestate.all_pieces & MovementTables::rookMoves[slider][2];
+        east = gamestate.all_pieces & MovementTables::rookMoves[slider][1];
+        west = gamestate.all_pieces & MovementTables::rookMoves[slider][3];
 
         most_significant_bit = BitUtils::getMSB(south);
         difference = north ^ (north - most_significant_bit);
@@ -322,32 +306,32 @@ void MoveGenerator::GenerateOrthogonalSliderMoves(GAMESTATE* gamestate, std::vec
     }
 }
 
-void MoveGenerator::GenerateKingMoves(GAMESTATE* gamestate, std::vector<Move>& legalMoves, U64 enemyAttacks) {
+void MoveGenerator::GenerateKingMoves(const GAMESTATE& gamestate, std::vector<Move>& legalMoves, U64 enemyAttacks) {
     int king_sq;
     U64 friendly_pieces, to_squares;
-    if (gamestate->player_to_move) {
-        king_sq = BitUtils::getLSB(gamestate->w_king);
-        friendly_pieces = gamestate->w_pieces;
-        if (gamestate->whiteCanShortCastle && gamestate->mailbox[Board::Squares::h1] == 4 && king_sq == Board::Squares::e1 &&
-        gamestate->empty_sqs & 1ULL << Board::Squares::f1 && gamestate->empty_sqs & 1ULL << Board::Squares::g1 &&
+    if (gamestate.player_to_move) {
+        king_sq = BitUtils::getLSB(gamestate.w_king);
+        friendly_pieces = gamestate.w_pieces;
+        if (gamestate.whiteCanShortCastle && gamestate.mailbox[Board::Squares::h1] == 4 && king_sq == Board::Squares::e1 &&
+        gamestate.empty_sqs & 1ULL << Board::Squares::f1 && gamestate.empty_sqs & 1ULL << Board::Squares::g1 &&
         !(enemyAttacks & 1ULL << Board::Squares::e1) && !(enemyAttacks & 1ULL << Board::Squares::f1) && !(enemyAttacks & 1ULL << Board::Squares::g1)) {
             legalMoves.emplace_back(king_sq, Board::Squares::g1, gamestate, MoveFlags::shortCastle);
         }
-        if (gamestate->whiteCanLongCastle && gamestate->mailbox[Board::Squares::a1] == 4 && king_sq == Board::Squares::e1 &&
-        gamestate->empty_sqs & 1ULL << Board::Squares::d1 && gamestate->empty_sqs & 1ULL << Board::Squares::c1 && gamestate->empty_sqs & 1ULL << Board::Squares::b1 &&
+        if (gamestate.whiteCanLongCastle && gamestate.mailbox[Board::Squares::a1] == 4 && king_sq == Board::Squares::e1 &&
+        gamestate.empty_sqs & 1ULL << Board::Squares::d1 && gamestate.empty_sqs & 1ULL << Board::Squares::c1 && gamestate.empty_sqs & 1ULL << Board::Squares::b1 &&
         !(enemyAttacks & 1ULL << Board::Squares::e1) && !(enemyAttacks & 1ULL << Board::Squares::d1) && !(enemyAttacks & 1ULL << Board::Squares::c1)) {
             legalMoves.emplace_back(king_sq, Board::Squares::c1, gamestate, MoveFlags::longCastle);
         }
     } else {
-        king_sq = BitUtils::getLSB(gamestate->b_king);
-        friendly_pieces = gamestate->b_pieces;
-        if (gamestate->blackCanShortCastle && gamestate->mailbox[Board::Squares::h8] == 12 && king_sq == Board::Squares::e8 &&
-            gamestate->empty_sqs & 1ULL << Board::Squares::f8 && gamestate->empty_sqs & 1ULL << Board::Squares::g8 &&
+        king_sq = BitUtils::getLSB(gamestate.b_king);
+        friendly_pieces = gamestate.b_pieces;
+        if (gamestate.blackCanShortCastle && gamestate.mailbox[Board::Squares::h8] == 12 && king_sq == Board::Squares::e8 &&
+            gamestate.empty_sqs & 1ULL << Board::Squares::f8 && gamestate.empty_sqs & 1ULL << Board::Squares::g8 &&
             !(enemyAttacks & 1ULL << Board::Squares::e8) && !(enemyAttacks & 1ULL << Board::Squares::f8) && !(enemyAttacks & 1ULL << Board::Squares::g8)) {
             legalMoves.emplace_back(king_sq, Board::Squares::g8, gamestate, MoveFlags::shortCastle);
         }
-        if (gamestate->blackCanLongCastle && gamestate->mailbox[Board::Squares::a8] == 12 && king_sq == Board::Squares::e8 &&
-        gamestate->empty_sqs & 1ULL << Board::Squares::d8 && gamestate->empty_sqs & 1ULL << Board::Squares::c8 && gamestate->empty_sqs & 1ULL << Board::Squares::b8 &&
+        if (gamestate.blackCanLongCastle && gamestate.mailbox[Board::Squares::a8] == 12 && king_sq == Board::Squares::e8 &&
+        gamestate.empty_sqs & 1ULL << Board::Squares::d8 && gamestate.empty_sqs & 1ULL << Board::Squares::c8 && gamestate.empty_sqs & 1ULL << Board::Squares::b8 &&
         !(enemyAttacks & 1ULL << Board::Squares::e8) && !(enemyAttacks & 1ULL << Board::Squares::d8) && !(enemyAttacks & 1ULL << Board::Squares::c8)) {
             legalMoves.emplace_back(king_sq, Board::Squares::c8, gamestate, MoveFlags::longCastle);
         }
@@ -359,23 +343,23 @@ void MoveGenerator::GenerateKingMoves(GAMESTATE* gamestate, std::vector<Move>& l
     }
 }
 
-U64 MoveGenerator::CreateCheckMask(GAMESTATE* gamestate, U64 kingPos)  {
+U64 MoveGenerator::CreateCheckMask(const GAMESTATE& gamestate, U64 kingPos)  {
     int kingSquare = BitUtils::getLSB(kingPos);
 
     U64 checkMask, orthogonalSliders, diagonalSliders, mostSignificantBit, difference, attacks = 0,
         north, south, east, west, northeast, northwest, southeast, southwest;
 
-    if (gamestate->player_to_move) {
-        checkMask = ((gamestate->b_pawn & ~Board::Files::hFile) >> 7 & kingPos) << 7 |
-                    ((gamestate->b_pawn & ~Board::Files::aFile) >> 9 & kingPos) << 9;
+    if (gamestate.player_to_move) {
+        checkMask = ((gamestate.b_pawn & ~Board::Files::hFile) >> 7 & kingPos) << 7 |
+                    ((gamestate.b_pawn & ~Board::Files::aFile) >> 9 & kingPos) << 9;
 
-        checkMask |= MovementTables::knightMoves[kingSquare] & gamestate->b_knight;
+        checkMask |= MovementTables::knightMoves[kingSquare] & gamestate.b_knight;
 
-        diagonalSliders = gamestate->b_bishop | gamestate->b_queen;
-        northwest = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][0];
-        southeast = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][2];
-        northeast = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][1];
-        southwest = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][3];
+        diagonalSliders = gamestate.b_bishop | gamestate.b_queen;
+        northwest = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][0];
+        southeast = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][2];
+        northeast = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][1];
+        southwest = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][3];
 
         mostSignificantBit = BitUtils::getMSB(southeast);
         difference = northwest ^ (northwest - mostSignificantBit);
@@ -393,11 +377,11 @@ U64 MoveGenerator::CreateCheckMask(GAMESTATE* gamestate, U64 kingPos)  {
         }
 
         attacks = 0;
-        orthogonalSliders = gamestate->b_rook | gamestate->b_queen;
-        north = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][0];
-        south = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][2];
-        east = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][1];
-        west = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][3];
+        orthogonalSliders = gamestate.b_rook | gamestate.b_queen;
+        north = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][0];
+        south = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][2];
+        east = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][1];
+        west = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][3];
 
         mostSignificantBit = BitUtils::getMSB(south);
         difference = north ^ (north - mostSignificantBit);
@@ -414,16 +398,16 @@ U64 MoveGenerator::CreateCheckMask(GAMESTATE* gamestate, U64 kingPos)  {
             return BitMasks::segmentMask(kingSquare, BitUtils::getLSB(orthogonalSliders & attacks));
         }
     } else {
-        checkMask = ((gamestate->w_pawn & ~Board::Files::hFile) << 9 & kingPos) >> 9 |
-                    ((gamestate->w_pawn & ~Board::Files::aFile) << 7 & kingPos) >> 7;
+        checkMask = ((gamestate.w_pawn & ~Board::Files::hFile) << 9 & kingPos) >> 9 |
+                    ((gamestate.w_pawn & ~Board::Files::aFile) << 7 & kingPos) >> 7;
 
-        checkMask |= MovementTables::knightMoves[kingSquare] & gamestate->w_knight;
+        checkMask |= MovementTables::knightMoves[kingSquare] & gamestate.w_knight;
 
-        diagonalSliders = gamestate->w_bishop | gamestate->w_queen;
-        northwest = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][0];
-        southeast = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][2];
-        northeast = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][1];
-        southwest = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][3];
+        diagonalSliders = gamestate.w_bishop | gamestate.w_queen;
+        northwest = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][0];
+        southeast = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][2];
+        northeast = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][1];
+        southwest = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][3];
 
         mostSignificantBit = BitUtils::getMSB(southeast);
         difference = northwest ^ (northwest - mostSignificantBit);
@@ -441,11 +425,11 @@ U64 MoveGenerator::CreateCheckMask(GAMESTATE* gamestate, U64 kingPos)  {
         }
 
         attacks = 0;
-        orthogonalSliders = gamestate->w_rook | gamestate->w_queen;
-        north = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][0];
-        south = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][2];
-        east = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][1];
-        west = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][3];
+        orthogonalSliders = gamestate.w_rook | gamestate.w_queen;
+        north = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][0];
+        south = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][2];
+        east = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][1];
+        west = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][3];
 
         mostSignificantBit = BitUtils::getMSB(south);
         difference = north ^ (north - mostSignificantBit);
@@ -465,19 +449,26 @@ U64 MoveGenerator::CreateCheckMask(GAMESTATE* gamestate, U64 kingPos)  {
     return checkMask;
 }
 
-U64 MoveGenerator::FindAttackedSquares(U64* bitboards, U64 friendlyPieces, U64 allPieces, int playerToMove) {
-    U64 attacks, orthogonalSliders, diagonalSliders, enemyKnights,
+U64 MoveGenerator::FindAttackedSquares(const GAMESTATE& gamestate, U64 friendlyPieces, U64 kingPos) {
+    U64 attacks, orthogonalSliders, diagonalSliders, enemyKnights, allPieces,
         north, south, east, west, northeast, northwest, southeast, southwest, mostSignificantBit, difference;
     int slider;
 
-    allPieces = allPieces ^ (friendlyPieces & (bitboards[5] | bitboards[11]));
-    enemyKnights = (bitboards[1] | bitboards[7]) & ~friendlyPieces;
-    diagonalSliders = (bitboards[2] | bitboards[4] | bitboards[8] | bitboards[10]) & ~friendlyPieces;
-    orthogonalSliders =(bitboards[3] | bitboards[4] | bitboards[9] | bitboards[10]) & ~friendlyPieces;
+    if (gamestate.player_to_move) {
+        attacks = (*gamestate.bitboards[6] & ~Board::Files::hFile) >> 7 | (*gamestate.bitboards[6] & ~Board::Files::aFile) >> 9;
+        friendlyPieces = gamestate.w_pieces;
+        kingPos = gamestate.w_king;
+    } else {
+        attacks = (*gamestate.bitboards[0] & ~Board::Files::aFile) << 7 | (*gamestate.bitboards[0] & ~Board::Files::hFile) << 9;
+        friendlyPieces = gamestate.b_pieces;
+        kingPos = gamestate.b_king;
+    }
 
-    playerToMove ?
-            attacks = (bitboards[6] & ~Board::Files::hFile) >> 7 | (bitboards[6] & ~Board::Files::aFile) >> 9 :
-            attacks = (bitboards[0] & ~Board::Files::aFile) << 7 | (bitboards[0] & ~Board::Files::hFile) << 9;
+    allPieces = gamestate.all_pieces ^ kingPos;
+    enemyKnights = (*gamestate.bitboards[1] | *gamestate.bitboards[7]) & ~friendlyPieces;
+    diagonalSliders = (*gamestate.bitboards[2] | *gamestate.bitboards[4] | *gamestate.bitboards[8] | *gamestate.bitboards[10]) & ~friendlyPieces;
+    orthogonalSliders =(*gamestate.bitboards[3] | *gamestate.bitboards[4] | *gamestate.bitboards[9] | *gamestate.bitboards[10]) & ~friendlyPieces;
+
     while (enemyKnights) attacks |= MovementTables::knightMoves[BitUtils::popLSB(enemyKnights)];
     while (diagonalSliders) {
         slider = BitUtils::popLSB(diagonalSliders);
@@ -511,29 +502,29 @@ U64 MoveGenerator::FindAttackedSquares(U64* bitboards, U64 friendlyPieces, U64 a
         difference = east ^ (east - mostSignificantBit);
         attacks |= difference & MovementTables::rookMoves[slider][5];
     }
-    attacks |= MovementTables::kingMoves[BitUtils::getLSB(~friendlyPieces & (bitboards[5] | bitboards[11]))];
+    attacks |= MovementTables::kingMoves[BitUtils::getLSB(~friendlyPieces & (*gamestate.bitboards[5] | *gamestate.bitboards[11]))];
 
     return attacks;
 }
 
-void MoveGenerator::FindPinnedPieces(GAMESTATE* gamestate) {
-    gamestate->pinned_pieces = 0;
+void MoveGenerator::FindPinnedPieces(GAMESTATE& gamestate) {
+    gamestate.pinned_pieces = 0;
 
-    U64 kingPos = (gamestate->player_to_move) ? gamestate->w_king : gamestate->b_king;
+    U64 kingPos = (gamestate.player_to_move) ? gamestate.w_king : gamestate.b_king;
     int kingSquare = BitUtils::getLSB(kingPos), potentialPinnedPiece;
     U64 friendlyPieces, enemyDiagonalSliders, enemyOrthogonalSliders, mostSignificantBit, difference, attacks = 0,
         north, south, east, west, northeast, northwest, southeast, southwest, xRayedSquare, enPassantRank,
         potentialPins;
 
-    friendlyPieces = *gamestate->armies[gamestate->player_to_move];
-    enemyDiagonalSliders = (gamestate->w_bishop | gamestate->w_queen | gamestate->b_bishop | gamestate->b_queen) & ~friendlyPieces;
-    enemyOrthogonalSliders =(gamestate->w_rook | gamestate->w_queen | gamestate->b_rook | gamestate->b_queen) & ~friendlyPieces;
-    enPassantRank = gamestate->player_to_move ? Board::Ranks::rank_5 : Board::Ranks::rank_4;
+    friendlyPieces = *gamestate.armies[gamestate.player_to_move];
+    enemyDiagonalSliders = (gamestate.w_bishop | gamestate.w_queen | gamestate.b_bishop | gamestate.b_queen) & ~friendlyPieces;
+    enemyOrthogonalSliders =(gamestate.w_rook | gamestate.w_queen | gamestate.b_rook | gamestate.b_queen) & ~friendlyPieces;
+    enPassantRank = gamestate.player_to_move ? Board::Ranks::rank_5 : Board::Ranks::rank_4;
 
-    northwest = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][0];
-    southeast = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][2];
-    northeast = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][1];
-    southwest = gamestate->all_pieces & MovementTables::bishopMoves[kingSquare][3];
+    northwest = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][0];
+    southeast = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][2];
+    northeast = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][1];
+    southwest = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][3];
 
     mostSignificantBit = BitUtils::getMSB(southeast);
     difference = northwest ^ (northwest - mostSignificantBit);
@@ -545,18 +536,18 @@ void MoveGenerator::FindPinnedPieces(GAMESTATE* gamestate) {
     potentialPins = attacks & friendlyPieces;
     while (potentialPins) {
         potentialPinnedPiece = BitUtils::popLSB(potentialPins);
-        xRayedSquare = BitMasks::xRay(kingSquare, potentialPinnedPiece, gamestate->all_pieces);
+        xRayedSquare = BitMasks::xRay(kingSquare, potentialPinnedPiece, gamestate.all_pieces);
         if (xRayedSquare & enemyDiagonalSliders) {
-            gamestate->pinned_pieces |= 1ULL << potentialPinnedPiece;
-            gamestate->pin_masks[potentialPinnedPiece] = BitMasks::segmentMask(kingSquare, BitUtils::getLSB(xRayedSquare));
+            gamestate.pinned_pieces |= 1ULL << potentialPinnedPiece;
+            gamestate.pin_masks[potentialPinnedPiece] = BitMasks::segmentMask(kingSquare, BitUtils::getLSB(xRayedSquare));
         }
     }
 
     attacks = 0;
-    north = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][0];
-    south = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][2];
-    east = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][1];
-    west = gamestate->all_pieces & MovementTables::rookMoves[kingSquare][3];
+    north = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][0];
+    south = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][2];
+    east = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][1];
+    west = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][3];
 
     mostSignificantBit = BitUtils::getMSB(south);
     difference = north ^ (north - mostSignificantBit);
@@ -568,39 +559,39 @@ void MoveGenerator::FindPinnedPieces(GAMESTATE* gamestate) {
     potentialPins = attacks & friendlyPieces;
     while (potentialPins) {
         potentialPinnedPiece = BitUtils::popLSB(potentialPins);
-        xRayedSquare = BitMasks::xRay(kingSquare, potentialPinnedPiece, gamestate->all_pieces);
+        xRayedSquare = BitMasks::xRay(kingSquare, potentialPinnedPiece, gamestate.all_pieces);
         if (xRayedSquare & enemyOrthogonalSliders) {
-            gamestate->pinned_pieces |= 1ULL << potentialPinnedPiece;
-            gamestate->pin_masks[potentialPinnedPiece] = BitMasks::segmentMask(kingSquare, BitUtils::getLSB(xRayedSquare));
+            gamestate.pinned_pieces |= 1ULL << potentialPinnedPiece;
+            gamestate.pin_masks[potentialPinnedPiece] = BitMasks::segmentMask(kingSquare, BitUtils::getLSB(xRayedSquare));
         }
     }
 
-    if (gamestate->move_log.size()) {
-        if (gamestate->move_log.back().flags & MoveFlags::doublePawnPush &&
+    if (!gamestate.move_log.empty()) {
+        if (gamestate.move_log.back().flags & MoveFlags::doublePawnPush &&
             kingPos & enPassantRank &&
-            friendlyPieces & (gamestate->w_pawn | gamestate->b_pawn) & enPassantRank &&
+            friendlyPieces & (gamestate.w_pawn | gamestate.b_pawn) & enPassantRank &&
             enemyOrthogonalSliders & enPassantRank) {
-            for (int potentialPinnedEnPassant : BitUtils::getBits(attacks & (gamestate->w_pawn | gamestate->b_pawn) & (east | west))) {
-                xRayedSquare = BitMasks::xRay(kingSquare, potentialPinnedEnPassant, gamestate->all_pieces);
-                U64 doubleXRayedSquare = BitMasks::xRay(potentialPinnedEnPassant, BitUtils::getLSB(xRayedSquare), gamestate->all_pieces);
-                if ((gamestate->mailbox[BitUtils::getLSB(xRayedSquare)] ^ gamestate->mailbox[potentialPinnedEnPassant]) & 8 &&
+            for (int potentialPinnedEnPassant : BitUtils::getBits(attacks & (gamestate.w_pawn | gamestate.b_pawn) & (east | west))) {
+                xRayedSquare = BitMasks::xRay(kingSquare, potentialPinnedEnPassant, gamestate.all_pieces);
+                U64 doubleXRayedSquare = BitMasks::xRay(potentialPinnedEnPassant, BitUtils::getLSB(xRayedSquare), gamestate.all_pieces);
+                if ((gamestate.mailbox[BitUtils::getLSB(xRayedSquare)] ^ gamestate.mailbox[potentialPinnedEnPassant]) & 8 &&
                     std::abs(BitUtils::getLSB(xRayedSquare) % 8 - potentialPinnedEnPassant % 8) == 1 &&
                     doubleXRayedSquare & enemyOrthogonalSliders)  {
-                    if (gamestate->player_to_move) {
-                        if (gamestate->mailbox[potentialPinnedEnPassant] & 8) {
-                            gamestate->pinned_pieces |= xRayedSquare;
-                            gamestate->pin_masks[BitUtils::getLSB(xRayedSquare)] = ~((1ULL << potentialPinnedEnPassant) << 8);
+                    if (gamestate.player_to_move) {
+                        if (gamestate.mailbox[potentialPinnedEnPassant] & 8) {
+                            gamestate.pinned_pieces |= xRayedSquare;
+                            gamestate.pin_masks[BitUtils::getLSB(xRayedSquare)] = ~((1ULL << potentialPinnedEnPassant) << 8);
                         } else {
-                            gamestate->pinned_pieces |= 1ULL << potentialPinnedEnPassant;
-                            gamestate->pin_masks[potentialPinnedEnPassant] = ~(xRayedSquare << 8);
+                            gamestate.pinned_pieces |= 1ULL << potentialPinnedEnPassant;
+                            gamestate.pin_masks[potentialPinnedEnPassant] = ~(xRayedSquare << 8);
                         }
                     } else {
-                        if (gamestate->mailbox[potentialPinnedEnPassant] & 8) {
-                            gamestate->pinned_pieces |= 1ULL << potentialPinnedEnPassant;
-                            gamestate->pin_masks[potentialPinnedEnPassant] = ~(xRayedSquare >> 8);
+                        if (gamestate.mailbox[potentialPinnedEnPassant] & 8) {
+                            gamestate.pinned_pieces |= 1ULL << potentialPinnedEnPassant;
+                            gamestate.pin_masks[potentialPinnedEnPassant] = ~(xRayedSquare >> 8);
                         } else {
-                            gamestate->pinned_pieces |= xRayedSquare;
-                            gamestate->pin_masks[BitUtils::getLSB(xRayedSquare)] = ~((1ULL << potentialPinnedEnPassant) >> 8);
+                            gamestate.pinned_pieces |= xRayedSquare;
+                            gamestate.pin_masks[BitUtils::getLSB(xRayedSquare)] = ~((1ULL << potentialPinnedEnPassant) >> 8);
                         }
                     }
                 }
@@ -619,7 +610,7 @@ void MoveGenerator::TestMoveGenerator() {
     float totalTime = 0, averageNPS;
 
     auto start = std::chrono::high_resolution_clock::now();
-    int position1nodes = createMoveTree(&position1, 5);
+    int position1nodes = createMoveTree(position1, 5);
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
     if (position1nodes != 4865609) {
@@ -631,7 +622,7 @@ void MoveGenerator::TestMoveGenerator() {
     totalTime += (duration.count() / pow(10, 9));
 
     start = std::chrono::high_resolution_clock::now();
-    int position2nodes = createMoveTree(&position2, 5);
+    int position2nodes = createMoveTree(position2, 5);
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
     if (position2nodes != 193690690) {
@@ -643,7 +634,7 @@ void MoveGenerator::TestMoveGenerator() {
     totalTime += (duration.count() / pow(10, 9));
 
     start = std::chrono::high_resolution_clock::now();
-    int position3nodes = createMoveTree(&position3, 5);
+    int position3nodes = createMoveTree(position3, 5);
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
     if (position3nodes != 674624) {
@@ -655,7 +646,7 @@ void MoveGenerator::TestMoveGenerator() {
     totalTime += (duration.count() / pow(10, 9));
 
     start = std::chrono::high_resolution_clock::now();
-    int position4nodes = createMoveTree(&position4, 5);
+    int position4nodes = createMoveTree(position4, 5);
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
     if (position4nodes != 15833292) {
@@ -667,7 +658,7 @@ void MoveGenerator::TestMoveGenerator() {
     totalTime += (duration.count() / pow(10, 9));
 
     start = std::chrono::high_resolution_clock::now();
-    int position5nodes = createMoveTree(&position5, 5);
+    int position5nodes = createMoveTree(position5, 5);
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
     if (position5nodes != 89941194) {
@@ -679,7 +670,7 @@ void MoveGenerator::TestMoveGenerator() {
     totalTime += (duration.count() / pow(10, 9));
 
     start = std::chrono::high_resolution_clock::now();
-    int position6nodes = createMoveTree(&position6, 5);
+    int position6nodes = createMoveTree(position6, 5);
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
     if (position6nodes != 164075551) {

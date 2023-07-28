@@ -139,7 +139,7 @@ void GUI::DrawIndicators(GAMESTATE* gamestate) {
 
 void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
     int selectedSquare = 8 * (7 - (event.y / SQ_SIZE)) + (event.x / SQ_SIZE);
-    std::vector<Move> legalMoves = MoveGenerator::GenerateLegalMoves(gamestate);
+    std::vector<Move> legalMoves = MoveGenerator::GenerateLegalMoves(*gamestate);
 
     if ((gamestate->empty_sqs & 1ULL << selectedSquare) && selectedSqs.empty()) {
         /* The user has selected an empty square */
@@ -163,7 +163,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
     if (selectedSqs.size() == 1) {
         /* The user selected a piece, check if the piece has any moves */
         moveIndicatorSqs.clear();
-        for (struct Move move: MoveGenerator::GenerateLegalMoves(gamestate)) {
+        for (struct Move move: MoveGenerator::GenerateLegalMoves(*gamestate)) {
             if (move.start_sq == selectedSquare) {
                 moveIndicatorSqs.push_back(move.end_sq);
             }
@@ -239,7 +239,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
         moveIndicatorSqs.clear();
         selectedSqs = {selectedSquare};
 
-        for (struct Move move: MoveGenerator::GenerateLegalMoves(gamestate)) {
+        for (struct Move move: MoveGenerator::GenerateLegalMoves(*gamestate)) {
             if (move.start_sq == selectedSquare) {
                 moveIndicatorSqs.push_back(move.end_sq);
             }

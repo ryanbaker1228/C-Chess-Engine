@@ -3,6 +3,7 @@
 //
 #include "gamestate.h"
 #include "move.h"
+#include "movegen.h"
 #include <iostream>
 
 

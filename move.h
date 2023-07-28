@@ -36,7 +36,8 @@ public:
     int promise;
     U64 sqs;
 
-    Move(int from_sq, int to_sq, GAMESTATE* gamestate, int moveFlag = MoveFlags::quietMove);
+    Move(int from_sq, int to_sq, const GAMESTATE& gamestate, int moveFlag = MoveFlags::quietMove);
+    Move(int from_sq, int to_sq, int movingPiece, int capturedPiece, int moveFlag = 0);
 
     bool operator < (Move move);
 

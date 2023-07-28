@@ -5,20 +5,6 @@
 #include "bitUtils.h"
 
 
-int BitUtils::getLSB(U64 number) {
-    return static_cast<int>(log2(number & -number));
-}
-
-U64 BitUtils::getMSB(U64 number) {
-    int leading_zero_count = 63 - static_cast<int>(floor(log2(number | 1)));
-    return (1ULL << 63) >> leading_zero_count;
-}
-
-int BitUtils::popLSB(U64& number) {
-    int least_significant_bit = static_cast<int>(log2(number & -number));
-    number &= number - 1;
-    return least_significant_bit;
-}
 
 std::vector<int> BitUtils::getBits(U64 number) {
     std::vector<int> sqs;

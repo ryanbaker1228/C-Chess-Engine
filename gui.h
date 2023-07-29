@@ -11,6 +11,25 @@
 #include <unordered_map>
 
 
+namespace BoardThemes {
+    struct ColorTheme {
+        SDL_Color lightSquareColor;
+        SDL_Color darkSquareColor;
+        SDL_Color lightHighlight;
+        SDL_Color darkHighlight;
+    };
+
+    inline ColorTheme brownTheme {{237, 217, 185, 255},
+                                  {174, 137, 104, 255},
+                                  {246, 235, 134, 255},
+                                  {215, 195, 94, 255}};
+
+    inline ColorTheme blueTheme = {{234, 232, 212, 255},
+                                   {83, 115, 150, 255},
+                                   {199, 215, 160, 255},
+                                   {153, 176, 126, 255}};
+}
+
 class GUI {
 public:
     GUI();
@@ -54,17 +73,5 @@ private:
     std::vector<int> selectedSqs;
     std::vector<int> moveIndicatorSqs;
 
-    SDL_Color lightSquareColor = { 0xed, 0xd9, 0xb9, 0xff };
-    SDL_Color darkSquareColor = { 0xae, 0x89, 0x68, 0xff };
-    SDL_Color lightHighlight = { 0xf6, 0xeb, 0x86, 0xff };
-    SDL_Color darkHighlight = { 0xd7, 0xc3, 0x5e, 0xff };
-
-
-    const int sq_colors[4][4] = {
-    //    R     G     B     A
-        {0xae, 0x89, 0x68, 0xff},       // Dark square color
-        {0xd7, 0xc3, 0x5e, 0xff},       // Dark square highlighted
-        {0xed, 0xd9, 0xb9, 0xff},       // Light square color
-        {0xf6, 0xeb, 0x86, 0xff}        // Light square highlighted
-    };
+    BoardThemes::ColorTheme theme = BoardThemes::blueTheme;
 };

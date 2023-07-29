@@ -45,7 +45,7 @@ void GUI::LoadTextures() {
                                     "full_indicator"}; // legal move to an occupied square
     for (int i = 0; i < 14; ++i) {
         std::string filepath = "../piece_images/" + pieces[i] + ".png";
-        SDL_Surface *piece_surface = IMG_Load(filepath.c_str());
+        SDL_Surface* piece_surface = IMG_Load(filepath.c_str());
         if (piece_surface == nullptr) {
             std::cout << "Failed to load image: " << filepath << ", Error: " << IMG_GetError() << std::endl;
             continue;  // Skip to the next iteration if loading fails
@@ -67,12 +67,12 @@ void GUI::DrawGame(GAMESTATE* gamestate) {
 void GUI::DrawBoard() {
     /* Draw a light square across the entire board then cover with dark squares */
     SDL_Rect board = { 0, 0, 8 * SQ_SIZE, 8 * SQ_SIZE };
-    SDL_Color color = lightSquareColor;
+    SDL_Color color = theme.lightSquareColor;
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &board);
 
     SDL_Rect renderDestination;
-    color = darkSquareColor;
+    color = theme.darkSquareColor;
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     int row, col;
     for (int square = 0; square < 64; ++square) {
@@ -92,9 +92,9 @@ void GUI::DrawBoard() {
         col = square % 8;
 
         if ((row + col) % 2) {
-            color = lightHighlight;
+            color = theme.lightHighlight;
         } else {
-            color = darkHighlight;
+            color = theme.darkHighlight;
         }
         renderDestination.w = renderDestination.h = SQ_SIZE;
         renderDestination.y = (7 - row) * SQ_SIZE;
@@ -291,8 +291,9 @@ void GUI::HandleKeyPress(SDL_Keycode key, GAMESTATE* gamestate) {
 int GUI::PollPromotion(int promotionSquare) {
     int row = promotionSquare / 8;
     int col = promotionSquare % 8;
-    int promotingPiece, queenDestSquare, knightDestSquare, rookDestSquare, bishopDestSquare, color;
+    int promotingPiece, queenDestSquare, knightDestSquare, rookDestSquare, bishopDestSquare;
     SDL_Rect queenDestination, knightDestination, rookDestination, bishopDestination, dimmingMask;
+    SDL_Color color;
 
     dimmingMask.h = dimmingMask.w = 8 * SQ_SIZE;
     dimmingMask.x = dimmingMask.y = 0;
@@ -321,15 +322,14 @@ int GUI::PollPromotion(int promotionSquare) {
         rookDestSquare = promotionSquare + 8 * 2;
         bishopDestSquare = promotionSquare + 8 * 3;
     }
-    color = 2 * ((row + col) % 2);
-    SDL_SetRenderDrawColor(renderer, sq_colors[color][0], sq_colors[color][1], sq_colors[color][2],
-                           sq_colors[color][3]);
+
+    color = (row + col) % 2 ? theme.lightSquareColor : theme.darkSquareColor;
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &queenDestination);
     SDL_RenderFillRect(renderer, &rookDestination);
 
-    color == 0 ? color = 2 : color = 0;
-    SDL_SetRenderDrawColor(renderer, sq_colors[color][0], sq_colors[color][1], sq_colors[color][2],
-                           sq_colors[color][3]);
+    color = (row + col) % 2 ? theme.darkSquareColor : theme.lightSquareColor;
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &knightDestination);
     SDL_RenderFillRect(renderer, &bishopDestination);
 

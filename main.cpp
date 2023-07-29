@@ -11,12 +11,7 @@ int main() {
     MoveGenerator::TestMoveGenerator();
     GUI gui;
     SDL_Event event;
-    GAMESTATE gamestate = GAMESTATE("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1");
-    //auto start = std::chrono::high_resolution_clock::now();
-    //std::cout << MoveSearch(&gamestate, 6, BLACK_WIN, WHITE_WIN) << std::endl;
-    //auto stop = std::chrono::high_resolution_clock::now();
-    //auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    //std::cout << float(duration.count()) / pow(10, 9) << std::endl;
+    GAMESTATE gamestate = GAMESTATE("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");;
 
     bool running = true;
     while (running) {

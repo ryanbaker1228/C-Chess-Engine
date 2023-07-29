@@ -24,6 +24,10 @@ namespace MoveGenerator {
     void GenerateOrthogonalSliderMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
     void GenerateKingMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 enemyAttacks);
 
+    inline int isCapture(const GAMESTATE& gamestate, const int endSquare) {
+        return MoveFlags::capture * (gamestate.mailbox[endSquare] > 0);
+    }
+
     void TestMoveGenerator();
 }
 

@@ -30,18 +30,9 @@ namespace MoveFlags {
 
 class Move {
 public:
-    int start_sq, end_sq;
-    int moving_piece, captured_piece;
-    int flags;
-    int promise;
-    U64 sqs;
+    int startSquare, endSquare, moveFlag;
 
-    Move(int from_sq, int to_sq, const GAMESTATE& gamestate, int moveFlag = MoveFlags::quietMove);
-    Move(int from_sq, int to_sq, int movingPiece, int capturedPiece, int moveFlag = 0);
-
-    bool operator < (Move move);
-
-    bool operator == (Move move);
+    Move(int fromSquare = 0, int toSquare = 0, int flag = MoveFlags::quietMove);
 };
 
 std::string AlgebraicNotation(Move move);

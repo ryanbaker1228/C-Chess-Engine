@@ -145,7 +145,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
         /* The user has selected an empty square */
         selectedSqs.clear();
         if (!gamestate->move_log.empty()) {
-            highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq};
+            highlightedSqs = {gamestate->move_log.back().startSquare, gamestate->move_log.back().endSquare};
         } else {
             highlightedSqs.clear();
         }
@@ -154,7 +154,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
         /* The user has selected a piece */
         selectedSqs.push_back(selectedSquare);
         if (!gamestate->move_log.empty()) {
-            highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq, selectedSquare};
+            highlightedSqs = {gamestate->move_log.back().startSquare, gamestate->move_log.back().endSquare, selectedSquare};
         } else {
             highlightedSqs = {selectedSquare};
         }
@@ -164,14 +164,14 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
         /* The user selected a piece, check if the piece has any moves */
         moveIndicatorSqs.clear();
         for (struct Move move: MoveGenerator::GenerateLegalMoves(*gamestate)) {
-            if (move.start_sq == selectedSquare) {
-                moveIndicatorSqs.push_back(move.end_sq);
+            if (move.startSquare == selectedSquare) {
+                moveIndicatorSqs.push_back(move.endSquare);
             }
         }
         if (moveIndicatorSqs.empty()) {
             /* The user has selected a piece that cannot move */
             if (!gamestate->move_log.empty()) {
-                highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq,
+                highlightedSqs = {gamestate->move_log.back().startSquare, gamestate->move_log.back().endSquare,
                                   selectedSquare};
             } else {
                 highlightedSqs = {selectedSquare};
@@ -188,7 +188,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
             selectedSqs.clear();
             moveIndicatorSqs.clear();
             if (!gamestate->move_log.empty()) {
-                highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq};
+                highlightedSqs = {gamestate->move_log.back().startSquare, gamestate->move_log.back().endSquare};
             } else {
                 highlightedSqs.clear();
             }
@@ -196,30 +196,30 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
         }
 
         for (struct Move move: legalMoves) {
-            if (move.start_sq == selectedSqs[0] && move.end_sq == selectedSqs[1]) {
-                if (move.flags & MoveFlags::promotion) {
-                    int promotionPiece = PollPromotion(move.end_sq);
+            if (move.startSquare == selectedSqs[0] && move.endSquare == selectedSqs[1]) {
+                if (move.moveFlag & MoveFlags::promotion) {
+                    int promotionPiece = PollPromotion(move.endSquare);
                     switch (promotionPiece) {
                         case 2:
                         case 10:
-                            move.flags |= MoveFlags::knightPromotion;
+                            move.moveFlag |= MoveFlags::knightPromotion;
                             break;
                         case 3:
                         case 11:
-                            move.flags |= MoveFlags::bishopPromotion;
+                            move.moveFlag |= MoveFlags::bishopPromotion;
                             break;
                         case 4:
                         case 12:
-                            move.flags |= MoveFlags::rookPromotion;
+                            move.moveFlag |= MoveFlags::rookPromotion;
                             break;
                         case 5:
                         case 13:
-                            move.flags |= MoveFlags::queenPromotion;
+                            move.moveFlag |= MoveFlags::queenPromotion;
                             break;
                         default:
                             if (!gamestate->move_log.empty()) {
-                                highlightedSqs = {gamestate->move_log.back().start_sq,
-                                                  gamestate->move_log.back().end_sq};
+                                highlightedSqs = {gamestate->move_log.back().startSquare,
+                                                  gamestate->move_log.back().endSquare};
                             } else {
                                 highlightedSqs.clear();
                             }
@@ -230,7 +230,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
                 }
                 gamestate->makeMove(move);
                 gamestate->backup_move_log.clear();
-                highlightedSqs = {move.start_sq, move.end_sq};
+                highlightedSqs = {move.startSquare, move.endSquare};
                 selectedSqs.clear();
                 moveIndicatorSqs.clear();
                 return;
@@ -240,8 +240,8 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
         selectedSqs = {selectedSquare};
 
         for (struct Move move: MoveGenerator::GenerateLegalMoves(*gamestate)) {
-            if (move.start_sq == selectedSquare) {
-                moveIndicatorSqs.push_back(move.end_sq);
+            if (move.startSquare == selectedSquare) {
+                moveIndicatorSqs.push_back(move.endSquare);
             }
         }
         if (moveIndicatorSqs.empty() && gamestate->empty_sqs & 1ULL << selectedSquare) {
@@ -251,7 +251,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
         auto uniqueIndicators = std::unique(moveIndicatorSqs.begin(), moveIndicatorSqs.end());
         moveIndicatorSqs.resize(std::distance(moveIndicatorSqs.begin(), uniqueIndicators));
         if (!gamestate->move_log.empty()) {
-            highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq, selectedSquare};
+            highlightedSqs = {gamestate->move_log.back().startSquare, gamestate->move_log.back().endSquare, selectedSquare};
         } else if (!(gamestate->empty_sqs & 1ULL << selectedSquare)) {
             highlightedSqs = {selectedSquare};
         } else {
@@ -266,7 +266,7 @@ void GUI::HandleKeyPress(SDL_Keycode key, GAMESTATE* gamestate) {
             if (!gamestate->move_log.empty()) {
                 gamestate->undoMove();
                 if (!gamestate->move_log.empty()) {
-                    highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq};
+                    highlightedSqs = {gamestate->move_log.back().startSquare, gamestate->move_log.back().endSquare};
                 } else {
                     highlightedSqs.clear();
                 }
@@ -278,7 +278,7 @@ void GUI::HandleKeyPress(SDL_Keycode key, GAMESTATE* gamestate) {
             if (!gamestate->backup_move_log.empty()) {
                 gamestate->makeMove(gamestate->backup_move_log.back());
                 gamestate->backup_move_log.pop_back();
-                highlightedSqs = {gamestate->move_log.back().start_sq, gamestate->move_log.back().end_sq};
+                highlightedSqs = {gamestate->move_log.back().startSquare, gamestate->move_log.back().endSquare};
                 moveIndicatorSqs.clear();
                 selectedSqs.clear();
             }

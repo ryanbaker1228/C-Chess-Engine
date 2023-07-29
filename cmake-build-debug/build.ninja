@@ -121,6 +121,13 @@ build CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o: CXX_COMPILER__Chess_Engine_Deb
   OBJECT_DIR = CMakeFiles/Chess_Engine.dir
   OBJECT_FILE_DIR = CMakeFiles/Chess_Engine.dir
 
+build CMakeFiles/Chess_Engine.dir/Search.cpp.o: CXX_COMPILER__Chess_Engine_Debug /Users/ryanbaker/CLionProjects/C++$ Chess$ Engine/Search.cpp || cmake_object_order_depends_target_Chess_Engine
+  DEP_FILE = CMakeFiles/Chess_Engine.dir/Search.cpp.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -std=gnu++2a
+  INCLUDES = -I/usr/local/include -isystem /usr/local/include/SDL2
+  OBJECT_DIR = CMakeFiles/Chess_Engine.dir
+  OBJECT_FILE_DIR = CMakeFiles/Chess_Engine.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Chess_Engine
@@ -129,7 +136,7 @@ build CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o: CXX_COMPILER__Chess_Engine_Deb
 #############################################
 # Link the executable Chess_Engine
 
-build Chess_Engine: CXX_EXECUTABLE_LINKER__Chess_Engine_Debug CMakeFiles/Chess_Engine.dir/main.cpp.o CMakeFiles/Chess_Engine.dir/gui.cpp.o CMakeFiles/Chess_Engine.dir/gamestate.cpp.o CMakeFiles/Chess_Engine.dir/movegen.cpp.o CMakeFiles/Chess_Engine.dir/evaluation.cpp.o CMakeFiles/Chess_Engine.dir/move.cpp.o CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o | /usr/local/lib/libSDL2.dylib /usr/local/lib/libSDL2main.a /usr/local/Cellar/sdl2_image/2.6.3_1/lib/libSDL2_image.dylib
+build Chess_Engine: CXX_EXECUTABLE_LINKER__Chess_Engine_Debug CMakeFiles/Chess_Engine.dir/main.cpp.o CMakeFiles/Chess_Engine.dir/gui.cpp.o CMakeFiles/Chess_Engine.dir/gamestate.cpp.o CMakeFiles/Chess_Engine.dir/movegen.cpp.o CMakeFiles/Chess_Engine.dir/evaluation.cpp.o CMakeFiles/Chess_Engine.dir/move.cpp.o CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o CMakeFiles/Chess_Engine.dir/Search.cpp.o | /usr/local/lib/libSDL2.dylib /usr/local/lib/libSDL2main.a /usr/local/Cellar/sdl2_image/2.6.3_1/lib/libSDL2_image.dylib
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk
   LINK_LIBRARIES = -Wl,-rpath,/usr/local/lib  /usr/local/lib/libSDL2.dylib  /usr/local/lib/libSDL2main.a  /usr/local/Cellar/sdl2_image/2.6.3_1/lib/libSDL2_image.dylib
   LINK_PATH = -L/usr/local/lib

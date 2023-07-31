@@ -36,13 +36,13 @@ public:
     ~GUI();
 
     void LoadTextures();
-    void DrawGame(GAMESTATE* gamestate);
+    void DrawGame();
     void DrawBoard();
-    void DrawPieces(GAMESTATE* gamestate);
-    void DrawIndicators(GAMESTATE* gamestate);
+    void DrawPieces();
+    void DrawIndicators();
 
-    void HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate);
-    void HandleKeyPress(SDL_Keycode key, GAMESTATE* gamestate);
+    void HandleButtonClick(SDL_MouseButtonEvent event);
+    void HandleKeyPress(SDL_Keycode key);
     int PollPromotion(int promotionSquare);
 
 private:

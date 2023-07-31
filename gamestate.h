@@ -10,6 +10,7 @@
 #include <vector>
 #include <unordered_map>
 #include <stack>
+#include "move.h"
 
 typedef uint64_t U64;
 
@@ -37,59 +38,91 @@ namespace legalityBits {
     const int enPassantLegalMask = 0b100000000000;
 }
 
-class GAMESTATE {
+class Gamestate {
+private:
+    Gamestate();
+    void InitFENString(const std::string& position);
+    void InitBitboards();
 public:
-    U64 count = 0;
+    Gamestate(const Gamestate&) = delete;
 
-    GAMESTATE(const std::string& startingPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-    ~GAMESTATE();
+    static Gamestate& Get() {
+        static Gamestate instance;
+        return instance;
+    }
 
-    void makeMove(class Move move);
-    void undoMove();
+    void Seed(const std::string& position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
-    int mailbox[64]{};
+    void MakeMove(Move move);
+    void UndoMove();
 
-    U64 w_pawn = 0, w_knight = 0, w_bishop = 0, w_rook = 0, w_queen = 0, w_king = 0,
-        b_pawn = 0, b_knight = 0, b_bishop = 0, b_rook = 0, b_queen = 0, b_king = 0;
-    U64* bitboards[12] = {
-            &w_pawn, &w_knight, &w_bishop, &w_rook, &w_queen, &w_king,
-            &b_pawn, &b_knight, &b_bishop, &b_rook, &b_queen, &b_king,
+    std::array<int, 64> mailbox;
+    U64 w_pawn, w_knight, w_bishop, w_rook, w_queen, w_king;
+    U64 b_pawn, b_knight, b_bishop, b_rook, b_queen, b_king;
+
+    U64* const bitboards[12] = {
+            &w_pawn,
+            &w_knight,
+            &w_bishop,
+            &w_rook,
+            &w_queen,
+            &w_king,
+            &b_pawn,
+            &b_knight,
+            &b_bishop,
+            &b_rook,
+            &b_queen,
+            &b_king,
     };
-    U64 w_pieces = 0, b_pieces = 0, all_pieces = 0, empty_sqs = 0, pinned_pieces = 0;
-    U64* armies[2] = {
-            &b_pieces, &w_pieces
-    };
-    U64 pin_masks[64];
+
+    U64 w_pieces = 0, b_pieces = 0, all_pieces = 0, empty_sqs = 0;
 
     int legality;
 
+    std::stack<Move> moveLog;
     std::stack<int> legalityHistory;
-    std::vector<Move> move_log;
-    std::vector<Move> backup_move_log;
 
-    bool whiteToMove = true;
+    bool whiteToMove;
 
-    int plyCount;
+    int count = 0;
+};
 
+const std::unordered_map<char, int> PieceChar2Number = {
+        {'P', 1},
+        {'N', 2},
+        {'B', 3},
+        {'R', 4},
+        {'Q', 5},
+        {'K', 6},
+        {'p', 9},
+        {'n', 10},
+        {'b', 11},
+        {'r', 12},
+        {'q', 13},
+        {'k', 14},
+};
 
-    const std::unordered_map<int, int> PIECE_NUM_TO_ARRAY_INDEX = {
-            {1, 0}, // w_pawns
-            {2, 1}, // w_knight
-            {3, 2}, // w_bishop
-            {4, 3}, // w_rook
-            {5, 4}, // w_queen
-            {6, 5}, // w_king
-            {9, 6}, // b_pawns
-            {10, 7}, // b_knight
-            {11, 8}, // b_bishop
-            {12, 9}, // b_rook
-            {13, 10}, // b_queen
-            {14, 11}, // b_king
-    };
+const std::unordered_map<char, int> CastlingChar2LegalityMask = {
+        {'K', legalityBits::whiteShortCastleMask},
+        {'Q', legalityBits::whiteLongCastleMask},
+        {'k', legalityBits::blackShortCastleMask},
+        {'q', legalityBits::blackLongCastleMask},
+        {'-', 0},
+};
 
-private:
-    void loadFENString(const std::string& position);
-    void loadBitboards();
+const std::unordered_map<int, int> PieceNum2BitboardIndex = {
+        {1, 0},
+        {2, 1},
+        {3, 2},
+        {4, 3},
+        {5, 4},
+        {6, 5},
+        {9, 6},
+        {10, 7},
+        {11, 8},
+        {12, 9},
+        {13, 10},
+        {14, 11},
 };
 
 #endif //CHESS_ENGINE_GAMESTATE_H

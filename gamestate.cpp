@@ -4,81 +4,53 @@
 #include "gamestate.h"
 #include "move.h"
 #include "movegen.h"
-#include <iostream>
 
-
-GAMESTATE::GAMESTATE(const std::string& startingPosition) {
-    loadFENString(startingPosition);
-    loadBitboards();
-    move_log.reserve(200);
+Gamestate::Gamestate() {
+    Seed();
 }
 
-void GAMESTATE::loadFENString(const std::string& position) {
-    enum FENStringFields {piecePlacement, activeColor, castlingRights, enPassantTargets, halfMoveClock, fullMoveCount};
-    int currentField = piecePlacement;
+void Gamestate::Seed(const std::string& position) {
+    InitFENString(position);
+    InitBitboards();
+}
+
+void Gamestate::InitFENString(const std::string &position) {
+    enum FENStringFields {
+        PiecePlacement,
+        PlayerToMove,
+        CastlingRights,
+        EnPassantPossible,
+        HalfMoveClock,
+        FullMoveCount,
+    };
+    int currentField = PiecePlacement;
     int row = 7;
     int col = 0;
 
     for (char c : position) {
         switch (currentField) {
-            case piecePlacement:
+            case PiecePlacement:
+                if (c == ' ') {
+                    ++currentField;
+                    break;
+                }
                 if (c == '/') {
                     --row;
                     col = 0;
-                    continue;
+                    break;
                 }
                 if (isnumber(c)) {
-                    for (int i = 0; i < c - '0'; ++i) {
+                    int endCol = col + c - '0';
+                    for (; col < endCol; ++col) {
                         mailbox[8 * row + col] = 0;
-                        ++col;
                     }
-                    continue;
+                    break;
                 }
-                switch (c) {
-                    case 'P':
-                        mailbox[8 * row + col] = 1;
-                        break;
-                    case 'N':
-                        mailbox[8 * row + col] = 2;
-                        break;
-                    case 'B':
-                        mailbox[8 * row + col] = 3;
-                        break;
-                    case 'R':
-                        mailbox[8 * row + col] = 4;
-                        break;
-                    case 'Q':
-                        mailbox[8 * row + col] = 5;
-                        break;
-                    case 'K':
-                        mailbox[8 * row + col] = 6;
-                        break;
-                    case 'p':
-                        mailbox[8 * row + col] = 9;
-                        break;
-                    case 'n':
-                        mailbox[8 * row + col] = 10;
-                        break;
-                    case 'b':
-                        mailbox[8 * row + col] = 11;
-                        break;
-                    case 'r':
-                        mailbox[8 * row + col] = 12;
-                        break;
-                    case 'q':
-                        mailbox[8 * row + col] = 13;
-                        break;
-                    case 'k':
-                        mailbox[8 * row + col] = 14;
-                        break;
-                    case ' ': default:
-                        ++currentField;
-                        break;
-                }
+                mailbox[8 * row + col] = PieceChar2Number.at(c);
                 ++col;
                 break;
 
-            case activeColor:
+            case PlayerToMove:
                 if (c == ' ') {
                     ++currentField;
                     break;
@@ -86,27 +58,15 @@ void GAMESTATE::loadFENString(const std::string& position) {
                 whiteToMove = c == 'w';
                 break;
 
-            case castlingRights:
-                switch (c) {
-                    case 'K':
-                        legality |= 1 << legalityBits::whiteShortCastleShift;
-                        break;
-                    case 'Q':
-                        legality |= 1 << legalityBits::whiteLongCastleShift;
-                        break;
-                    case 'k':
-                        legality |= 1 << legalityBits::blackShortCastleShift;
-                        break;
-                    case 'q':
-                        legality |= 1 << legalityBits::blackLongCastleShift;
-                        break;
-                    case ' ': default:
-                        ++currentField;
-                        break;
+            case CastlingRights:
+                if (c == ' ') {
+                    ++currentField;
+                    break;
                 }
+                legality |= CastlingChar2LegalityMask.at(c);
                 break;
 
-            case enPassantTargets:
+            case EnPassantPossible:
                 if (c == ' ') {
                     ++currentField;
                     break;
@@ -118,31 +78,25 @@ void GAMESTATE::loadFENString(const std::string& position) {
                     legality |= legalityBits::enPassantLegalMask;
                     legality |= col << legalityBits::enPassantFileShift;
                     break;
-                } else {
-                    col = c - 'a';
                 }
-
-            case halfMoveClock:
-                if (c == ' ') {
-                    ++currentField;
-                    break;
-                }
-                plyCount = plyCount * 10 + (c - ' ');
+                col = c - 'a';
                 break;
 
-            case fullMoveCount:
+            case HalfMoveClock:
+            case FullMoveCount:
             default:
                 break;
         }
     }
 }
 
-void GAMESTATE::loadBitboards() {
-    for (int sq = 0; sq < 64; ++sq) {
-        if (!mailbox[sq]) {
-            continue;
-        }
-        *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(mailbox[sq])] |= 1ULL << sq;
+void Gamestate::InitBitboards() {
+    w_pawn = w_knight = w_bishop = w_rook = w_queen = w_king = 0;
+    b_pawn = b_knight = b_bishop = b_rook = b_queen = b_king = 0;
+
+    for (int square = 0; square < 64; ++square) {
+        if (!mailbox[square]) continue;
+        *bitboards[PieceNum2BitboardIndex.at(mailbox[square])] |= 1ULL << square;
     }
     w_pieces = w_pawn | w_knight | w_bishop | w_rook | w_queen | w_king;
     b_pieces = b_pawn | b_knight | b_bishop | b_rook | b_queen | b_king;
@@ -150,48 +104,49 @@ void GAMESTATE::loadBitboards() {
     empty_sqs = ~all_pieces;
 }
 
-void GAMESTATE::makeMove(Move move) {
+void Gamestate::MakeMove(Move move) {
     legalityHistory.push(legality);
-    legality = legalityHistory.top() & legalityBits::castleMask;
+    moveLog.push(move);
 
     int movingPiece = mailbox[move.startSquare];
     int capturedPiece = mailbox[move.endSquare];
     U64 moveSquares = (1ULL << move.startSquare | 1ULL << move.endSquare);
 
+    legality = legalityHistory.top() & legalityBits::castleMask;
+    legality |= capturedPiece << legalityBits::capturedPieceShift;
+
     switch (move.moveFlag) {
-        case MoveFlags::nullMove:
-            return;
         case MoveFlags::quietMove:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece;
             break;
         case MoveFlags::doublePawnPush:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece;
             legality |= legalityBits::enPassantLegalMask;
             legality |= (move.endSquare % 8) << legalityBits::enPassantFileShift;
             break;
         case MoveFlags::shortCastle:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) - 2] ^= (1ULL << (move.startSquare + 1) | 1ULL << (move.endSquare + 1));
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) - 2] ^= (1ULL << (move.startSquare + 1) | 1ULL << (move.endSquare + 1));
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece;
             mailbox[move.startSquare + 1] = movingPiece - 2;
             mailbox[move.endSquare + 1] = 0;
             break;
         case MoveFlags::longCastle:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) - 2] ^= (1ULL << (move.startSquare - 1) | 1ULL << (move.endSquare - 2));
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) - 2] ^= (1ULL << (move.startSquare - 1) | 1ULL << (move.endSquare - 2));
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece;
             mailbox[move.startSquare - 1] = movingPiece - 2;
             mailbox[move.endSquare - 2] = 0;
             break;
         case MoveFlags::capture:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(capturedPiece)] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(capturedPiece)] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece;
             break;
@@ -200,60 +155,60 @@ void GAMESTATE::makeMove(Move move) {
             startRow = move.startSquare / 8;
             endCol = move.endSquare % 8;
             capturedSquare = 8 * startRow + endCol;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(mailbox[capturedSquare])] ^= 1ULL << capturedSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(mailbox[capturedSquare])] ^= 1ULL << capturedSquare;
             mailbox[move.startSquare] = mailbox[capturedSquare] = 0;
             mailbox[move.endSquare] = movingPiece;
             break;
         case MoveFlags::knightPromotion:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 1] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 1] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece + 1;
             break;
         case MoveFlags::bishopPromotion:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 2] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 2] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece + 2;
             break;
         case MoveFlags::rookPromotion:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 3] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 3] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece + 3;
             break;
         case MoveFlags::queenPromotion:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 4] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 4] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece + 4;
             break;
         case MoveFlags::knightPromoCapt:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 1] ^= 1ULL << move.endSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(capturedPiece)] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 1] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(capturedPiece)] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece + 1;
             break;
         case MoveFlags::bishopPromoCapt:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 2] ^= 1ULL << move.endSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(capturedPiece)] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 2] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(capturedPiece)] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece + 2;
             break;
         case MoveFlags::rookPromoCapt:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 3] ^= 1ULL << move.endSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(capturedPiece)] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 3] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(capturedPiece)] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece + 3;
             break;
         case MoveFlags::queenPromoCapt:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 4] ^= 1ULL << move.endSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(capturedPiece)] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 4] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(capturedPiece)] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece + 4;
             break;
@@ -275,15 +230,11 @@ void GAMESTATE::makeMove(Move move) {
     all_pieces = w_pieces | b_pieces;
     empty_sqs = ~all_pieces;
 
-    move_log.push_back(move);
-
-    legality |= capturedPiece << legalityBits::capturedPieceShift;
-
     whiteToMove = !whiteToMove;
 }
 
-void GAMESTATE::undoMove() {
-    struct Move move = move_log.back();
+void Gamestate::UndoMove() {
+    Move move = moveLog.top();
 
     int movingPiece = mailbox[move.endSquare];
     int capturedPiece = (legality & legalityBits::capturedPieceMask) >> legalityBits::capturedPieceShift;
@@ -293,34 +244,34 @@ void GAMESTATE::undoMove() {
         case MoveFlags::nullMove:
             return;
         case MoveFlags::quietMove:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = 0;
             break;
         case MoveFlags::doublePawnPush:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = 0;
             break;
         case MoveFlags::shortCastle:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) - 2] ^= (1ULL << (move.startSquare + 1) | 1ULL << (move.endSquare + 1));
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) - 2] ^= (1ULL << (move.startSquare + 1) | 1ULL << (move.endSquare + 1));
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = 0;
             mailbox[move.startSquare + 1] = 0;
             mailbox[move.endSquare + 1] = movingPiece - 2;
             break;
         case MoveFlags::longCastle:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) - 2] ^= (1ULL << (move.startSquare - 1) | 1ULL << (move.endSquare - 2));
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) - 2] ^= (1ULL << (move.startSquare - 1) | 1ULL << (move.endSquare - 2));
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = 0;
             mailbox[move.startSquare - 1] = 0;
             mailbox[move.endSquare - 2] = movingPiece - 2;
             break;
         case MoveFlags::capture:
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(capturedPiece)] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(capturedPiece)] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = capturedPiece;
             break;
@@ -329,76 +280,76 @@ void GAMESTATE::undoMove() {
             startRow = move.startSquare / 8;
             endCol = move.endSquare % 8;
             capturedSquare = 8 * startRow + endCol;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece ^ 0b1000)] ^= 1ULL << capturedSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece ^ 0b1000)] ^= 1ULL << capturedSquare;
             mailbox[move.startSquare] = movingPiece;
             mailbox[capturedSquare] = movingPiece ^ 0b1000;
             mailbox[move.endSquare] = 0;
             break;
         case MoveFlags::knightPromotion:
             movingPiece -= 1;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 1] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 1] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = 0;
             break;
         case MoveFlags::bishopPromotion:
             movingPiece -= 2;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 2] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 2] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = 0;
             break;
         case MoveFlags::rookPromotion:
             movingPiece -= 3;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 3] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 3] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = 0;
             break;
         case MoveFlags::queenPromotion:
             movingPiece -= 4;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 4] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 4] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = 0;
             break;
         case MoveFlags::knightPromoCapt:
             movingPiece -= 1;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 1] ^= 1ULL << move.endSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(capturedPiece)] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 1] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(capturedPiece)] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = capturedPiece;
             break;
         case MoveFlags::bishopPromoCapt:
             movingPiece -= 2;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 2] ^= 1ULL << move.endSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(capturedPiece)] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 2] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(capturedPiece)] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = capturedPiece;
             break;
         case MoveFlags::rookPromoCapt:
             movingPiece -= 3;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 3] ^= 1ULL << move.endSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(capturedPiece)] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 3] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(capturedPiece)] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = capturedPiece;
             break;
         case MoveFlags::queenPromoCapt:
             movingPiece -= 4;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= 1ULL << move.startSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece) + 4] ^= 1ULL << move.endSquare;
-            *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(capturedPiece)] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= 1ULL << move.startSquare;
+            *bitboards[PieceNum2BitboardIndex.at(movingPiece) + 4] ^= 1ULL << move.endSquare;
+            *bitboards[PieceNum2BitboardIndex.at(capturedPiece)] ^= 1ULL << move.endSquare;
             mailbox[move.startSquare] = movingPiece;
             mailbox[move.endSquare] = capturedPiece;
             break;
     }
 
-    move_log.pop_back();
     legality = legalityHistory.top();
+    moveLog.pop();
     legalityHistory.pop();
 
     w_pieces = w_pawn | w_knight | w_bishop | w_rook | w_queen | w_king;
@@ -406,9 +357,5 @@ void GAMESTATE::undoMove() {
     all_pieces = w_pieces | b_pieces;
     empty_sqs = ~all_pieces;
 
-    backup_move_log.push_back(move);
-
     whiteToMove = !whiteToMove;
 }
-
-GAMESTATE::~GAMESTATE() = default;

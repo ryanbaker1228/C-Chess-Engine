@@ -7,13 +7,12 @@
 
 
 int main() {
-    MoveGenerator* moveGenerator = MoveGenerator::Get();
+    Gamestate& gamestate = Gamestate::Get();
+    MoveGenerator& moveGenerator = MoveGenerator::Get();
     MovementTables::LoadTables();
     GUI gui;
     SDL_Event event;
-    moveGenerator->PerftTest();
-    GAMESTATE gamestate = GAMESTATE("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -");
-    moveGenerator->Seed(gamestate);
+    moveGenerator.PerftTest();
 
     bool running = true;
     while (running) {
@@ -23,15 +22,14 @@ int main() {
                     running = false;
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    gui.HandleButtonClick(event.button, &gamestate);
+                    gui.HandleButtonClick(event.button);
                     break;
                 case SDL_KEYDOWN:
                     SDL_Keycode key = event.key.keysym.sym;
-                    gui.HandleKeyPress(key, &gamestate);
+                    gui.HandleKeyPress(key);
                     break;
             }
         }
-        gui.DrawGame(&gamestate);
+        gui.DrawGame();
     }
-    delete moveGenerator;
 }

@@ -5,7 +5,7 @@
 #ifndef CHESS_ENGINE_MOVE_H
 #define CHESS_ENGINE_MOVE_H
 
-#include "gamestate.h"
+#include <string>
 
 namespace MoveFlags {
     const int quietMove = 0;

@@ -8,7 +8,7 @@
 #include "gamestate.h"
 #include <array>
 
-int StaticEvaluate(GAMESTATE* gamestate);
+int StaticEvaluate(Gamestate* gamestate);
 
 std::array<int, 64> FlipTable(const std::array<int, 64> table);
 std::array<int, 64> NegateTable(const std::array<int, 64> table);

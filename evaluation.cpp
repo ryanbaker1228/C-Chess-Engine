@@ -6,7 +6,7 @@
 #include "bitUtils.h"
 
 
-int StaticEvaluate(GAMESTATE* gamestate) {
+int StaticEvaluate(Gamestate* gamestate) {
     int centipawnEval = 0;
     // gamePhase is between 0 and 1, represents the stage of the game, near 1 indicates the opening, near 0 is the endgame
     float gamePhase = float(BitUtils::countBits(gamestate->all_pieces)) / 32;

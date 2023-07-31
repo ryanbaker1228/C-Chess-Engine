@@ -11,7 +11,7 @@
 
 class MovePicker {
 public:
-    MovePicker(const GAMESTATE& gamestate);
+    MovePicker(const Gamestate& gamestate);
 
     void Search();
 private:

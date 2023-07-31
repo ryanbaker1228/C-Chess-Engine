@@ -4,6 +4,6 @@
 
 #include "Search.h"
 
-MovePicker::MovePicker(const GAMESTATE &gamestate) {
+MovePicker::MovePicker(const Gamestate &gamestate) {
 
 }

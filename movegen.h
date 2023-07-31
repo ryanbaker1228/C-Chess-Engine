@@ -8,44 +8,10 @@
 #include "gamestate.h"
 #include "move.h"
 #include <iostream>
+#include <array>
 #include <climits>
 
-
-namespace MoveGenerator {
-    std::vector<class Move> GenerateLegalMoves(GAMESTATE& gamestate);
-
-    U64 CreateCheckMask(const GAMESTATE& gamestate, U64 kingPos);
-    U64 FindAttackedSquares(const GAMESTATE& gamestate, U64 friendlyPieces, U64 kingPos);
-    void FindPinnedPieces(GAMESTATE& gamestate);
-
-    void GeneratePawnMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
-    void GenerateKnightMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
-    void GenerateDiagonalSliderMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
-    void GenerateOrthogonalSliderMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
-    void GenerateKingMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 enemyAttacks);
-
-    inline int isCapture(const GAMESTATE& gamestate, const int endSquare) {
-        return MoveFlags::capture * (gamestate.mailbox[endSquare] > 0);
-    }
-
-    void TestMoveGenerator();
-}
-
-const int WHITE_WIN = 999999;
-const int BLACK_WIN = -999999;
-
-int createMoveTree(const GAMESTATE& gamestate, int depth_ply);
-int MoveSearch(GAMESTATE* gamestate, int depth_ply, int alpha, int beta);
-
-namespace MovementTables {
-    void LoadTables();
-
-    inline U64 knightMoves[64];
-    inline U64 bishopMoves[64][7];
-    inline U64 rookMoves[64][7];
-    inline U64 kingMoves[64];
-}
-
+///*
 namespace Board {
     namespace Squares {
         [[maybe_unused]] const int a1 = 0;
@@ -135,4 +101,108 @@ namespace Board {
     }
 }
 
+inline int isCapture(const GAMESTATE& gamestate, const int endSquare) {
+    return MoveFlags::capture * (gamestate.mailbox[endSquare] > 0);
+}
+
+namespace PawnMoves {
+    inline U64 oneStep(const bool whiteToMove, const U64 bitboard) {
+        return whiteToMove ? bitboard << 8 : bitboard >> 8;
+    }
+
+    inline U64 twoStep(const bool whiteToMove, const U64 bitboard) {
+        return whiteToMove ? bitboard << 16 : bitboard >> 16;
+    }
+
+    inline U64 leftwardCapt(const bool whiteToMove, const U64 bitboard) {
+        return whiteToMove ?
+            (bitboard & ~Board::Files::aFile) << 7 :
+            (bitboard & ~Board::Files::hFile) >> 7;
+    }
+
+    inline U64 rightwardCapt(const bool whiteToMove, const U64 bitboard) {
+        return whiteToMove ?
+            (bitboard & ~Board::Files::hFile) << 9 :
+            (bitboard & ~Board::Files::aFile) >> 9;
+    }
+
+    inline U64 allCaptures(const bool whiteToMove, const U64 bitboard) {
+        return whiteToMove ?
+           (bitboard & ~Board::Files::aFile) << 7 | (bitboard & ~Board::Files::hFile) << 9 :
+           (bitboard & ~Board::Files::hFile) >> 7 | (bitboard & ~Board::Files::aFile) >> 9;
+    }
+}
+
+class MoveGenerator {
+public:
+    enum GenerationType {AllLegalMoves};
+    static inline MoveGenerator* Get() {
+        if (!instance) instance = new MoveGenerator;
+        return instance;
+    }
+    void Seed(GAMESTATE& position);
+
+    MoveGenerator(const MoveGenerator&) = delete;
+
+    U64 pinnedPieces, checkMask, enemyAttacks;
+    std::array<U64, 64> pinMasks;
+    bool king_is_in_double_check;
+
+    std::vector<Move> legalMoves;
+
+    void GenerateLegalMoves(GenerationType type = AllLegalMoves);
+    int PerftTree(int depthPly);
+    void PerftTest();
+
+    void CalculateEnemyAttacks();
+    void CalculateCheckMask();
+    void CalculatePinMasks();
+
+    void GenerateKingMoves();
+    void GeneratePawnMoves();
+    void GenerateKnightMoves();
+    void GenerateBishopMoves();
+    void GenerateRookMoves();
+
+private:
+    MoveGenerator();
+    static MoveGenerator* instance;
+    GAMESTATE* gamestate;
+};
+//*/
+/*
+namespace MoveGenerator {
+    std::vector<class Move> GenerateLegalMoves(GAMESTATE& gamestate);
+
+    U64 CreateCheckMask(const GAMESTATE& gamestate, U64 kingPos);
+    U64 FindAttackedSquares(const GAMESTATE& gamestate, U64 friendlyPieces, U64 kingPos);
+    void FindPinnedPieces(GAMESTATE& gamestate);
+
+    void GeneratePawnMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
+    void GenerateKnightMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
+    void GenerateDiagonalSliderMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
+    void GenerateOrthogonalSliderMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 checkMask);
+    void GenerateKingMoves(const GAMESTATE& gamestate, std::vector<class Move>& legalMoves, U64 enemyAttacks);
+
+    inline int isCapture(const GAMESTATE& gamestate, const int endSquare) {
+        return MoveFlags::capture * (gamestate.mailbox[endSquare] > 0);
+    }
+
+    void TestMoveGenerator();
+}
+*/
+const int WHITE_WIN = 999999;
+const int BLACK_WIN = -999999;
+
+int createMoveTree(const GAMESTATE& gamestate, int depth_ply);
+int MoveSearch(GAMESTATE* gamestate, int depth_ply, int alpha, int beta);
+
+namespace MovementTables {
+    void LoadTables();
+
+    inline U64 knightMoves[64];
+    inline U64 bishopMoves[64][7];
+    inline U64 rookMoves[64][7];
+    inline U64 kingMoves[64];
+}
 #endif //CHESS_ENGINE_MOVEGEN_H

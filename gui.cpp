@@ -139,7 +139,7 @@ void GUI::DrawIndicators(GAMESTATE* gamestate) {
 
 void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
     int selectedSquare = 8 * (7 - (event.y / SQ_SIZE)) + (event.x / SQ_SIZE);
-    std::vector<Move> legalMoves = MoveGenerator::GenerateLegalMoves(*gamestate);
+    MoveGenerator::Get()->GenerateLegalMoves();
 
     if ((gamestate->empty_sqs & 1ULL << selectedSquare) && selectedSqs.empty()) {
         /* The user has selected an empty square */
@@ -163,7 +163,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
     if (selectedSqs.size() == 1) {
         /* The user selected a piece, check if the piece has any moves */
         moveIndicatorSqs.clear();
-        for (struct Move move: MoveGenerator::GenerateLegalMoves(*gamestate)) {
+        for (struct Move move: MoveGenerator::Get()->legalMoves) {
             if (move.startSquare == selectedSquare) {
                 moveIndicatorSqs.push_back(move.endSquare);
             }
@@ -195,7 +195,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
             return;
         }
 
-        for (struct Move move: legalMoves) {
+        for (struct Move move: MoveGenerator::Get()->legalMoves) {
             if (move.startSquare == selectedSqs[0] && move.endSquare == selectedSqs[1]) {
                 if (move.moveFlag & MoveFlags::promotion) {
                     int promotionPiece = PollPromotion(move.endSquare);
@@ -239,7 +239,7 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event, GAMESTATE* gamestate) {
         moveIndicatorSqs.clear();
         selectedSqs = {selectedSquare};
 
-        for (struct Move move: MoveGenerator::GenerateLegalMoves(*gamestate)) {
+        for (struct Move move: MoveGenerator::Get()->legalMoves) {
             if (move.startSquare == selectedSquare) {
                 moveIndicatorSqs.push_back(move.endSquare);
             }
@@ -333,14 +333,10 @@ int GUI::PollPromotion(int promotionSquare) {
     SDL_RenderFillRect(renderer, &knightDestination);
     SDL_RenderFillRect(renderer, &bishopDestination);
 
-    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 4], nullptr,
-                   &queenDestination);
-    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 1], nullptr,
-                   &knightDestination);
-    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 3], nullptr,
-                   &rookDestination);
-    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 2], nullptr,
-                   &bishopDestination);
+    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 4], nullptr, &queenDestination);
+    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 1], nullptr, &knightDestination);
+    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 3], nullptr, &rookDestination);
+    SDL_RenderCopy(renderer, piece_textures[PIECE_NUM_TO_IMAGE_ARRAY_INDEX.at(promotingPiece) + 2], nullptr, &bishopDestination);
 
     SDL_RenderPresent(renderer);
 
@@ -359,6 +355,7 @@ int GUI::PollPromotion(int promotionSquare) {
                     if (mouseSquare == knightDestSquare) return promotingPiece + 1;
                     if (mouseSquare == rookDestSquare) return promotingPiece + 3;
                     if (mouseSquare == bishopDestSquare) return promotingPiece + 2;
+                    break;
             }
         }
     }

@@ -171,7 +171,7 @@ void GAMESTATE::makeMove(Move move) {
             mailbox[move.startSquare] = 0;
             mailbox[move.endSquare] = movingPiece;
             legality |= legalityBits::enPassantLegalMask;
-            legality |= (move.endSquare & 8) << legalityBits::enPassantFileShift;
+            legality |= (move.endSquare % 8) << legalityBits::enPassantFileShift;
             break;
         case MoveFlags::shortCastle:
             *bitboards[PIECE_NUM_TO_ARRAY_INDEX.at(movingPiece)] ^= moveSquares;
@@ -264,6 +264,11 @@ void GAMESTATE::makeMove(Move move) {
     } else if (movingPiece == 14) {
         legality &= ~legalityBits::blackCanCastleMask;
     }
+
+    if (move.startSquare == Board::Squares::a1 || move.endSquare == Board::Squares::a1) legality &= ~legalityBits::whiteLongCastleMask;
+    if (move.startSquare == Board::Squares::h1 || move.endSquare == Board::Squares::h1) legality &= ~legalityBits::whiteShortCastleMask;
+    if (move.startSquare == Board::Squares::a8 || move.endSquare == Board::Squares::a8) legality &= ~legalityBits::blackLongCastleMask;
+    if (move.startSquare == Board::Squares::h8 || move.endSquare == Board::Squares::h8) legality &= ~legalityBits::blackShortCastleMask;
 
     w_pieces = w_pawn | w_knight | w_bishop | w_rook | w_queen | w_king;
     b_pieces = b_pawn | b_knight | b_bishop | b_rook | b_queen | b_king;
@@ -401,9 +406,9 @@ void GAMESTATE::undoMove() {
     all_pieces = w_pieces | b_pieces;
     empty_sqs = ~all_pieces;
 
-    whiteToMove = !whiteToMove;
-
     backup_move_log.push_back(move);
+
+    whiteToMove = !whiteToMove;
 }
 
 GAMESTATE::~GAMESTATE() = default;

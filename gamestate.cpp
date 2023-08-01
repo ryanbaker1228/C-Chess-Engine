@@ -12,6 +12,8 @@ Gamestate::Gamestate() {
 void Gamestate::Seed(const std::string& position) {
     InitFENString(position);
     InitBitboards();
+    while(!moveLog.empty()) moveLog.pop();
+    while(!legalityHistory.empty()) legalityHistory.pop();
 }
 
 void Gamestate::InitFENString(const std::string &position) {

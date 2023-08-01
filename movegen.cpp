@@ -4,8 +4,8 @@
 
 #include "movegen.h"
 #include "bitUtils.h"
-#include "evaluation.h"
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <cmath>
 #include <chrono>
@@ -121,7 +121,7 @@ void MoveGenerator::GenerateLegalMoves() {
 }
 
 void MoveGenerator::CalculateEnemyAttacks() {
-    Gamestate& gamestate = Gamestate::Get();
+    const Gamestate& gamestate = Gamestate::Get();
 
     U64 friendlyPieces, kingPos, orthogonalSliders, diagonalSliders, enemyKnights, allPieces,
             north, south, east, west, northeast, northwest, southeast, southwest, mostSignificantBit, difference;
@@ -142,48 +142,48 @@ void MoveGenerator::CalculateEnemyAttacks() {
     diagonalSliders = (*gamestate.bitboards[2] | *gamestate.bitboards[4] | *gamestate.bitboards[8] | *gamestate.bitboards[10]) & ~friendlyPieces;
     orthogonalSliders =(*gamestate.bitboards[3] | *gamestate.bitboards[4] | *gamestate.bitboards[9] | *gamestate.bitboards[10]) & ~friendlyPieces;
 
-    while (enemyKnights) enemyAttacks |= MovementTables::knightMoves[BitUtils::popLSB(enemyKnights)];
+    while (enemyKnights) enemyAttacks |= MovementTables::knightMoves[popLSB(enemyKnights)];
     while (diagonalSliders) {
-        slider = BitUtils::popLSB(diagonalSliders);
+        slider = popLSB(diagonalSliders);
 
         northwest = allPieces & MovementTables::bishopMoves[slider][0];
         southeast = allPieces & MovementTables::bishopMoves[slider][2];
         northeast = allPieces & MovementTables::bishopMoves[slider][1];
         southwest = allPieces & MovementTables::bishopMoves[slider][3];
 
-        mostSignificantBit = BitUtils::getMSB(southeast);
+        mostSignificantBit = getMSB(southeast);
         difference = northwest ^ (northwest - mostSignificantBit);
         enemyAttacks |= difference & MovementTables::bishopMoves[slider][4];
 
-        mostSignificantBit = BitUtils::getMSB(southwest);
+        mostSignificantBit = getMSB(southwest);
         difference = northeast ^ (northeast - mostSignificantBit);
         enemyAttacks |= difference & MovementTables::bishopMoves[slider][5];
     }
     while (orthogonalSliders) {
-        slider = BitUtils::popLSB(orthogonalSliders);
+        slider = popLSB(orthogonalSliders);
 
         north = allPieces & MovementTables::rookMoves[slider][0];
         south = allPieces & MovementTables::rookMoves[slider][2];
         east = allPieces & MovementTables::rookMoves[slider][1];
         west = allPieces & MovementTables::rookMoves[slider][3];
 
-        mostSignificantBit = BitUtils::getMSB(south);
+        mostSignificantBit = getMSB(south);
         difference = north ^ (north - mostSignificantBit);
         enemyAttacks |= difference & MovementTables::rookMoves[slider][4];
 
-        mostSignificantBit = BitUtils::getMSB(west);
+        mostSignificantBit = getMSB(west);
         difference = east ^ (east - mostSignificantBit);
         enemyAttacks |= difference & MovementTables::rookMoves[slider][5];
     }
-    enemyAttacks |= MovementTables::kingMoves[BitUtils::getLSB(~friendlyPieces & (*gamestate.bitboards[5] | *gamestate.bitboards[11]))];
+    enemyAttacks |= MovementTables::kingMoves[getLSB(~friendlyPieces & (*gamestate.bitboards[5] | *gamestate.bitboards[11]))];
 }
 
 void MoveGenerator::CalculateCheckMask() {
-    Gamestate& gamestate = Gamestate::Get();
+    const Gamestate& gamestate = Gamestate::Get();
 
     U64 kingPos;
     kingPos = gamestate.whiteToMove ? gamestate.w_king : gamestate.b_king;
-    int kingSquare = BitUtils::getLSB(kingPos);
+    int kingSquare = getLSB(kingPos);
     king_is_in_double_check = false;
 
     if (!(enemyAttacks & kingPos)) {
@@ -206,11 +206,11 @@ void MoveGenerator::CalculateCheckMask() {
         northeast = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][1];
         southwest = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][3];
 
-        mostSignificantBit = BitUtils::getMSB(southeast);
+        mostSignificantBit = getMSB(southeast);
         difference = northwest ^ (northwest - mostSignificantBit);
         attacks |= difference & MovementTables::bishopMoves[kingSquare][4];
 
-        mostSignificantBit = BitUtils::getMSB(southwest);
+        mostSignificantBit = getMSB(southwest);
         difference = northeast ^ (northeast - mostSignificantBit);
         attacks |= difference & MovementTables::bishopMoves[kingSquare][5];
 
@@ -220,7 +220,7 @@ void MoveGenerator::CalculateCheckMask() {
                 checkMask = 0;
                 return;
             }
-            checkMask = BitMasks::segmentMask(kingSquare, BitUtils::getLSB(diagonalSliders & attacks));
+            checkMask = BitMasks::segmentMask(kingSquare, getLSB(diagonalSliders & attacks));
         }
 
         attacks = 0;
@@ -230,11 +230,11 @@ void MoveGenerator::CalculateCheckMask() {
         east = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][1];
         west = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][3];
 
-        mostSignificantBit = BitUtils::getMSB(south);
+        mostSignificantBit = getMSB(south);
         difference = north ^ (north - mostSignificantBit);
         attacks |= difference & MovementTables::rookMoves[kingSquare][4];
 
-        mostSignificantBit = BitUtils::getMSB(west);
+        mostSignificantBit = getMSB(west);
         difference = east ^ (east - mostSignificantBit);
         attacks |= difference & MovementTables::rookMoves[kingSquare][5];
 
@@ -245,7 +245,7 @@ void MoveGenerator::CalculateCheckMask() {
                 return;
             }
             king_is_in_double_check = false;
-            checkMask = BitMasks::segmentMask(kingSquare, BitUtils::getLSB(orthogonalSliders & attacks));
+            checkMask = BitMasks::segmentMask(kingSquare, getLSB(orthogonalSliders & attacks));
         }
     } else {
         checkMask = ((gamestate.w_pawn & ~Board::Files::hFile) << 9 & kingPos) >> 9 |
@@ -259,11 +259,11 @@ void MoveGenerator::CalculateCheckMask() {
         northeast = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][1];
         southwest = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][3];
 
-        mostSignificantBit = BitUtils::getMSB(southeast);
+        mostSignificantBit = getMSB(southeast);
         difference = northwest ^ (northwest - mostSignificantBit);
         attacks |= difference & MovementTables::bishopMoves[kingSquare][4];
 
-        mostSignificantBit = BitUtils::getMSB(southwest);
+        mostSignificantBit = getMSB(southwest);
         difference = northeast ^ (northeast - mostSignificantBit);
         attacks |= difference & MovementTables::bishopMoves[kingSquare][5];
 
@@ -274,7 +274,7 @@ void MoveGenerator::CalculateCheckMask() {
                 return;
             }
             king_is_in_double_check = false;
-            checkMask = BitMasks::segmentMask(kingSquare, BitUtils::getLSB(diagonalSliders & attacks));
+            checkMask = BitMasks::segmentMask(kingSquare, getLSB(diagonalSliders & attacks));
         }
 
         attacks = 0;
@@ -284,11 +284,11 @@ void MoveGenerator::CalculateCheckMask() {
         east = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][1];
         west = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][3];
 
-        mostSignificantBit = BitUtils::getMSB(south);
+        mostSignificantBit = getMSB(south);
         difference = north ^ (north - mostSignificantBit);
         attacks |= difference & MovementTables::rookMoves[kingSquare][4];
 
-        mostSignificantBit = BitUtils::getMSB(west);
+        mostSignificantBit = getMSB(west);
         difference = east ^ (east - mostSignificantBit);
         attacks |= difference & MovementTables::rookMoves[kingSquare][5];
 
@@ -299,13 +299,13 @@ void MoveGenerator::CalculateCheckMask() {
                 return;
             }
             king_is_in_double_check = false;
-            checkMask = BitMasks::segmentMask(kingSquare, BitUtils::getLSB(orthogonalSliders & attacks));
+            checkMask = BitMasks::segmentMask(kingSquare, getLSB(orthogonalSliders & attacks));
         }
     }
 }
 
 void MoveGenerator::CalculatePinMasks() {
-    Gamestate& gamestate = Gamestate::Get();
+    const Gamestate& gamestate = Gamestate::Get();
 
     U64 friendlyPieces, enemyDiagonalSliders, enemyOrthogonalSliders, mostSignificantBit, difference, attacks = 0,
             north, south, east, west, northeast, northwest, southeast, southwest, xRayedSquare, enPassantRank,
@@ -319,7 +319,7 @@ void MoveGenerator::CalculatePinMasks() {
         kingPos = gamestate.b_king;
         friendlyPieces = gamestate.b_pieces;
     }
-    int kingSquare = BitUtils::getLSB(kingPos), potentialPinnedPiece;
+    int kingSquare = getLSB(kingPos), potentialPinnedPiece;
 
     enemyDiagonalSliders = (gamestate.w_bishop | gamestate.w_queen | gamestate.b_bishop | gamestate.b_queen) & ~friendlyPieces;
     enemyOrthogonalSliders =(gamestate.w_rook | gamestate.w_queen | gamestate.b_rook | gamestate.b_queen) & ~friendlyPieces;
@@ -330,20 +330,20 @@ void MoveGenerator::CalculatePinMasks() {
     northeast = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][1];
     southwest = gamestate.all_pieces & MovementTables::bishopMoves[kingSquare][3];
 
-    mostSignificantBit = BitUtils::getMSB(southeast);
+    mostSignificantBit = getMSB(southeast);
     difference = northwest ^ (northwest - mostSignificantBit);
     attacks |= difference & MovementTables::bishopMoves[kingSquare][4];
-    mostSignificantBit = BitUtils::getMSB(southwest);
+    mostSignificantBit = getMSB(southwest);
     difference = northeast ^ (northeast - mostSignificantBit);
     attacks |= difference & MovementTables::bishopMoves[kingSquare][5];
 
     potentialPins = attacks & friendlyPieces;
     while (potentialPins) {
-        potentialPinnedPiece = BitUtils::popLSB(potentialPins);
+        potentialPinnedPiece = popLSB(potentialPins);
         xRayedSquare = BitMasks::xRay(kingSquare, potentialPinnedPiece, gamestate.all_pieces);
         if (xRayedSquare & enemyDiagonalSliders) {
             pinnedPieces |= 1ULL << potentialPinnedPiece;
-            pinMasks[potentialPinnedPiece] = BitMasks::segmentMask(kingSquare, BitUtils::getLSB(xRayedSquare));
+            pinMasks[potentialPinnedPiece] = BitMasks::segmentMask(kingSquare, getLSB(xRayedSquare));
         }
     }
 
@@ -353,20 +353,20 @@ void MoveGenerator::CalculatePinMasks() {
     east = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][1];
     west = gamestate.all_pieces & MovementTables::rookMoves[kingSquare][3];
 
-    mostSignificantBit = BitUtils::getMSB(south);
+    mostSignificantBit = getMSB(south);
     difference = north ^ (north - mostSignificantBit);
     attacks |= difference & MovementTables::rookMoves[kingSquare][4];
-    mostSignificantBit = BitUtils::getMSB(west);
+    mostSignificantBit = getMSB(west);
     difference = east ^ (east - mostSignificantBit);
     attacks |= difference & MovementTables::rookMoves[kingSquare][5];
 
     potentialPins = attacks & friendlyPieces;
     while (potentialPins) {
-        potentialPinnedPiece = BitUtils::popLSB(potentialPins);
+        potentialPinnedPiece = popLSB(potentialPins);
         xRayedSquare = BitMasks::xRay(kingSquare, potentialPinnedPiece, gamestate.all_pieces);
         if (xRayedSquare & enemyOrthogonalSliders) {
             pinnedPieces |= 1ULL << potentialPinnedPiece;
-            pinMasks[potentialPinnedPiece] = BitMasks::segmentMask(kingSquare, BitUtils::getLSB(xRayedSquare));
+            pinMasks[potentialPinnedPiece] = BitMasks::segmentMask(kingSquare, getLSB(xRayedSquare));
         }
     }
 
@@ -377,14 +377,14 @@ void MoveGenerator::CalculatePinMasks() {
             enemyOrthogonalSliders & enPassantRank) {
             for (int potentialPinnedEnPassant : BitUtils::getBits(attacks & (gamestate.w_pawn | gamestate.b_pawn) & (east | west))) {
                 xRayedSquare = BitMasks::xRay(kingSquare, potentialPinnedEnPassant, gamestate.all_pieces);
-                U64 doubleXRayedSquare = BitMasks::xRay(potentialPinnedEnPassant, BitUtils::getLSB(xRayedSquare), gamestate.all_pieces);
-                if ((gamestate.mailbox[BitUtils::getLSB(xRayedSquare)] ^ gamestate.mailbox[potentialPinnedEnPassant]) & 8 &&
-                    std::abs(BitUtils::getLSB(xRayedSquare) % 8 - potentialPinnedEnPassant % 8) == 1 &&
+                U64 doubleXRayedSquare = BitMasks::xRay(potentialPinnedEnPassant, getLSB(xRayedSquare), gamestate.all_pieces);
+                if ((gamestate.mailbox[getLSB(xRayedSquare)] ^ gamestate.mailbox[potentialPinnedEnPassant]) & 8 &&
+                    std::abs(getLSB(xRayedSquare) % 8 - potentialPinnedEnPassant % 8) == 1 &&
                     doubleXRayedSquare & enemyOrthogonalSliders)  {
                     if (gamestate.whiteToMove) {
                         if (gamestate.mailbox[potentialPinnedEnPassant] & 8) {
                             pinnedPieces |= xRayedSquare;
-                            pinMasks[BitUtils::getLSB(xRayedSquare)] = ~((1ULL << potentialPinnedEnPassant) << 8);
+                            pinMasks[getLSB(xRayedSquare)] = ~((1ULL << potentialPinnedEnPassant) << 8);
                         } else {
                             pinnedPieces |= 1ULL << potentialPinnedEnPassant;
                             pinMasks[potentialPinnedEnPassant] = ~(xRayedSquare << 8);
@@ -395,7 +395,7 @@ void MoveGenerator::CalculatePinMasks() {
                             pinMasks[potentialPinnedEnPassant] = ~(xRayedSquare >> 8);
                         } else {
                             pinnedPieces |= xRayedSquare;
-                            pinMasks[BitUtils::getLSB(xRayedSquare)] = ~((1ULL << potentialPinnedEnPassant) >> 8);
+                            pinMasks[getLSB(xRayedSquare)] = ~((1ULL << potentialPinnedEnPassant) >> 8);
                         }
                     }
                 }
@@ -405,12 +405,12 @@ void MoveGenerator::CalculatePinMasks() {
 }
 
 void MoveGenerator::GenerateKingMoves() {
-    Gamestate& gamestate = Gamestate::Get();
+    const Gamestate& gamestate = Gamestate::Get();
 
     int king_sq;
     U64 friendly_pieces, to_squares;
     if (gamestate.whiteToMove) {
-        king_sq = BitUtils::getLSB(gamestate.w_king);
+        king_sq = getLSB(gamestate.w_king);
         friendly_pieces = gamestate.w_pieces;
         if (gamestate.legality & legalityBits::whiteShortCastleMask && gamestate.mailbox[Board::Squares::h1] == 4 && king_sq == Board::Squares::e1 &&
             gamestate.empty_sqs & 1ULL << Board::Squares::f1 && gamestate.empty_sqs & 1ULL << Board::Squares::g1 &&
@@ -423,7 +423,7 @@ void MoveGenerator::GenerateKingMoves() {
             legalMoves.emplace_back(king_sq, Board::Squares::c1, MoveFlags::longCastle);
         }
     } else {
-        king_sq = BitUtils::getLSB(gamestate.b_king);
+        king_sq = getLSB(gamestate.b_king);
         friendly_pieces = gamestate.b_pieces;
         if (gamestate.legality & legalityBits::blackShortCastleMask && gamestate.mailbox[Board::Squares::h8] == 12 && king_sq == Board::Squares::e8 &&
             gamestate.empty_sqs & 1ULL << Board::Squares::f8 && gamestate.empty_sqs & 1ULL << Board::Squares::g8 &&
@@ -439,18 +439,18 @@ void MoveGenerator::GenerateKingMoves() {
 
     to_squares = MovementTables::kingMoves[king_sq] & ~friendly_pieces & ~enemyAttacks;
     while (to_squares) {
-        int toSquare = BitUtils::popLSB(to_squares);
+        int toSquare = popLSB(to_squares);
         legalMoves.emplace_back(king_sq, toSquare, isCapture(gamestate, toSquare));
     }
 }
 
 void MoveGenerator::GeneratePawnMoves() {
-    Gamestate& gamestate = Gamestate::Get();
+    const Gamestate& gamestate = Gamestate::Get();
 
     U64 pawnSquares, singleStep, doubleStep, leftCapt, rightCapt, promotion, promotionLeftCapt, promotionRightCapt;
     U64 singleStep_f, doubleStep_f, leftCapt_f, rightCapt_f, promotion_f, promotionLeftCapt_f, promotionRightCapt_f;
     U64 promotionRank, enPassantRank, oneStepRank;
-    U64 enemyPieces, enPassant_f = 0ULL, enPassantSquare = 0ULL, enPassantCheckMask = 0ULL;
+    U64 enemyPieces, enPassant_f = 0ULL, enPassantSquare = 0ULL, enPassantCheckMask;
     int fromSq, toSq;
 
     if (gamestate.whiteToMove) {
@@ -489,30 +489,30 @@ void MoveGenerator::GeneratePawnMoves() {
         enPassant_f = PawnMoves::allCaptures(!gamestate.whiteToMove, enPassantSquare & (checkMask | enPassantCheckMask)) & pawnSquares;
     }
 
-    while (singleStep) legalMoves.emplace_back(BitUtils::popLSB(singleStep_f), BitUtils::popLSB(singleStep), MoveFlags::quietMove);
-    while (doubleStep) legalMoves.emplace_back(BitUtils::popLSB(doubleStep_f), BitUtils::popLSB(doubleStep), MoveFlags::doublePawnPush);
-    while (leftCapt) legalMoves.emplace_back(BitUtils::popLSB(leftCapt_f), BitUtils::popLSB(leftCapt), MoveFlags::capture);
-    while (rightCapt) legalMoves.emplace_back(BitUtils::popLSB(rightCapt_f), BitUtils::popLSB(rightCapt), MoveFlags::capture);
-    while (enPassant_f) legalMoves.emplace_back(BitUtils::popLSB(enPassant_f), BitUtils::getLSB(enPassantSquare), MoveFlags::enPassant);
+    while (singleStep) legalMoves.emplace_back(popLSB(singleStep_f), popLSB(singleStep), MoveFlags::quietMove);
+    while (doubleStep) legalMoves.emplace_back(popLSB(doubleStep_f), popLSB(doubleStep), MoveFlags::doublePawnPush);
+    while (leftCapt) legalMoves.emplace_back(popLSB(leftCapt_f), popLSB(leftCapt), MoveFlags::capture);
+    while (rightCapt) legalMoves.emplace_back(popLSB(rightCapt_f), popLSB(rightCapt), MoveFlags::capture);
+    while (enPassant_f) legalMoves.emplace_back(popLSB(enPassant_f), getLSB(enPassantSquare), MoveFlags::enPassant);
     while (promotion) {
-        fromSq = BitUtils::popLSB(promotion_f);
-        toSq = BitUtils::popLSB(promotion);
+        fromSq = popLSB(promotion_f);
+        toSq = popLSB(promotion);
         legalMoves.emplace_back(fromSq, toSq, MoveFlags::knightPromotion);
         legalMoves.emplace_back(fromSq, toSq, MoveFlags::bishopPromotion);
         legalMoves.emplace_back(fromSq, toSq, MoveFlags::rookPromotion);
         legalMoves.emplace_back(fromSq, toSq, MoveFlags::queenPromotion);
     }
     while (promotionLeftCapt) {
-        fromSq = BitUtils::popLSB(promotionLeftCapt_f);
-        toSq = BitUtils::popLSB(promotionLeftCapt);
+        fromSq = popLSB(promotionLeftCapt_f);
+        toSq = popLSB(promotionLeftCapt);
         legalMoves.emplace_back(fromSq, toSq, MoveFlags::knightPromoCapt);
         legalMoves.emplace_back(fromSq, toSq, MoveFlags::bishopPromoCapt);
         legalMoves.emplace_back(fromSq, toSq, MoveFlags::rookPromoCapt);
         legalMoves.emplace_back(fromSq, toSq, MoveFlags::queenPromoCapt);
     }
     while (promotionRightCapt) {
-        fromSq = BitUtils::popLSB(promotionRightCapt_f);
-        toSq = BitUtils::popLSB(promotionRightCapt);
+        fromSq = popLSB(promotionRightCapt_f);
+        toSq = popLSB(promotionRightCapt);
         legalMoves.emplace_back(fromSq, toSq, MoveFlags::knightPromoCapt);
         legalMoves.emplace_back(fromSq, toSq, MoveFlags::bishopPromoCapt);
         legalMoves.emplace_back(fromSq, toSq, MoveFlags::rookPromoCapt);
@@ -521,7 +521,7 @@ void MoveGenerator::GeneratePawnMoves() {
 }
 
 void MoveGenerator::GenerateKnightMoves() {
-    Gamestate& gamestate = Gamestate::Get();
+    const Gamestate& gamestate = Gamestate::Get();
 
     U64 friendlyPieces, toSquares, knightSquares;
     int knightSq, toSquare;
@@ -534,17 +534,17 @@ void MoveGenerator::GenerateKnightMoves() {
     }
 
     while (knightSquares) {
-        knightSq = BitUtils::popLSB(knightSquares);
+        knightSq = popLSB(knightSquares);
         toSquares = MovementTables::knightMoves[knightSq] & ~friendlyPieces & checkMask;
         while (toSquares) {
-            toSquare = BitUtils::popLSB(toSquares);
+            toSquare = popLSB(toSquares);
             legalMoves.emplace_back(knightSq, toSquare, isCapture(gamestate, toSquare));
         }
     }
 }
 
 void MoveGenerator::GenerateBishopMoves() {
-    Gamestate& gamestate = Gamestate::Get();
+    const Gamestate& gamestate = Gamestate::Get();
 
     U64 friendlyPieces, sliders;
     U64 northwest, southwest, northeast, southeast;
@@ -560,30 +560,30 @@ void MoveGenerator::GenerateBishopMoves() {
     }
 
     while (sliders) {
-        slider = BitUtils::popLSB(sliders);
+        slider = popLSB(sliders);
 
         northwest = gamestate.all_pieces & MovementTables::bishopMoves[slider][0];
         southeast = gamestate.all_pieces & MovementTables::bishopMoves[slider][2];
         northeast = gamestate.all_pieces & MovementTables::bishopMoves[slider][1];
         southwest = gamestate.all_pieces & MovementTables::bishopMoves[slider][3];
 
-        most_significant_bit = BitUtils::getMSB(southeast);
+        most_significant_bit = getMSB(southeast);
         difference = northwest ^ (northwest - most_significant_bit);
         target_squares |= difference & MovementTables::bishopMoves[slider][4] & ~friendlyPieces & checkMask;
 
-        most_significant_bit = BitUtils::getMSB(southwest);
+        most_significant_bit = getMSB(southwest);
         difference = northeast ^ (northeast - most_significant_bit);
         target_squares |= difference & MovementTables::bishopMoves[slider][5] & ~friendlyPieces & checkMask;
 
         while (target_squares) {
-            int toSquare = BitUtils::popLSB(target_squares);
+            int toSquare = popLSB(target_squares);
             legalMoves.emplace_back(slider, toSquare, isCapture(gamestate, toSquare));
         }
     }
 }
 
 void MoveGenerator::GenerateRookMoves() {
-    Gamestate& gamestate = Gamestate::Get();
+    const Gamestate& gamestate = Gamestate::Get();
 
     U64 friendlyPieces, sliders;
     U64 north, south, east, west;
@@ -599,23 +599,23 @@ void MoveGenerator::GenerateRookMoves() {
     }
 
     while(sliders) {
-        slider = BitUtils::popLSB(sliders);
+        slider = popLSB(sliders);
 
         north = gamestate.all_pieces & MovementTables::rookMoves[slider][0];
         south = gamestate.all_pieces & MovementTables::rookMoves[slider][2];
         east = gamestate.all_pieces & MovementTables::rookMoves[slider][1];
         west = gamestate.all_pieces & MovementTables::rookMoves[slider][3];
 
-        most_significant_bit = BitUtils::getMSB(south);
+        most_significant_bit = getMSB(south);
         difference = north ^ (north - most_significant_bit);
         target_squares |= difference & MovementTables::rookMoves[slider][4] & ~friendlyPieces & checkMask;
 
-        most_significant_bit = BitUtils::getMSB(west);
+        most_significant_bit = getMSB(west);
         difference = east ^ (east - most_significant_bit);
         target_squares |= difference & MovementTables::rookMoves[slider][5] & ~friendlyPieces & checkMask;
 
         while (target_squares) {
-            int toSquare = BitUtils::popLSB(target_squares);
+            int toSquare = popLSB(target_squares);
             legalMoves.emplace_back(slider, toSquare, isCapture(gamestate, toSquare));
         }
     }
@@ -638,97 +638,4 @@ int MoveGenerator::PerftTree(int depthPly) {
         gamestate.UndoMove();
     }
     return nodesFound;
-}
-
-void MoveGenerator::PerftTest() {
-    Gamestate& gamestate = Gamestate::Get();
-
-    float totalTime = 0, averageNPS;
-
-    gamestate.Seed("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    auto start = std::chrono::high_resolution_clock::now();
-    int position1nodes = PerftTree(5);
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    if (position1nodes != 4865609) {
-        std::cout << "Test 1 failed  -  4,865,609 nodes expected  -  " << position1nodes << " nodes found" << std::endl;
-    } else {
-        std::cout << "Test 1 passed in " << (duration.count() / pow(10, 9)) << " seconds  -  " <<
-                  4865609 / (duration.count() / pow(10, 9)) << " nodes per second" << std::endl;
-    }
-    totalTime += (duration.count() / pow(10, 9));
-
-
-    gamestate.Seed("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
-    start = std::chrono::high_resolution_clock::now();
-    int position2nodes = PerftTree(5);
-    stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    if (position2nodes != 193690690) {
-        std::cout << "Test 2 failed  -  193,690,690 nodes expected  -  " << position2nodes << " nodes found" << std::endl;
-    } else {
-        std::cout << "Test 2 passed in " << (duration.count() / pow(10, 9)) << " seconds  -  " <<
-                  193690690 / (duration.count() / pow(10, 9)) << " nodes per second" << std::endl;
-    }
-    totalTime += (duration.count() / pow(10, 9));
-
-
-    gamestate.Seed("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -");
-    start = std::chrono::high_resolution_clock::now();
-    int position3nodes = PerftTree(5);
-    stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    if (position3nodes != 674624) {
-        std::cout << "Test 3 failed  -  674,624 nodes expected  -  " << position3nodes << " nodes found" << std::endl;
-    } else {
-        std::cout << "Test 3 passed in " << (duration.count() / pow(10, 9)) << " seconds  -  " <<
-                  674624 / (duration.count() / pow(10, 9)) << " nodes per second" << std::endl;
-    }
-    totalTime += (duration.count() / pow(10, 9));
-
-
-    gamestate.Seed("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
-    start = std::chrono::high_resolution_clock::now();
-    int position4nodes = PerftTree(5);
-    stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    if (position4nodes != 15833292) {
-        std::cout << "Test 4 failed  -  15,833,292 nodes expected  -  " << position4nodes << " nodes found" << std::endl;
-    } else {
-        std::cout << "Test 4 passed in " << (duration.count() / pow(10, 9)) << " seconds  -  " <<
-                  15833292 / (duration.count() / pow(10, 9)) << " nodes per second" << std::endl;
-    }
-    totalTime += (duration.count() / pow(10, 9));
-
-
-    gamestate.Seed("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
-    start = std::chrono::high_resolution_clock::now();
-    int position5nodes = PerftTree(5);
-    stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    if (position5nodes != 89941194) {
-        std::cout << "Test 5 failed  -  89,941,194 nodes expected  -  " << position5nodes << " nodes found" << std::endl;
-    } else {
-        std::cout << "Test 5 passed in " << (duration.count() / pow(10, 9)) << " seconds  -  " <<
-                  89941194 / (duration.count() / pow(10, 9)) << " nodes per second" << std::endl;
-    }
-    totalTime += (duration.count() / pow(10, 9));
-
-
-    gamestate.Seed("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10");
-    start = std::chrono::high_resolution_clock::now();
-    int position6nodes = PerftTree(5);
-    stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    if (position6nodes != 164075551) {
-        std::cout << "Test 6 failed  -  164,075,551 nodes expected  -  " << position6nodes << " nodes found" << std::endl;
-    } else {
-        std::cout << "Test 6 passed in " << (duration.count() / pow(10, 9)) << " seconds  -  " <<
-                  164075551 / (duration.count() / pow(10, 9)) << " nodes per second" << std::endl;
-    }
-    totalTime += (duration.count() / pow(10, 9));
-    averageNPS = float(position1nodes + position2nodes + position3nodes + position4nodes + position5nodes + position6nodes) / totalTime;
-
-    std::cout << "Total time: " << totalTime << " seconds" << std::endl;
-    std::cout << "Average NPS: " << averageNPS << std::endl << std::endl;
 }

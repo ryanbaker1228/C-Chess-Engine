@@ -2,6 +2,7 @@
 #include "gamestate.h"
 #include "movegen.h"
 #include "evaluation.h"
+#include "Test.h"
 #include <chrono>
 #include <iostream>
 
@@ -12,7 +13,8 @@ int main() {
     MovementTables::LoadTables();
     GUI gui;
     SDL_Event event;
-    moveGenerator.PerftTest();
+    MoveGenTest::PerftTest();
+    gamestate.Seed();
 
     bool running = true;
     while (running) {

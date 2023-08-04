@@ -9,11 +9,10 @@
 
 int main() {
     Gamestate& gamestate = Gamestate::Get();
-    MoveGenerator& moveGenerator = MoveGenerator::Get();
     MovementTables::LoadTables();
     GUI gui;
     SDL_Event event;
-    MoveGenTest::PerftTest();
+    MoveGenTest::PerftTest(); // 562 seconds full test
     gamestate.Seed();
 
     bool running = true;

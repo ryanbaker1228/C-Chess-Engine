@@ -15,8 +15,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="Added a complete move generation test script">
+      <change afterPath="$PROJECT_DIR$/Bot.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Bot.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Search.h" beforeDir="false" afterPath="$PROJECT_DIR$/Search.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gamestate.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gamestate.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gui.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gui.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/movegen.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/movegen.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/build.ninja" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/evaluation.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/evaluation.h" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/gui.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui.h" beforeDir="false" afterPath="$PROJECT_DIR$/gui.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/movegen.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/movegen.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/movegen.h" beforeDir="false" afterPath="$PROJECT_DIR$/movegen.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +98,7 @@
     <property name="cmake.loaded.for.project" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
     <property name="structure.view.defaults.are.configured" value="true" />
   </component>
   <component name="RecentsManager">
@@ -91,6 +110,11 @@
     </key>
   </component>
   <component name="RunManager">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Chess_Engine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Chess_Engine" TARGET_NAME="Chess_Engine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Chess_Engine" RUN_TARGET_NAME="Chess_Engine">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -159,6 +183,28 @@
       <workItem from="1690848273798" duration="2670000" />
       <workItem from="1690855446465" duration="101000" />
       <workItem from="1690855632248" duration="2170000" />
+      <workItem from="1690860350544" duration="223000" />
+      <workItem from="1690939157978" duration="77000" />
+      <workItem from="1690939749315" duration="1009000" />
+      <workItem from="1690940983194" duration="41000" />
+      <workItem from="1690941043516" duration="19000" />
+      <workItem from="1690941074030" duration="9000" />
+      <workItem from="1690941125036" duration="46000" />
+      <workItem from="1690941288636" duration="263000" />
+      <workItem from="1690941557064" duration="1000" />
+      <workItem from="1690941896753" duration="9000" />
+      <workItem from="1690941962138" duration="156000" />
+      <workItem from="1690942144044" duration="795000" />
+      <workItem from="1691022295904" duration="162000" />
+      <workItem from="1691022767982" duration="23000" />
+      <workItem from="1691022824417" duration="22000" />
+      <workItem from="1691022992510" duration="21000" />
+      <workItem from="1691023043735" duration="87000" />
+      <workItem from="1691023712673" duration="103000" />
+      <workItem from="1691023829569" duration="4511000" />
+      <workItem from="1691028871446" duration="1088000" />
+      <workItem from="1691154141221" duration="1907000" />
+      <workItem from="1691156889219" duration="3727000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed GUI bugs with highlighted squares.">
       <created>1690487531163</created>
@@ -244,7 +290,14 @@
       <option name="project" value="LOCAL" />
       <updated>1690860073230</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Added a complete move generation test script">
+      <created>1690860503762</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1690860503762</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

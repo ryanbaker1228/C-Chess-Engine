@@ -69,6 +69,8 @@ private:
     SDL_Renderer* renderer;
     SDL_Window* window;
 
+    std::stack<Move> backupMoveLog;
+
     std::vector<int> highlightedSqs;
     std::vector<int> selectedSqs;
     std::vector<int> moveIndicatorSqs;

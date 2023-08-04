@@ -269,35 +269,33 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event) {
 
 void GUI::HandleKeyPress(SDL_Keycode key) {
     Gamestate& gamestate = Gamestate::Get();
-    /*
-switch (key) {
 
-    case SDLK_LEFT:
-        if (!gamestate.moveLog.empty()) {
-            gamestate.UndoMove();
+    switch (key) {
+        case SDLK_LEFT:
             if (!gamestate.moveLog.empty()) {
-                highlightedSqs = {gamestate.moveLog.top().startSquare, gamestate.moveLog.top().endSquare};
-            } else {
-                highlightedSqs.clear();
+                gamestate.UndoMove();
+                if (!gamestate.moveLog.empty()) {
+                    highlightedSqs = {gamestate.moveLog.top().startSquare, gamestate.moveLog.top().endSquare};
+                } else {
+                    highlightedSqs.clear();
+                }
+                moveIndicatorSqs.clear();
+                selectedSqs.clear();
             }
-            moveIndicatorSqs.clear();
-            selectedSqs.clear();
-        }
-        break;
-    case SDLK_RIGHT:
-        if (!gamestate.backup_move_log.empty()) {
-            gamestate.makeMove(gamestate.backup_move_log.back());
-            gamestate.backup_move_log.pop_back();
-            highlightedSqs = {gamestate.move_log.back().startSquare, gamestate.move_log.back().endSquare};
-            moveIndicatorSqs.clear();
-            selectedSqs.clear();
-        }
-        break;
-    default:
-        break;
+            break;
+        case SDLK_RIGHT:
+            if (!backupMoveLog.empty()) {
+                gamestate.MakeMove(backupMoveLog.top());
+                backupMoveLog.pop();
+                highlightedSqs = {gamestate.moveLog.top().startSquare, gamestate.moveLog.top().endSquare};
+                moveIndicatorSqs.clear();
+                selectedSqs.clear();
+            }
+            break;
+        default:
+            break;
 
     }
-     */
 }
 
 int GUI::PollPromotion(int promotionSquare) {

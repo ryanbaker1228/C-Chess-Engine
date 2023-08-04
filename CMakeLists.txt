@@ -17,7 +17,7 @@ add_definitions(${SDL2_IMAGE_DEFINITIONS})
 
 set(SOURCES
         main.cpp
-        gui.cpp gamestate.h gamestate.cpp movegen.cpp movegen.h move.h evaluation.h evaluation.cpp move.cpp bitUtils.h bitUtils.cpp Search.h Search.cpp Test.h Test.cpp)
+        gui.cpp gamestate.h gamestate.cpp movegen.cpp movegen.h move.h evaluation.h evaluation.cpp move.cpp bitUtils.h bitUtils.cpp Search.h Search.cpp Test.h Test.cpp Bot.cpp Bot.h)
 
 add_executable(Chess_Engine ${SOURCES})
 

@@ -10,7 +10,10 @@
 #include <iostream>
 #include <array>
 #include <climits>
+#include <immintrin.h>
 
+
+#define squareOf(bitboard) _tzcnt_u64(bitboard)
 
 inline int getLSB(const U64 number) {
     return static_cast<int>(log2(number & -number));
@@ -28,6 +31,11 @@ inline int popLSB(U64& number) {
 
 inline int isCapture(const Gamestate& gamestate, const int endSquare) {
     return MoveFlags::capture * (gamestate.mailbox[endSquare] > 0);
+}
+
+inline U64 diagonalSliders(const Gamestate& gamestate, bool isWhite) {
+    if (isWhite) return gamestate.w_bishop | gamestate.w_queen;
+    return gamestate.b_bishop | gamestate.b_queen;
 }
 
 namespace Board {

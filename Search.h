@@ -9,14 +9,28 @@
 #include "movegen.h"
 #include "move.h"
 
+
+namespace constantEvals {
+    const int whiteWin = 999999;
+    const int positiveInfinity = 999999;
+    const int blackWin = -999999;
+    const int negativeInfinity = -999999;
+    const int draw = 0;
+}
+
 class MovePicker {
-public:
-    MovePicker(const Gamestate& gamestate);
-
-    void Search();
 private:
-    int bestEvaluation;
+    MovePicker();
+    void InitSearch();
 
+    Move bestMove;
+    int eval;
+
+public:
+    static MovePicker& Get() {
+        static MovePicker instance;
+        return instance;
+    }
 };
 
 #endif //CHESS_ENGINE_SEARCH_H

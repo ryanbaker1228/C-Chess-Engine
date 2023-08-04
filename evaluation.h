@@ -8,7 +8,21 @@
 #include "gamestate.h"
 #include <array>
 
-int StaticEvaluate(Gamestate* gamestate);
+class Evaluator {
+private:
+    Evaluator();
+
+    int CountMaterial();
+
+    float gamePhase;
+public:
+    static Evaluator& Get() {
+        static Evaluator instance;
+        return instance;
+    }
+
+    int StaticEvaluation();
+};
 
 std::array<int, 64> FlipTable(const std::array<int, 64> table);
 std::array<int, 64> NegateTable(const std::array<int, 64> table);

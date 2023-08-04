@@ -4,7 +4,16 @@
 
 #include "evaluation.h"
 #include "bitUtils.h"
+#include <cstdlib>
 
+int Evaluator::StaticEvaluation() {
+    gamePhase = 0.5;
+    return 0;
+}
+
+int Evaluator::MaterialEvaluation() {
+    return PcSqTables::mid
+}
 
 int StaticEvaluate(Gamestate* gamestate) {
     int centipawnEval = 0;
@@ -19,6 +28,13 @@ int StaticEvaluate(Gamestate* gamestate) {
                    (1 - gamePhase) * PieceValues::endGameValues[PIECE_NUM_TO_ARRAY_INDEX.at(gamestate->mailbox[square])];
     }
     return centipawnEval;
+}
+
+int Evaluator::CountMaterial() {
+    Gamestate& gamestate = Gamestate::Get();
+    int material = 0;
+
+    material += std::bitset::count(gamestate.w_pawn).
 }
 
 std::array<int, 64> FlipTable(const std::array<int, 64> table) {

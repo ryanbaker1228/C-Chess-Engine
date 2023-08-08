@@ -1,7 +1,7 @@
 #include "gui.h"
 #include "gamestate.h"
+#include "Search.h"
 #include "movegen.h"
-#include "evaluation.h"
 #include "Test.h"
 #include <chrono>
 #include <iostream>
@@ -12,7 +12,7 @@ int main() {
     MovementTables::LoadTables();
     GUI gui;
     SDL_Event event;
-    MoveGenTest::PerftTest(); // 562 seconds full test
+    //MoveGenTest::PerftTest(); // 562 seconds full test
     gamestate.Seed();
 
     bool running = true;
@@ -32,5 +32,9 @@ int main() {
             }
         }
         gui.DrawGame();
+        if (!gamestate.whiteToMove) {
+            MovePicker::Get().MiniMaxSearch(4, constantEvals::negativeInfinity, constantEvals::positiveInfinity);
+            gamestate.MakeMove(MovePicker::Get().bestMove);
+        }
     }
 }

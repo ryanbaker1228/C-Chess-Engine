@@ -13,6 +13,7 @@ private:
     Evaluator();
 
     int CountMaterial();
+    int EvaluatePcSqTables();
 
     float gamePhase;
 public:

@@ -21,16 +21,17 @@ namespace constantEvals {
 class MovePicker {
 private:
     MovePicker();
-    void InitSearch();
-
-    Move bestMove;
-    int eval;
 
 public:
     static MovePicker& Get() {
         static MovePicker instance;
         return instance;
     }
+    void InitSearch();
+    int MiniMaxSearch(int depth, int alpha, int beta);
+
+    Move bestMove;
+    int bestEval;
 };
 
 #endif //CHESS_ENGINE_SEARCH_H

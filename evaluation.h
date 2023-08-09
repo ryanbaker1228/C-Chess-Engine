@@ -8,6 +8,7 @@
 #include "gamestate.h"
 #include <array>
 
+
 class Evaluator {
 private:
     Evaluator();
@@ -15,7 +16,6 @@ private:
     int CountMaterial();
     int EvaluatePcSqTables();
 
-    float gamePhase;
 public:
     static Evaluator& Get() {
         static Evaluator instance;
@@ -23,6 +23,7 @@ public:
     }
 
     int StaticEvaluation();
+    int callCount;
 };
 
 std::array<int, 64> FlipTable(const std::array<int, 64> table);
@@ -237,19 +238,9 @@ namespace PcSqTables {
     };
 }
 
-const std::unordered_map<int, int> PIECE_NUM_TO_ARRAY_INDEX = {
-        {1, 0}, // w_pawns
-        {2, 1}, // w_knight
-        {3, 2}, // w_bishop
-        {4, 3}, // w_rook
-        {5, 4}, // w_queen
-        {6, 5}, // w_king
-        {9, 6}, // b_pawns
-        {10, 7}, // b_knight
-        {11, 8}, // b_bishop
-        {12, 9}, // b_rook
-        {13, 10}, // b_queen
-        {14, 11}, // b_king
-};
+inline int EvaluatePiece(int piece) {
+    return (1 - Gamestate::Get().gamePhase) * PieceValues::midGameValues[piece] +
+            Gamestate::Get().gamePhase * PieceValues::endGameValues[piece];
+}
 
 #endif //CHESS_ENGINE_EVALUATION_H

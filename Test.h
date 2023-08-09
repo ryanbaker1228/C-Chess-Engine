@@ -277,10 +277,12 @@ namespace MoveGenTest {
         FullTest,
     };
 
-    void PerftTest(Level level = QuickTest);
+    void TestPerft(Level level = QuickTest);
     void OutputTestResult(bool passed, float time, int nodes, int testNum, int depth);
 }
 
-
+namespace SearchTest {
+    void TestSearch();
+}
 
 #endif //CHESS_ENGINE_TEST_H

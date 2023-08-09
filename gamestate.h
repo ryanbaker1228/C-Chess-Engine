@@ -5,12 +5,12 @@
 #ifndef CHESS_ENGINE_GAMESTATE_H
 #define CHESS_ENGINE_GAMESTATE_H
 
+#include "move.h"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <stack>
-#include "move.h"
 
 typedef uint64_t U64;
 
@@ -84,7 +84,7 @@ public:
 
     bool whiteToMove;
 
-    int count = 0;
+    float gamePhase;
 };
 
 const std::unordered_map<char, int> PieceChar2Number = {
@@ -123,6 +123,30 @@ const std::unordered_map<int, int> PieceNum2BitboardIndex = {
         {12, 9},
         {13, 10},
         {14, 11},
+};
+
+enum Piece {
+    w_pawn = 1,
+    w_knight = 2,
+    w_bishop = 3,
+    w_rook = 4,
+    w_queen = 5,
+    w_king = 6,
+    b_pawn = 9,
+    b_knight = 10,
+    b_bishop = 11,
+    b_rook = 12,
+    b_queen = 13,
+    b_king = 14,
+};
+
+enum PieceType {
+    pawn,
+    knight,
+    bishop,
+    rook,
+    queen,
+    king,
 };
 
 #endif //CHESS_ENGINE_GAMESTATE_H

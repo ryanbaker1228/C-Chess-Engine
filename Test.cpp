@@ -5,11 +5,13 @@
 #include "Test.h"
 #include "gamestate.h"
 #include "movegen.h"
+#include "evaluation.h"
+#include "Search.h"
 #include <iostream>
 #include <iomanip>
 
 
-void MoveGenTest::PerftTest(Level level) {
+void MoveGenTest::TestPerft(Level level) {
     Gamestate &gamestate = Gamestate::Get();
     MoveGenerator &generator = MoveGenerator::Get();
 
@@ -88,4 +90,20 @@ void MoveGenTest::OutputTestResult(bool passed, float time, int nodes, int testN
     cout << setw(9) << perftResults[testNum][depth] << " nodes expected    ";
     cout << setw(9) << nodes << " nodes found    ";
     cout << setw(12) << float(nodes) / time << " NPS" << endl;
+}
+
+void SearchTest::TestSearch() {
+    Gamestate &gamestate = Gamestate::Get();
+    MovePicker &searcher = MovePicker::Get();
+
+    gamestate.Seed(/*"2r5/2rqnk2/2p1pb1p/1pP2pp1/1P1P1P2/1NN2QPP/7K/R3R3 w - - 0 1"*/"r3k2r/p1ppqpb1/Bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPB1PPP/R3K2R b KQkq - 0 1");
+    auto start = std::chrono::high_resolution_clock::now();
+    searcher.MiniMaxSearch(4, 0, constantEvals::negativeInfinity, constantEvals::positiveInfinity);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+    std::cout << float(duration.count()) / 1000 << "ms" << std::endl;
+    std::cout << searcher.bestEval << std::endl;
+    std::cout << AlgebraicNotation(searcher.bestMove) << std::endl;
+    std::cout << Evaluator::Get().callCount << std::endl;
 }

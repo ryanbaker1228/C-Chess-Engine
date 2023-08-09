@@ -8,6 +8,7 @@
 
 
 int Evaluator::StaticEvaluation() {
+    ++callCount;
     return (CountMaterial() + EvaluatePcSqTables());
 }
 

@@ -30,11 +30,14 @@ namespace MoveFlags {
 
 class Move {
 public:
-    int startSquare, endSquare, moveFlag;
+    int startSquare,
+        endSquare,
+        moveFlag;
 
     Move(int fromSquare = 0, int toSquare = 0, int flag = MoveFlags::nullMove);
 };
 
 std::string AlgebraicNotation(Move move);
+
 
 #endif //CHESS_ENGINE_MOVE_H

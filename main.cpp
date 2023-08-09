@@ -1,18 +1,17 @@
-#include "gui.h"
+#include "GUI/gui.h"
 #include "gamestate.h"
 #include "Search.h"
 #include "movegen.h"
 #include "Test.h"
-#include <chrono>
 #include <iostream>
 
 
 int main() {
     Gamestate& gamestate = Gamestate::Get();
     MovementTables::LoadTables();
-    GUI gui;
+    GUI& gui = GUI::Get();
     SDL_Event event;
-    //MoveGenTest::PerftTest(); // 562 seconds full test
+    SearchTest::TestSearch();
     gamestate.Seed();
 
     bool running = true;
@@ -33,8 +32,10 @@ int main() {
         }
         gui.DrawGame();
         if (!gamestate.whiteToMove) {
-            MovePicker::Get().MiniMaxSearch(4, constantEvals::negativeInfinity, constantEvals::positiveInfinity);
+            MovePicker::Get().MiniMaxSearch(6, 0, constantEvals::negativeInfinity, constantEvals::positiveInfinity);
             gamestate.MakeMove(MovePicker::Get().bestMove);
+            GUI::Get().UpdateHighlights();
+            std::cout << MovePicker::Get().bestEval << std::endl;
         }
     }
 }

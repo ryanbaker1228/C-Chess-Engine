@@ -155,6 +155,76 @@ namespace PawnMoves {
     }
 }
 
+inline U64 EnemyPawns() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().b_pawn : Gamestate::Get().w_pawn;
+}
+
+inline U64 FriendlyPawns() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().w_pawn : Gamestate::Get().b_pawn;
+}
+
+inline U64 EnemyKnights() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().b_knight : Gamestate::Get().w_knight;
+}
+
+inline U64 FriendlyKnights() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().w_knight : Gamestate::Get().b_knight;
+}
+
+inline U64 EnemyBishops() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().b_bishop : Gamestate::Get().w_bishop;
+}
+
+inline U64 FriendlyBishops() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().w_bishop : Gamestate::Get().b_bishop;
+}
+
+inline U64 EnemyRooks() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().b_rook : Gamestate::Get().w_rook;
+}
+
+inline U64 FriendlyRooks() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().w_rook : Gamestate::Get().b_rook;
+}
+
+inline U64 EnemyQueen() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().b_queen : Gamestate::Get().w_queen;
+}
+
+inline U64 FriendlyQueen() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().w_queen : Gamestate::Get().b_queen;
+}
+
+inline U64 EnemyKing() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().b_king : Gamestate::Get().w_king;
+}
+
+inline U64 FriendlyKing() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().w_king : Gamestate::Get().b_king;
+}
+
+inline U64 EnemyPieces() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().b_pieces : Gamestate::Get().w_pieces;
+}
+
+inline U64 FriendlyPieces() {
+    return Gamestate::Get().whiteToMove ? Gamestate::Get().w_pieces : Gamestate::Get().b_pieces;
+}
+
+inline bool isQueen(int square) {
+    return (Gamestate::Get().mailbox[square] & 0b0111) == 0b0101;
+}
+
+inline U64 MinorPieces() {
+    Gamestate& gamestate = Gamestate::Get();
+    return gamestate.w_knight | gamestate.b_knight | gamestate.w_bishop | gamestate.b_bishop;
+}
+
+inline U64 MajorPieces() {
+    Gamestate& gamestate = Gamestate::Get();
+    return gamestate.w_rook | gamestate.b_rook | gamestate.w_queen | gamestate.b_queen;
+}
+
 namespace MovementTables {
     void LoadTables();
 
@@ -178,6 +248,7 @@ public:
     U64 pinnedPieces, checkMask, enemyAttacks;
     std::array<U64, 64> pinMasks;
     bool king_is_in_double_check;
+    bool king_is_in_check;
 
     std::vector<Move> legalMoves;
 

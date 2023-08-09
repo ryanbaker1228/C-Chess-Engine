@@ -14,21 +14,56 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="Began evaluation and logic">
+    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="Added naive minimax, the bot plays reasonably well.&#10;Todo: add checkmate and stalemate, add evaluation logic that favors kings surrounded by pawns and a position with many legal moves, and move ordering search">
+      <change afterPath="$PROJECT_DIR$/Book.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Book.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GUI/Button.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GUI/Button.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Search.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Search.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Search.h" beforeDir="false" afterPath="$PROJECT_DIR$/Search.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test.h" beforeDir="false" afterPath="$PROJECT_DIR$/Test.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-96542f63495292795e31.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/index-2023-08-04T14-24-34-0095.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/target-Chess_Engine-Debug-da3ec664910aa73c8f2a.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Search.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Search.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Test.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Test.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/evaluation.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/evaluation.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gui.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gui.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gamestate.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gamestate.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/move.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/move.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/movegen.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/movegen.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/build.ninja" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/evaluation.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/evaluation.h" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gamestate.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/gamestate.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gamestate.h" beforeDir="false" afterPath="$PROJECT_DIR$/gamestate.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/gui.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui.h" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/gui.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/move.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/move.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/move.h" beforeDir="false" afterPath="$PROJECT_DIR$/move.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/movegen.h" beforeDir="false" afterPath="$PROJECT_DIR$/movegen.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/b_bishop.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/b_bishop.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/b_king.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/b_king.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/b_knight.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/b_knight.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/b_pawn.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/b_pawn.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/b_queen.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/b_queen.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/b_rook.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/b_rook.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/empty_indicator.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/empty_indicator.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/full_indicator.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/full_indicator.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/w_bishop.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/w_bishop.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/w_king.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/w_king.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/w_knight.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/w_knight.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/w_pawn.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/w_pawn.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/w_queen.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/w_queen.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piece_images/w_rook.png" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/piece_images/w_rook.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,7 +151,8 @@
     <property name="cmake.loaded.for.project" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
     <property name="structure.view.defaults.are.configured" value="true" />
   </component>
   <component name="RecentsManager">
@@ -124,6 +160,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/GUI" />
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
@@ -223,7 +260,10 @@
       <workItem from="1691028871446" duration="1088000" />
       <workItem from="1691154141221" duration="1907000" />
       <workItem from="1691156889219" duration="8140000" />
-      <workItem from="1691452992189" duration="2835000" />
+      <workItem from="1691452992189" duration="23188000" />
+      <workItem from="1691542069910" duration="512000" />
+      <workItem from="1691542932561" duration="10015000" />
+      <workItem from="1691594277147" duration="22252000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed GUI bugs with highlighted squares.">
       <created>1690487531163</created>
@@ -323,7 +363,21 @@
       <option name="project" value="LOCAL" />
       <updated>1691161897725</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Added naive minimax, the bot plays reasonably well.&#10;Todo: add checkmate and stalemate, add evaluation logic that favors kings surrounded by pawns and a position with many legal moves, and move ordering seach">
+      <created>1691456179846</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1691456179847</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Added naive minimax, the bot plays reasonably well.&#10;Todo: add checkmate and stalemate, add evaluation logic that favors kings surrounded by pawns and a position with many legal moves, and move ordering search">
+      <created>1691456192919</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1691456192919</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -360,7 +414,9 @@
     <MESSAGE value="Refactored Gamestate class" />
     <MESSAGE value="Added a complete move generation test script" />
     <MESSAGE value="Began evaluation and logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="Began evaluation and logic" />
+    <MESSAGE value="Added naive minimax, the bot plays reasonably well.&#10;Todo: add checkmate and stalemate, add evaluation logic that favors kings surrounded by pawns and a position with many legal moves, and move ordering seach" />
+    <MESSAGE value="Added naive minimax, the bot plays reasonably well.&#10;Todo: add checkmate and stalemate, add evaluation logic that favors kings surrounded by pawns and a position with many legal moves, and move ordering search" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added naive minimax, the bot plays reasonably well.&#10;Todo: add checkmate and stalemate, add evaluation logic that favors kings surrounded by pawns and a position with many legal moves, and move ordering search" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

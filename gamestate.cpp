@@ -4,6 +4,7 @@
 #include "gamestate.h"
 #include "move.h"
 #include "movegen.h"
+#include "bitUtils.h"
 
 Gamestate::Gamestate() {
     Seed();
@@ -232,6 +233,8 @@ void Gamestate::MakeMove(Move move) {
     all_pieces = w_pieces | b_pieces;
     empty_sqs = ~all_pieces;
 
+    gamePhase = 1 / (1 + BitUtils::countBits(MinorPieces()) + 2 * BitUtils::countBits(MajorPieces()));
+
     whiteToMove = !whiteToMove;
 }
 
@@ -358,6 +361,8 @@ void Gamestate::UndoMove() {
     b_pieces = b_pawn | b_knight | b_bishop | b_rook | b_queen | b_king;
     all_pieces = w_pieces | b_pieces;
     empty_sqs = ~all_pieces;
+
+    gamePhase = 1 / (1 + BitUtils::countBits(MinorPieces()) + 2 * BitUtils::countBits(MajorPieces()));
 
     whiteToMove = !whiteToMove;
 }

@@ -3,7 +3,6 @@
 //
 
 #include "move.h"
-#include "evaluation.h"
 
 
 Move::Move(int fromSquare, int toSquare, int flag) {

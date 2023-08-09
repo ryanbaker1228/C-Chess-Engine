@@ -79,12 +79,12 @@ build CMakeFiles/Chess_Engine.dir/main.cpp.o: CXX_COMPILER__Chess_Engine_Debug /
   OBJECT_DIR = CMakeFiles/Chess_Engine.dir
   OBJECT_FILE_DIR = CMakeFiles/Chess_Engine.dir
 
-build CMakeFiles/Chess_Engine.dir/gui.cpp.o: CXX_COMPILER__Chess_Engine_Debug /Users/ryanbaker/CLionProjects/C++$ Chess$ Engine/gui.cpp || cmake_object_order_depends_target_Chess_Engine
-  DEP_FILE = CMakeFiles/Chess_Engine.dir/gui.cpp.o.d
+build CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o: CXX_COMPILER__Chess_Engine_Debug /Users/ryanbaker/CLionProjects/C++$ Chess$ Engine/GUI/gui.cpp || cmake_object_order_depends_target_Chess_Engine
+  DEP_FILE = CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o.d
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -std=gnu++2a
   INCLUDES = -I/usr/local/include -isystem /usr/local/include/SDL2
   OBJECT_DIR = CMakeFiles/Chess_Engine.dir
-  OBJECT_FILE_DIR = CMakeFiles/Chess_Engine.dir
+  OBJECT_FILE_DIR = CMakeFiles/Chess_Engine.dir/GUI
 
 build CMakeFiles/Chess_Engine.dir/gamestate.cpp.o: CXX_COMPILER__Chess_Engine_Debug /Users/ryanbaker/CLionProjects/C++$ Chess$ Engine/gamestate.cpp || cmake_object_order_depends_target_Chess_Engine
   DEP_FILE = CMakeFiles/Chess_Engine.dir/gamestate.cpp.o.d
@@ -142,6 +142,20 @@ build CMakeFiles/Chess_Engine.dir/Bot.cpp.o: CXX_COMPILER__Chess_Engine_Debug /U
   OBJECT_DIR = CMakeFiles/Chess_Engine.dir
   OBJECT_FILE_DIR = CMakeFiles/Chess_Engine.dir
 
+build CMakeFiles/Chess_Engine.dir/GUI/Button.cpp.o: CXX_COMPILER__Chess_Engine_Debug /Users/ryanbaker/CLionProjects/C++$ Chess$ Engine/GUI/Button.cpp || cmake_object_order_depends_target_Chess_Engine
+  DEP_FILE = CMakeFiles/Chess_Engine.dir/GUI/Button.cpp.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -std=gnu++2a
+  INCLUDES = -I/usr/local/include -isystem /usr/local/include/SDL2
+  OBJECT_DIR = CMakeFiles/Chess_Engine.dir
+  OBJECT_FILE_DIR = CMakeFiles/Chess_Engine.dir/GUI
+
+build CMakeFiles/Chess_Engine.dir/Book.cpp.o: CXX_COMPILER__Chess_Engine_Debug /Users/ryanbaker/CLionProjects/C++$ Chess$ Engine/Book.cpp || cmake_object_order_depends_target_Chess_Engine
+  DEP_FILE = CMakeFiles/Chess_Engine.dir/Book.cpp.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -std=gnu++2a
+  INCLUDES = -I/usr/local/include -isystem /usr/local/include/SDL2
+  OBJECT_DIR = CMakeFiles/Chess_Engine.dir
+  OBJECT_FILE_DIR = CMakeFiles/Chess_Engine.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Chess_Engine
@@ -150,7 +164,7 @@ build CMakeFiles/Chess_Engine.dir/Bot.cpp.o: CXX_COMPILER__Chess_Engine_Debug /U
 #############################################
 # Link the executable Chess_Engine
 
-build Chess_Engine: CXX_EXECUTABLE_LINKER__Chess_Engine_Debug CMakeFiles/Chess_Engine.dir/main.cpp.o CMakeFiles/Chess_Engine.dir/gui.cpp.o CMakeFiles/Chess_Engine.dir/gamestate.cpp.o CMakeFiles/Chess_Engine.dir/movegen.cpp.o CMakeFiles/Chess_Engine.dir/evaluation.cpp.o CMakeFiles/Chess_Engine.dir/move.cpp.o CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o CMakeFiles/Chess_Engine.dir/Search.cpp.o CMakeFiles/Chess_Engine.dir/Test.cpp.o CMakeFiles/Chess_Engine.dir/Bot.cpp.o | /usr/local/lib/libSDL2.dylib /usr/local/lib/libSDL2main.a /usr/local/Cellar/sdl2_image/2.6.3_1/lib/libSDL2_image.dylib
+build Chess_Engine: CXX_EXECUTABLE_LINKER__Chess_Engine_Debug CMakeFiles/Chess_Engine.dir/main.cpp.o CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o CMakeFiles/Chess_Engine.dir/gamestate.cpp.o CMakeFiles/Chess_Engine.dir/movegen.cpp.o CMakeFiles/Chess_Engine.dir/evaluation.cpp.o CMakeFiles/Chess_Engine.dir/move.cpp.o CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o CMakeFiles/Chess_Engine.dir/Search.cpp.o CMakeFiles/Chess_Engine.dir/Test.cpp.o CMakeFiles/Chess_Engine.dir/Bot.cpp.o CMakeFiles/Chess_Engine.dir/GUI/Button.cpp.o CMakeFiles/Chess_Engine.dir/Book.cpp.o | /usr/local/lib/libSDL2.dylib /usr/local/lib/libSDL2main.a /usr/local/Cellar/sdl2_image/2.6.3_1/lib/libSDL2_image.dylib
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk
   LINK_LIBRARIES = -Wl,-rpath,/usr/local/lib  /usr/local/lib/libSDL2.dylib  /usr/local/lib/libSDL2main.a  /usr/local/Cellar/sdl2_image/2.6.3_1/lib/libSDL2_image.dylib
   LINK_PATH = -L/usr/local/lib

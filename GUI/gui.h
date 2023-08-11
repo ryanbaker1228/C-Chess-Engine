@@ -43,12 +43,11 @@ private:
 
     int PollPromotion(int promotionSquare);
 
-    const int WINDOW_WIDTH = 1280;
+    const int WINDOW_WIDTH = 768;
     const int WINDOW_HEIGHT = 768;
-    const int SQ_SIZE = 92;
-    const int BORDER = (WINDOW_HEIGHT - SQ_SIZE * 8) / 2;
+    const int SQ_SIZE = 96;
 
-    std::array<SDL_Texture*, 14> piece_textures;
+    std::array<SDL_Texture*, 15> piece_textures;
 
     SDL_Renderer* renderer;
     SDL_Window* window;
@@ -59,14 +58,14 @@ private:
     std::vector<int> selectedSqs;
     std::vector<int> moveIndicatorSqs;
 
-    BoardThemes::ColorTheme theme = BoardThemes::brownTheme;
+    BoardThemes::ColorTheme theme = BoardThemes::blueTheme;
 public:
     static GUI& Get() {
         static GUI instance;
         return instance;
     }
 
-    void HandleButtonClick(SDL_MouseButtonEvent event);
+    void HandleButtonClick();
     void HandleKeyPress(SDL_Keycode key);
     void DrawGame();
     void UpdateHighlights();

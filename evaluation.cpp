@@ -9,20 +9,21 @@
 
 int Evaluator::StaticEvaluation() {
     ++callCount;
-    return (CountMaterial() + EvaluatePcSqTables());
+    CountMaterial();
+    int eval = (material + EvaluatePcSqTables() + 100 * MopUpEvaluation());
+    return (Gamestate::Get().whiteToMove ? eval : -eval);
 }
 
 
 
-int Evaluator::CountMaterial() {
+void Evaluator::CountMaterial() {
     Gamestate& gamestate = Gamestate::Get();
-    int material = 0;
+    material = 0;
 
     for (int piece = 0; piece < 12; ++piece) {
-        material += BitUtils::countBits(*gamestate.bitboards[piece]) * PieceValues::midGameValues[piece];
+        material += (1 - gamestate.gamePhase) * BitUtils::countBits(*gamestate.bitboards[piece]) * PieceValues::midGameValues[piece] +
+                          gamestate.gamePhase * BitUtils::countBits(*gamestate.bitboards[piece]) * PieceValues::endGameValues[piece];
     }
-
-    return material;
 }
 
 int Evaluator::EvaluatePcSqTables() {
@@ -32,8 +33,23 @@ int Evaluator::EvaluatePcSqTables() {
 
     for (int piece = 0; piece < 12; ++piece) {
         bitboard = *gamestate.bitboards[piece];
-        while (bitboard) value += PcSqTables::midGameTables[piece][popLSB(bitboard)];
+        while (bitboard) {
+            int square = popLSB(bitboard);
+            value += (1 - gamestate.gamePhase) * PcSqTables::midGameTables[piece][square] +
+                           gamestate.gamePhase * PcSqTables::endGameTables[piece][square];
+        }
     }
+    return value;
+}
+
+int Evaluator::MopUpEvaluation() {
+    int value = 0;
+
+    if (Gamestate::Get().gamePhase > 0.75 && (Gamestate::Get().whiteToMove ? material > 500 : material < -500)) {
+        value += 10 * PcSqTables::centerManhattanDistance[squareOf(EnemyKing())];
+        value -= 4 * ManhattanDistance(squareOf(FriendlyKing()), squareOf(EnemyKing()));
+    }
+
     return value;
 }
 

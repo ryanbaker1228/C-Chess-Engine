@@ -98,7 +98,7 @@ void SearchTest::TestSearch() {
 
     gamestate.Seed(/*"2r5/2rqnk2/2p1pb1p/1pP2pp1/1P1P1P2/1NN2QPP/7K/R3R3 w - - 0 1"*/"r3k2r/p1ppqpb1/Bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPB1PPP/R3K2R b KQkq - 0 1");
     auto start = std::chrono::high_resolution_clock::now();
-    searcher.MiniMaxSearch(4, 0, constantEvals::negativeInfinity, constantEvals::positiveInfinity);
+    searcher.NegaMaxSearch(4, 0, -9999999, 9999999);
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
@@ -106,4 +106,5 @@ void SearchTest::TestSearch() {
     std::cout << searcher.bestEval << std::endl;
     std::cout << AlgebraicNotation(searcher.bestMove) << std::endl;
     std::cout << Evaluator::Get().callCount << std::endl;
+    std::cout << MoveOrderer::Get().c << std::endl;
 }

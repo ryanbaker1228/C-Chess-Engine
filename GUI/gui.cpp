@@ -4,7 +4,6 @@
 #include <iostream>
 #include <algorithm>
 #include "gui.h"
-#include "../move.h"
 #include "../movegen.h"
 
 
@@ -39,10 +38,11 @@ GUI::~GUI() {
 }
 
 void GUI::LoadTextures() {
-    const std::string pieces[14] = {"w_pawn", "w_knight", "w_bishop", "w_rook", "w_queen", "w_king",
+    const std::string pieces[15] = {"w_pawn", "w_knight", "w_bishop", "w_rook", "w_queen", "w_king",
                                     "b_pawn", "b_knight", "b_bishop", "b_rook", "b_queen", "b_king",
-                                    "empty_indicator", // legal move to an empty sq
-                                    "full_indicator"}; // legal move to an occupied square
+                                    "empty_indicator",
+                                    "full_indicator",
+                                    "kill_indicator"};
     for (int i = 0; i < 14; ++i) {
         std::string filepath = "/Users/ryanbaker/CLionProjects/C++ Chess Engine/GUI/piece_images/" + pieces[i] + ".png";
         SDL_Surface* piece_surface = IMG_Load(filepath.c_str());
@@ -68,7 +68,7 @@ void GUI::DrawGame() {
 
 void GUI::DrawBoard() {
     /* Draw a light square across the entire board then cover with dark squares */
-    SDL_Rect board = { BORDER, BORDER, 8 * SQ_SIZE, 8 * SQ_SIZE };
+    SDL_Rect board = { 0, 0, 8 * SQ_SIZE, 8 * SQ_SIZE };
     SDL_Color color = theme.lightSquareColor;
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &board);
@@ -83,8 +83,8 @@ void GUI::DrawBoard() {
         if ((row + col) % 2) continue;
 
         renderDestination.w = renderDestination.h = SQ_SIZE;
-        renderDestination.y = (7 - row) * SQ_SIZE + BORDER;
-        renderDestination.x = col * SQ_SIZE + BORDER;
+        renderDestination.y = (7 - row) * SQ_SIZE;
+        renderDestination.x = col * SQ_SIZE;
 
         SDL_RenderFillRect(renderer, &renderDestination);
     }
@@ -98,8 +98,8 @@ void GUI::DrawBoard() {
         } else {
             color = theme.darkHighlight;
         }
-        renderDestination.w = renderDestination.h = SQ_SIZE + BORDER;
-        renderDestination.y = (7 - row) * SQ_SIZE + BORDER;
+        renderDestination.w = renderDestination.h = SQ_SIZE;
+        renderDestination.y = (7 - row) * SQ_SIZE;
         renderDestination.x = col * SQ_SIZE;
 
         SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
@@ -117,8 +117,8 @@ void GUI::DrawPieces() {
         col = sq % 8;
         SDL_Rect destination;
         destination.w = destination.h = SQ_SIZE;
-        destination.y = (7 - row) * SQ_SIZE + BORDER;
-        destination.x = col * SQ_SIZE + BORDER;
+        destination.y = (7 - row) * SQ_SIZE;
+        destination.x = col * SQ_SIZE;
         index = PieceNum2BitboardIndex.at(gamestate.mailbox[sq]);
         SDL_RenderCopy(renderer, piece_textures[index], nullptr, &destination);
     }
@@ -133,8 +133,8 @@ void GUI::DrawIndicators() {
         col = sq % 8;
         SDL_Rect destination;
         destination.w = destination.h = SQ_SIZE;
-        destination.y = (7 - row) * SQ_SIZE + BORDER;
-        destination.x = col * SQ_SIZE + BORDER;
+        destination.y = (7 - row) * SQ_SIZE;
+        destination.x = col * SQ_SIZE;
         if (gamestate.mailbox[sq]) {
             SDL_RenderCopy(renderer, piece_textures[13], nullptr, &destination);
         } else {
@@ -143,10 +143,13 @@ void GUI::DrawIndicators() {
     }
 }
 
-void GUI::HandleButtonClick(SDL_MouseButtonEvent event) {
+void GUI::HandleButtonClick() {
     Gamestate& gamestate = Gamestate::Get();
 
-    int selectedSquare = 8 * (7 - (event.y / SQ_SIZE)) + (event.x / SQ_SIZE);
+    int mouseX, mouseY, mouseSquare;
+    SDL_GetMouseState(&mouseX, &mouseY);
+
+    int selectedSquare = 8 * (7 - ((mouseY) / SQ_SIZE )) + ((mouseX) / SQ_SIZE);
     MoveGenerator::Get().GenerateLegalMoves();
 
     if ((gamestate.empty_sqs & 1ULL << selectedSquare) && selectedSqs.empty()) {
@@ -185,30 +188,29 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event) {
             selectedSqs.clear();
             moveIndicatorSqs.clear();
             UpdateHighlights();
-            highlightedSqs.push_back(selectedSquare);
             return;
         }
 
         for (struct Move move: MoveGenerator::Get().legalMoves) {
             if (move.startSquare == selectedSqs[0] && move.endSquare == selectedSqs[1]) {
-                if (move.moveFlag & MoveFlags::promotion) {
+                if (move.flag & MoveFlags::promotion) {
                     int promotionPiece = PollPromotion(move.endSquare);
                     switch (promotionPiece) {
                         case 2:
                         case 10:
-                            move.moveFlag |= MoveFlags::knightPromotion;
+                            move.flag |= MoveFlags::knightPromotion;
                             break;
                         case 3:
                         case 11:
-                            move.moveFlag |= MoveFlags::bishopPromotion;
+                            move.flag |= MoveFlags::bishopPromotion;
                             break;
                         case 4:
                         case 12:
-                            move.moveFlag |= MoveFlags::rookPromotion;
+                            move.flag |= MoveFlags::rookPromotion;
                             break;
                         case 5:
                         case 13:
-                            move.moveFlag |= MoveFlags::queenPromotion;
+                            move.flag |= MoveFlags::queenPromotion;
                             break;
                         default:
                             UpdateHighlights();

@@ -118,7 +118,7 @@ void Gamestate::MakeMove(Move move) {
     legality = legalityHistory.top() & legalityBits::castleMask;
     legality |= capturedPiece << legalityBits::capturedPieceShift;
 
-    switch (move.moveFlag) {
+    switch (move.flag) {
         case MoveFlags::quietMove:
             *bitboards[PieceNum2BitboardIndex.at(movingPiece)] ^= moveSquares;
             mailbox[move.startSquare] = 0;
@@ -233,7 +233,7 @@ void Gamestate::MakeMove(Move move) {
     all_pieces = w_pieces | b_pieces;
     empty_sqs = ~all_pieces;
 
-    gamePhase = 1 / (1 + BitUtils::countBits(MinorPieces()) + 2 * BitUtils::countBits(MajorPieces()));
+    gamePhase = 1 - (float(BitUtils::countBits(MinorPieces()) + 2 * BitUtils::countBits(MajorPieces())) / 20);
 
     whiteToMove = !whiteToMove;
 }
@@ -245,7 +245,7 @@ void Gamestate::UndoMove() {
     int capturedPiece = (legality & legalityBits::capturedPieceMask) >> legalityBits::capturedPieceShift;
     U64 moveSquares = (1ULL << move.startSquare | 1ULL << move.endSquare);
 
-    switch (move.moveFlag) {
+    switch (move.flag) {
         case MoveFlags::nullMove:
             return;
         case MoveFlags::quietMove:
@@ -362,7 +362,7 @@ void Gamestate::UndoMove() {
     all_pieces = w_pieces | b_pieces;
     empty_sqs = ~all_pieces;
 
-    gamePhase = 1 / (1 + BitUtils::countBits(MinorPieces()) + 2 * BitUtils::countBits(MajorPieces()));
+    gamePhase = 1 - (float(BitUtils::countBits(MinorPieces()) + 2 * BitUtils::countBits(MajorPieces())) / 20);
 
     whiteToMove = !whiteToMove;
 }

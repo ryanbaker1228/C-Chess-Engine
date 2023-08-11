@@ -1,6 +1,7 @@
 #include "GUI/gui.h"
 #include "gamestate.h"
 #include "Search.h"
+#include "evaluation.h"
 #include "movegen.h"
 #include "Test.h"
 #include <iostream>
@@ -11,8 +12,8 @@ int main() {
     MovementTables::LoadTables();
     GUI& gui = GUI::Get();
     SDL_Event event;
-    SearchTest::TestSearch();
-    gamestate.Seed();
+    //SearchTest::TestSearch();
+    gamestate.Seed("6q1/5k2/8/4K3/8/8/8/8 w - - 0 1");
 
     bool running = true;
     while (running) {
@@ -22,7 +23,7 @@ int main() {
                     running = false;
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    gui.HandleButtonClick(event.button);
+                    gui.HandleButtonClick();
                     break;
                 case SDL_KEYDOWN:
                     SDL_Keycode key = event.key.keysym.sym;
@@ -32,10 +33,9 @@ int main() {
         }
         gui.DrawGame();
         if (!gamestate.whiteToMove) {
-            MovePicker::Get().MiniMaxSearch(6, 0, constantEvals::negativeInfinity, constantEvals::positiveInfinity);
+            MovePicker::Get().IterativeDeepeningSearch();
             gamestate.MakeMove(MovePicker::Get().bestMove);
             GUI::Get().UpdateHighlights();
-            std::cout << MovePicker::Get().bestEval << std::endl;
         }
     }
 }

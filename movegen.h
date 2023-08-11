@@ -215,6 +215,15 @@ inline bool isQueen(int square) {
     return (Gamestate::Get().mailbox[square] & 0b0111) == 0b0101;
 }
 
+inline int ManhattanCenterDistance(int square) {
+    int file, rank;
+    file  = square & 7;
+    rank  = square >> 3;
+    file ^= (file - 4) >> 8;
+    rank ^= (rank - 4) >> 8;
+    return (file + rank) & 7;
+}
+
 inline U64 MinorPieces() {
     Gamestate& gamestate = Gamestate::Get();
     return gamestate.w_knight | gamestate.b_knight | gamestate.w_bishop | gamestate.b_bishop;

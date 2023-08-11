@@ -38,6 +38,10 @@ namespace legalityBits {
     const int enPassantLegalMask = 0b100000000000;
 }
 
+enum Result {
+    BlackWin, Draw, WhiteWin
+};
+
 class Gamestate {
 private:
     Gamestate();

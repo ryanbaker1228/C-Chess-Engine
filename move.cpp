@@ -5,10 +5,10 @@
 #include "move.h"
 
 
-Move::Move(int fromSquare, int toSquare, int flag) {
+Move::Move(int fromSquare, int toSquare, int moveFlag) {
     startSquare = fromSquare;
     endSquare = toSquare;
-    moveFlag = flag;
+    flag = moveFlag;
 }
 
 std::string AlgebraicNotation(Move move) {

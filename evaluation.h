@@ -13,8 +13,11 @@ class Evaluator {
 private:
     Evaluator();
 
-    int CountMaterial();
+    void CountMaterial();
     int EvaluatePcSqTables();
+    int MopUpEvaluation();
+
+    int material;
 
 public:
     static Evaluator& Get() {
@@ -207,6 +210,17 @@ namespace PcSqTables {
             -53, -34, -21, -11, -28, -14, -24, -43,
     };
 
+    inline const std::array<int, 64> centerManhattanDistance = {
+            3, 3, 3, 3, 3, 3, 3, 3,
+            3, 2, 2, 2, 2, 2, 2, 3,
+            3, 2, 1, 1, 1, 1, 2, 3,
+            3, 2, 1, 0, 0, 1, 2, 3,
+            3, 2, 1, 0, 0, 1, 2, 3,
+            3, 2, 1, 1, 1, 1, 2, 3,
+            3, 2, 2, 2, 2, 2, 2, 3,
+            3, 3, 3, 3, 3, 3, 3, 3,
+    };
+
     inline const std::array<std::array<int, 64>, 12> midGameTables = {
             FlipTable(midGamePawn),
             FlipTable(midGameKnight),
@@ -239,8 +253,13 @@ namespace PcSqTables {
 }
 
 inline int EvaluatePiece(int piece) {
-    return (1 - Gamestate::Get().gamePhase) * PieceValues::midGameValues[piece] +
-            Gamestate::Get().gamePhase * PieceValues::endGameValues[piece];
+    return std::abs((1- Gamestate::Get().gamePhase) * PieceValues::midGameValues[PieceNum2BitboardIndex.at(piece)] +
+                         Gamestate::Get().gamePhase * PieceValues::endGameValues[PieceNum2BitboardIndex.at(piece)]);
+}
+
+inline int ManhattanDistance(int square1, int square2) {
+    return std::abs(square1 / 8 - square2 / 8) +
+           std::abs(square1 % 8 - square2 % 8);
 }
 
 #endif //CHESS_ENGINE_EVALUATION_H

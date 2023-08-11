@@ -20,7 +20,6 @@ namespace constantEvals {
 class MovePicker {
 private:
     MovePicker();
-
     int maxDepth = 32;
 public:
     static MovePicker& Get() {
@@ -29,6 +28,8 @@ public:
     }
     void InitSearch();
     int MiniMaxSearch(int depth, int depthFromRoot, int alpha, int beta);
+    int NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta);
+    int QuiescenceSearch();
     void IterativeDeepeningSearch();
 
     Move bestMove;
@@ -38,17 +39,26 @@ public:
 class MoveOrderer {
 private:
     MoveOrderer();
-
     std::array<int, 64> GuardValues;
-    void ComputeGuardHeuristic();
 
-    const std::unordered_map<PieceType, int> GuardScores = {
-            {pawn, 900},
-            {knight, 550},
-            {bishop, 500},
-            {rook, 200},
-            {queen, 100},
-            {king, 50},
+    void ComputeGuardHeuristic();
+    U64 enemyPawnAttacks;
+
+    int currentDepth;
+
+    const std::unordered_map<int, int> GuardScores = {
+            {1, 900},
+            {2, 550},
+            {3, 500},
+            {4, 200},
+            {5, 100},
+            {6, 50},
+            {9, 900},
+            {10, 550},
+            {11, 500},
+            {12, 200},
+            {13, 100},
+            {14, 50},
     };
 
     const std::unordered_map<int, int> MoveFlagPromise = {
@@ -83,8 +93,8 @@ public:
         static MoveOrderer instance;
         return instance;
     }
-
-    void OrderMoves();
+    int c = 0;
+    void OrderMoves(int depth);
     int Promise(Move move);
 };
 

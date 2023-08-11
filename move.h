@@ -32,9 +32,9 @@ class Move {
 public:
     int startSquare,
         endSquare,
-        moveFlag;
+        flag;
 
-    Move(int fromSquare = 0, int toSquare = 0, int flag = MoveFlags::nullMove);
+    Move(int fromSquare = 0, int toSquare = 0, int moveFlag = MoveFlags::nullMove);
 };
 
 std::string AlgebraicNotation(Move move);

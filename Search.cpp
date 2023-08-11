@@ -26,13 +26,27 @@ void MovePicker::InitSearch() {
     }
 }
 
+void MovePicker::IterativeDeepeningSearch() {
+    auto start = std::chrono::steady_clock::now();
+    int depth = 1;
+    for (; depth < maxDepth; ++depth) {
+        NegaMaxSearch(depth, 0, constantEvals::negativeInfinity, constantEvals::positiveInfinity);
+        auto elapsed = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::microseconds>(elapsed - start).count() >= 100000) {
+            break;
+        }
+    }
+    std::cout << depth << std::endl;
+}
+/*
 int MovePicker::MiniMaxSearch(int depth, int depthFromRoot, int alpha, int beta) {
     if (depth == 0) {
         return Evaluator::Get().StaticEvaluation();
     }
-    Gamestate& gamestate = Gamestate::Get();
 
-    MoveOrderer::Get().OrderMoves();
+    Gamestate &gamestate = Gamestate::Get();
+
+    MoveOrderer::Get().OrderMoves(depthFromRoot);
     std::vector<Move> orderedMoves = MoveGenerator::Get().legalMoves;
 
     if (orderedMoves.empty()) {
@@ -43,73 +57,129 @@ int MovePicker::MiniMaxSearch(int depth, int depthFromRoot, int alpha, int beta)
     }
 
     if (gamestate.whiteToMove) {
-        int maxEval = constantEvals::negativeInfinity;
-        for (Move move: orderedMoves) {
+        for (Move move : orderedMoves) {
             gamestate.MakeMove(move);
             int eval = MiniMaxSearch(depth - 1, depthFromRoot + 1, alpha, beta);
             gamestate.UndoMove();
-            if (depthFromRoot == 0 && eval > maxEval) {
-                bestMove = move;
-                bestEval = eval;
-            }
-            maxEval = std::max(maxEval, eval);
-            alpha = std::max(alpha, eval);
-            if (beta <= alpha) break;
-        }
-        return maxEval;
-    } else /* black to move */ {
-        int minEval = constantEvals::positiveInfinity;
-        for (Move move: orderedMoves) {
-            gamestate.MakeMove(move);
-            int eval = MiniMaxSearch(depth - 1, depthFromRoot + 1, alpha, beta);
-            gamestate.UndoMove();
-            if (depthFromRoot == 0 && eval < minEval) {
-                bestMove = move;
-                bestEval = eval;
-            }
-            minEval = std::min(minEval, eval);
-            beta = std::min(beta, eval);
-            if (beta <= alpha) break;
 
+            if (eval >= beta) {
+                return beta;
+            }
+
+            if (eval > alpha) {
+                alpha = eval;
+
+                if (depthFromRoot == 0) {
+                    bestEval = eval;
+                    bestMove = move;
+                }
+            }
+            if (beta <= alpha) break;
         }
-        return minEval;
+        return alpha;
+
+    } else  black to move  {
+        for (Move move : orderedMoves) {
+            gamestate.MakeMove(move);
+            int eval = MiniMaxSearch(depth - 1, depthFromRoot + 1, alpha, beta);
+            gamestate.UndoMove();
+
+            if (eval <= alpha) {
+                return alpha;
+            }
+
+            if (eval < beta) {
+                beta = eval;
+
+                if (depthFromRoot == 0) {
+                    bestEval = eval;
+                    bestMove = move;
+                }
+            }
+            if (beta <= alpha) break;
+        }
+        return beta;
     }
 }
-
-void MovePicker::IterativeDeepeningSearch() {
-    for (int depth = 0; depth < maxDepth; ++depth) {
-        MiniMaxSearch(depth, 0, constantEvals::negativeInfinity, constantEvals::positiveInfinity);
+*/
+int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta) {
+    if (depth == 0) {
+        return Evaluator::Get().StaticEvaluation();
     }
+
+    Gamestate &gamestate = Gamestate::Get();
+
+    MoveOrderer::Get().OrderMoves(depthFromRoot);
+    std::vector<Move> orderedMoves = MoveGenerator::Get().legalMoves;
+
+    if (orderedMoves.empty()) {
+        if (MoveGenerator::Get().king_is_in_check) {
+            return -999998;
+        }
+        return 0;
+    }
+
+    for (Move move : orderedMoves) {
+        gamestate.MakeMove(move);
+        int eval = -NegaMaxSearch(depth - 1, depthFromRoot + 1, -beta, -alpha);
+        gamestate.UndoMove();
+
+        if (eval >= beta) {
+            return beta;
+        }
+
+        if (eval > alpha) {
+            alpha = eval;
+
+            if (depthFromRoot == 0) {
+                bestEval = eval;
+                bestMove = move;
+            }
+        }
+
+        if (beta <= alpha) break;
+    }
+    return alpha;
 }
 
 MoveOrderer::MoveOrderer() {
 
 }
 
-void MoveOrderer::OrderMoves() {
+void MoveOrderer::OrderMoves(int depth) {
     MoveGenerator::Get().GenerateLegalMoves();
+
+    currentDepth = depth;
+    enemyPawnAttacks = PawnMoves::allCaptures(!Gamestate::Get().whiteToMove, EnemyPawns());
     //ComputeGuardHeuristic();
-
+    ++c;
     std::sort(MoveGenerator::Get().legalMoves.begin(), MoveGenerator::Get().legalMoves.end(), std::greater<>());
-
 }
 
 int MoveOrderer::Promise(Move move) {
-
     int promise = 0;
     int movingPiece = Gamestate::Get().mailbox[move.startSquare];
     int capturedPiece = Gamestate::Get().mailbox[move.endSquare];
 
-    if (move.moveFlag & MoveFlags::capture) {
-        promise += EvaluatePiece(capturedPiece & 0b0111);
+    if (move.flag == MoveFlags::enPassant) {
+        capturedPiece = Gamestate::Get().whiteToMove ? 9 : 1;
     }
 
-    if (move.moveFlag & MoveFlags::promotion) {
-        promise += EvaluatePiece(PromotingPiece.at(move.moveFlag));
+    if (move.flag & MoveFlags::capture) {
+        promise += EvaluatePiece(capturedPiece) + GuardScores.at(movingPiece);
     }
 
-    if ((1ULL << move.endSquare) & PawnMoves::allCaptures(!Gamestate::Get().whiteToMove, EnemyPawns())) {
-        promise -= EvaluatePiece(movingPiece & 0b0111);
+    if (move.flag & MoveFlags::promotion) {
+        promise += EvaluatePiece(PromotingPiece.at(move.flag));
+    }
+
+    if ((1ULL << move.endSquare) & enemyPawnAttacks) {
+        promise -= EvaluatePiece(movingPiece);
+    }
+
+    if (Gamestate::Get().legality & legalityBits::capturedPieceMask &&
+        Gamestate::Get().moveLog.top().endSquare == move.endSquare) {
+        promise += EvaluatePiece(capturedPiece);
     }
 
     return promise;

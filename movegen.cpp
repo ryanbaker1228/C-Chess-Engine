@@ -102,7 +102,11 @@ void MoveGenerator::GenerateLegalMoves() {
 
     GenerateKingMoves();
 
-    if (king_is_in_double_check) return;
+    if (king_is_in_double_check) {
+        king_is_in_check = true;
+        return;
+    }
+    king_is_in_check = FriendlyKing() & enemyAttacks;
 
     GeneratePawnMoves();
     GenerateKnightMoves();
@@ -184,6 +188,7 @@ void MoveGenerator::CalculateCheckMask() {
     U64 kingPos;
     kingPos = gamestate.whiteToMove ? gamestate.w_king : gamestate.b_king;
     int kingSquare = squareOf(kingPos);
+    king_is_in_check = false;
     king_is_in_double_check = false;
 
     if (!(enemyAttacks & kingPos)) {
@@ -371,7 +376,7 @@ void MoveGenerator::CalculatePinMasks() {
     }
 
     if (!gamestate.moveLog.empty()) {
-        if (gamestate.moveLog.top().moveFlag & MoveFlags::doublePawnPush &&
+        if (gamestate.moveLog.top().flag & MoveFlags::doublePawnPush &&
             kingPos & enPassantRank &&
             friendlyPieces & (gamestate.w_pawn | gamestate.b_pawn) & enPassantRank &&
             enemyOrthogonalSliders & enPassantRank) {

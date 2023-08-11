@@ -13,7 +13,7 @@ int main() {
     GUI& gui = GUI::Get();
     SDL_Event event;
     //SearchTest::TestSearch();
-    gamestate.Seed("6q1/5k2/8/4K3/8/8/8/8 w - - 0 1");
+    gamestate.Seed();
 
     bool running = true;
     while (running) {
@@ -32,7 +32,9 @@ int main() {
             }
         }
         gui.DrawGame();
-        if (!gamestate.whiteToMove) {
+        MoveGenerator::Get().GenerateLegalMoves();
+        std::cout << MoveGenerator::Get().king_is_in_check << std::endl;
+        if (!Gamestate::Get().whiteToMove) {
             MovePicker::Get().IterativeDeepeningSearch();
             gamestate.MakeMove(MovePicker::Get().bestMove);
             GUI::Get().UpdateHighlights();

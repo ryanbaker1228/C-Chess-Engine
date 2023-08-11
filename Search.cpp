@@ -107,6 +107,10 @@ int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta)
         return Evaluator::Get().StaticEvaluation();
     }
 
+    if (depthFromRoot > 0) {
+        alpha = std::max(alpha, -99999 + depthFromRoot);
+        beta = std::min(beta, 99999 - depthFromRoot);
+    }
     Gamestate &gamestate = Gamestate::Get();
 
     MoveOrderer::Get().OrderMoves(depthFromRoot);
@@ -114,7 +118,7 @@ int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta)
 
     if (orderedMoves.empty()) {
         if (MoveGenerator::Get().king_is_in_check) {
-            return -999998;
+            return -(99999 - depthFromRoot);
         }
         return 0;
     }

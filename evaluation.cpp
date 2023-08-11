@@ -10,7 +10,7 @@
 int Evaluator::StaticEvaluation() {
     ++callCount;
     CountMaterial();
-    int eval = (material + EvaluatePcSqTables() + 100 * MopUpEvaluation());
+    int eval = material + EvaluatePcSqTables() + MopUpEvaluation();
     return (Gamestate::Get().whiteToMove ? eval : -eval);
 }
 
@@ -47,10 +47,10 @@ int Evaluator::MopUpEvaluation() {
 
     if (Gamestate::Get().gamePhase > 0.75 && (Gamestate::Get().whiteToMove ? material > 500 : material < -500)) {
         value += 10 * PcSqTables::centerManhattanDistance[squareOf(EnemyKing())];
-        value -= 4 * ManhattanDistance(squareOf(FriendlyKing()), squareOf(EnemyKing()));
+        value -= 40 * ManhattanDistance(squareOf(FriendlyKing()), squareOf(EnemyKing()));
     }
 
-    return value;
+    return Gamestate::Get().whiteToMove ? value : -value;
 }
 
 Evaluator::Evaluator() {

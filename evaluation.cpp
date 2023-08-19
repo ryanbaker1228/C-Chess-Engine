@@ -48,6 +48,7 @@ int Evaluator::MopUpEvaluation() {
     if (Gamestate::Get().gamePhase > 0.75 && (Gamestate::Get().whiteToMove ? material > 500 : material < -500)) {
         value += 10 * PcSqTables::centerManhattanDistance[squareOf(EnemyKing())];
         value -= 4 * ManhattanDistance(squareOf(FriendlyKing()), squareOf(EnemyKing()));
+        value -= PcSqTables::centerManhattanDistance[squareOf(FriendlyKing())];
     }
 
     return Gamestate::Get().whiteToMove ? value : -value;

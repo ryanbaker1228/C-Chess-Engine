@@ -13,7 +13,7 @@ int main() {
     GUI& gui = GUI::Get();
     SDL_Event event;
     //SearchTest::TestSearch();
-    gamestate.Seed("2b1kb2/8/8/8/3K4/8/8/8");
+    gamestate.Seed("2b1kn2/8/8/8/3K4/8/8/8");
     gamestate.zobristKey = Zobrist::Get().GenerateKey();
 
     bool running = true;
@@ -34,11 +34,9 @@ int main() {
         }
         gui.DrawGame();
         MoveGenerator::Get().GenerateLegalMoves();
-        if (!Gamestate::Get().whiteToMove) {
+        if (!Gamestate::Get().whiteToMove || !false) {
             MovePicker::Get().IterativeDeepeningSearch();
             gamestate.MakeMove(MovePicker::Get().bestMove);
-            std::cout << Zobrist::Get().GenerateKey() << std::endl;
-            std::cout << TranspositionTable::Get().positions.size() << std::endl;
             GUI::Get().UpdateHighlights();
         }
     }

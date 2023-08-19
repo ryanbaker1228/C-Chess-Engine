@@ -54,6 +54,8 @@ int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta)
     }
 
     Move currentBestMove;
+    EvaluationType currentType = BestCase;
+
     for (Move move : orderedMoves) {
         gamestate.MakeMove(move);
         int eval = -NegaMaxSearch(depth - 1, depthFromRoot + 1, -beta, -alpha);
@@ -65,8 +67,9 @@ int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta)
         }
 
         if (eval > alpha) {
-            alpha = eval;
             currentBestMove = move;
+            currentType = Exact;
+            alpha = eval;
 
             if (depthFromRoot == 0) {
                 bestEval = eval;
@@ -76,7 +79,7 @@ int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta)
 
         if (beta <= alpha) break;
     }
-    TranspositionTable::Get().StorePosition(depth, depthFromRoot, alpha, Exact, currentBestMove);
+    TranspositionTable::Get().StorePosition(depth, depthFromRoot, alpha, currentType, currentBestMove);
     return alpha;
 }
 

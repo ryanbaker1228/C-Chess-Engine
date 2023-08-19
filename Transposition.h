@@ -24,6 +24,9 @@ class TranspositionTable {
 private:
     TranspositionTable();
 
+    int AdjustLookupMateEval(int eval, int depthFromRoot);
+    int AdjustStoredMateEval(int eval, int depthFromRoot);
+
     struct Entry {
         int evaluation;
         EvaluationType evalType;
@@ -32,6 +35,8 @@ private:
 
         bool isInitialized = false;
     };
+
+    const bool useTable = false;
 
 public:
     static TranspositionTable& Get() {

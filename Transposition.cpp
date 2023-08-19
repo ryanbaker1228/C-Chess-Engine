@@ -11,6 +11,8 @@ TranspositionTable::TranspositionTable() {
 }
 
 int TranspositionTable::Lookup(int searchDepth, int depthFromRoot, int alpha, int beta) {
+    if (!useTable) return LookUpFailed;
+
     Gamestate::Get().zobristKey = Zobrist::Get().GenerateKey();
     Entry position = positions[Gamestate::Get().zobristKey];
 
@@ -18,40 +20,47 @@ int TranspositionTable::Lookup(int searchDepth, int depthFromRoot, int alpha, in
         return LookUpFailed;
     }
 
-    if (isMateEval(position.evaluation)) {
-        if (position.evaluation > 0) {
-            position.evaluation = Infinity - searchDepth;
-        } else {
-            position.evaluation = -(Infinity - searchDepth);
-        }
-    }
+    int adjustedScore = AdjustLookupMateEval(position.evaluation, depthFromRoot);
 
-    if (position.evalType == BestCase && position.evaluation > alpha) {
-        return LookUpFailed;
+    if (position.evalType == Exact) {
+        return adjustedScore;
     }
-
-    if (position.evalType == WorstCase && position.evaluation < beta) {
-        return LookUpFailed;
+    if (position.evalType == BestCase && adjustedScore <= alpha) {
+        return adjustedScore;
     }
-
-    return position.evaluation;
+    if (position.evalType == WorstCase && adjustedScore >= beta) {
+        return adjustedScore;
+    }
+    return LookUpFailed;
 }
 
 void TranspositionTable::StorePosition(int depth, int depthFromRoot, int evaluation, EvaluationType type, Move move) {
+    if (!useTable) return;
+
     Gamestate::Get().zobristKey = Zobrist::Get().GenerateKey();
     Entry* position = &positions[Gamestate::Get().zobristKey];
 
-    if (isMateEval(evaluation)) {
-        if (position->evaluation > 0) {
-            position->evaluation = Infinity - depth;
-        } else {
-            position->evaluation = -(Infinity - depth);
-        }
-    }
+    evaluation = AdjustStoredMateEval(evaluation, depthFromRoot);
 
     position->evaluation = evaluation;
     position->evalType = type;
     position->bestMove = move;
     position->depth = depth;
     position->isInitialized = true;
+}
+
+int TranspositionTable::AdjustLookupMateEval(int eval, int depthFromRoot) {
+    if (isMateEval(eval)) {
+        int sign = eval > 0 ? 1 : -1;
+        eval = (eval * sign - depthFromRoot) * sign;
+    }
+    return eval;
+}
+
+int TranspositionTable::AdjustStoredMateEval(int eval, int depthFromRoot) {
+    if (isMateEval(eval)) {
+        int sign = eval > 0 ? 1 : -1;
+        eval = (eval * sign + depthFromRoot) * sign;
+    }
+    return eval;
 }

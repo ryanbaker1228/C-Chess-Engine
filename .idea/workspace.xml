@@ -14,16 +14,22 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="Added a transposition table and zobrist hashing to help with endgame positions, something must be wrong because it is not helping much even in K vs KBB position.">
+    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="The error was that when storing an evaluation I didn't set the &quot;isInitialized&quot; bool to true because I failed to use a pointer to the Entry and instead copied the entry">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI/gui.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/gui.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Search.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Search.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Transposition.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Transposition.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Transposition.h" beforeDir="false" afterPath="$PROJECT_DIR$/Transposition.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Search.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Search.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/evaluation.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/evaluation.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/evaluation.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -226,7 +232,7 @@
       <workItem from="1691542932561" duration="10015000" />
       <workItem from="1691594277147" duration="61193000" />
       <workItem from="1691789898010" duration="7515000" />
-      <workItem from="1692388949690" duration="15388000" />
+      <workItem from="1692388949690" duration="18727000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed GUI bugs with highlighted squares.">
       <created>1690487531163</created>
@@ -375,7 +381,14 @@
       <option name="project" value="LOCAL" />
       <updated>1692454013745</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="The error was that when storing an evaluation I didn't set the &quot;isInitialized&quot; bool to true because I failed to use a pointer to the Entry and instead copied the entry">
+      <created>1692459170677</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1692459170677</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -418,7 +431,8 @@
     <MESSAGE value="Tinkering with Mop up evaluation to solve easy endgames" />
     <MESSAGE value="Solved KQ vs. K and KR vs. K, issues came from evaluating M2 as the same as M1, the engine would neglect to play mate in 1 because it evaluated mate in 2 as equally good so never actually checkmated." />
     <MESSAGE value="Added a transposition table and zobrist hashing to help with endgame positions, something must be wrong because it is not helping much even in K vs KBB position." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added a transposition table and zobrist hashing to help with endgame positions, something must be wrong because it is not helping much even in K vs KBB position." />
+    <MESSAGE value="The error was that when storing an evaluation I didn't set the &quot;isInitialized&quot; bool to true because I failed to use a pointer to the Entry and instead copied the entry" />
+    <option name="LAST_COMMIT_MESSAGE" value="The error was that when storing an evaluation I didn't set the &quot;isInitialized&quot; bool to true because I failed to use a pointer to the Entry and instead copied the entry" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

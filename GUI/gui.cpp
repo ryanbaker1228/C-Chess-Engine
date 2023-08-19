@@ -220,6 +220,7 @@ void GUI::HandleButtonClick() {
                     }
                 }
                 gamestate.MakeMove(move);
+                std::cout << Zobrist::Get().GenerateKey() << std::endl;
                 highlightedSqs = {move.startSquare, move.endSquare};
                 selectedSqs.clear();
                 moveIndicatorSqs.clear();
@@ -260,6 +261,7 @@ void GUI::HandleKeyPress(SDL_Keycode key) {
         case SDLK_RIGHT:
             if (!backupMoveLog.empty()) {
                 gamestate.MakeMove(backupMoveLog.top());
+                std::cout << Zobrist::Get().GenerateKey() << std::endl;
                 backupMoveLog.pop();
                 highlightedSqs = {gamestate.moveLog.top().startSquare, gamestate.moveLog.top().endSquare};
                 moveIndicatorSqs.clear();

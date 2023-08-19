@@ -14,18 +14,36 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="Tinkering with Mop up evaluation to solve easy endgames">
+    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="Solved KQ vs. K and KR vs. K, issues came from evaluating M2 as the same as M1, the engine would neglect to play mate in 1 because it evaluated mate in 2 as equally good so never actually checkmated.">
+      <change afterPath="$PROJECT_DIR$/Transposition.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Transposition.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Zobrist.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Zobrist.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI/gui.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/gui.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI/gui.h" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/gui.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Search.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Search.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Search.h" beforeDir="false" afterPath="$PROJECT_DIR$/Search.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-f78398500a6dd99cdafe.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/index-2023-08-09T15-30-33-0042.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/target-Chess_Engine-Debug-d8d2d57cdc7e94e08a5a.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Book.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Book.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Search.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Search.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Test.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Test.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/evaluation.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/evaluation.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gamestate.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gamestate.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/movegen.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/movegen.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/build.ninja" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/evaluation.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/evaluation.h" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gamestate.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/gamestate.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gamestate.h" beforeDir="false" afterPath="$PROJECT_DIR$/gamestate.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -134,6 +152,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -223,7 +246,8 @@
       <workItem from="1691542069910" duration="512000" />
       <workItem from="1691542932561" duration="10015000" />
       <workItem from="1691594277147" duration="61193000" />
-      <workItem from="1691789898010" duration="3783000" />
+      <workItem from="1691789898010" duration="7515000" />
+      <workItem from="1692388949690" duration="12316000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed GUI bugs with highlighted squares.">
       <created>1690487531163</created>
@@ -351,7 +375,21 @@
       <option name="project" value="LOCAL" />
       <updated>1691790677154</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Tinkering with Mop up evaluation to solve easy endgames">
+      <created>1691794020393</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1691794020393</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Solved KQ vs. K and KR vs. K, issues came from evaluating M2 as the same as M1, the engine would neglect to play mate in 1 because it evaluated mate in 2 as equally good so never actually checkmated.">
+      <created>1691794108810</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1691794108810</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -392,7 +430,8 @@
     <MESSAGE value="Added naive minimax, the bot plays reasonably well.&#10;Todo: add checkmate and stalemate, add evaluation logic that favors kings surrounded by pawns and a position with many legal moves, and move ordering search" />
     <MESSAGE value="Added move ordering" />
     <MESSAGE value="Tinkering with Mop up evaluation to solve easy endgames" />
-    <option name="LAST_COMMIT_MESSAGE" value="Tinkering with Mop up evaluation to solve easy endgames" />
+    <MESSAGE value="Solved KQ vs. K and KR vs. K, issues came from evaluating M2 as the same as M1, the engine would neglect to play mate in 1 because it evaluated mate in 2 as equally good so never actually checkmated." />
+    <option name="LAST_COMMIT_MESSAGE" value="Solved KQ vs. K and KR vs. K, issues came from evaluating M2 as the same as M1, the engine would neglect to play mate in 1 because it evaluated mate in 2 as equally good so never actually checkmated." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

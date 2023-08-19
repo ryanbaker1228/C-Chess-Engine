@@ -89,6 +89,8 @@ public:
     bool whiteToMove;
 
     float gamePhase;
+
+    U64 zobristKey;
 };
 
 const std::unordered_map<char, int> PieceChar2Number = {

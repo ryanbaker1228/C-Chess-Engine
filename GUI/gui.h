@@ -4,6 +4,7 @@
 
 #pragma once
 #include "../gamestate.h"
+#include "../Zobrist.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <string>

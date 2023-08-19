@@ -5,6 +5,7 @@
 #include "move.h"
 #include "movegen.h"
 #include "bitUtils.h"
+#include "Zobrist.h"
 
 Gamestate::Gamestate() {
     Seed();

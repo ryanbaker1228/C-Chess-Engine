@@ -8,14 +8,9 @@
 #include "gamestate.h"
 #include "movegen.h"
 #include "move.h"
+#include "Transposition.h"
 
-namespace constantEvals {
-    const int whiteWin = 999999;
-    const int positiveInfinity = 999999;
-    const int blackWin = -999999;
-    const int negativeInfinity = -999999;
-    const int draw = 0;
-}
+inline const int Infinity = INT32_MAX;
 
 class MovePicker {
 private:
@@ -26,10 +21,8 @@ public:
         static MovePicker instance;
         return instance;
     }
-    void InitSearch();
-    int MiniMaxSearch(int depth, int depthFromRoot, int alpha, int beta);
+
     int NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta);
-    int QuiescenceSearch();
     void IterativeDeepeningSearch();
 
     Move bestMove;

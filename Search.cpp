@@ -12,17 +12,14 @@ MovePicker::MovePicker() {
 void MovePicker::IterativeDeepeningSearch() {
     auto start = std::chrono::steady_clock::now();
     int depth = 1;
-    for (; depth < 8; ++depth) {
+    for (; depth < maxDepth; ++depth) {
         NegaMaxSearch(depth, 0, -Infinity, Infinity);
         auto elapsed = std::chrono::steady_clock::now();
-        /*
         if (std::chrono::duration_cast<std::chrono::microseconds>(elapsed - start).count() >= 50000) {
             break;
         }
-         */
     }
-    auto elapsed = std::chrono::steady_clock::now();
-    std::cout << depth << " " << std::chrono::duration_cast<std::chrono::microseconds>(elapsed - start).count() << std::endl;
+    std::cout << depth << std::endl;
     //std::cout << Evaluator::Get().callCount << std::endl;
 }
 

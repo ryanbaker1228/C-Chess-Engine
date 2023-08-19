@@ -17,7 +17,7 @@ enum EvaluationType {Exact, BestCase, WorstCase};
 const int LookUpFailed = INT32_MIN;
 
 inline bool isMateEval(int eval) {
-    return std::abs(eval) > 999000;
+    return std::abs(eval) > INT32_MAX - 999;
 }
 
 class TranspositionTable {

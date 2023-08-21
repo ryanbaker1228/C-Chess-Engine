@@ -70,4 +70,6 @@ public:
     void HandleKeyPress(SDL_Keycode key);
     void DrawGame();
     void UpdateHighlights();
+
+    bool flipBoard = false;
 };

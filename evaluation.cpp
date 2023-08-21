@@ -11,7 +11,7 @@ int Evaluator::StaticEvaluation() {
     ++callCount;
     CountMaterial();
     int eval = material + EvaluatePcSqTables() + MopUpEvaluation();
-    return (Gamestate::Get().whiteToMove ? eval : -eval);
+    return Gamestate::Get().whiteToMove ? eval : -eval;
 }
 
 

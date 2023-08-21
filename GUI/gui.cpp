@@ -77,14 +77,20 @@ void GUI::DrawBoard() {
     color = theme.darkSquareColor;
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     int row, col;
+
     for (int square = 0; square < 64; ++square) {
         row = square / 8;
         col = square % 8;
         if ((row + col) % 2) continue;
 
         renderDestination.w = renderDestination.h = SQ_SIZE;
-        renderDestination.y = (7 - row) * SQ_SIZE;
-        renderDestination.x = col * SQ_SIZE;
+        if (flipBoard) {
+            renderDestination.y = row * SQ_SIZE;
+            renderDestination.x = (7 - col) * SQ_SIZE;
+        } else {
+            renderDestination.y = (7 - row) * SQ_SIZE;
+            renderDestination.x = col * SQ_SIZE;
+        }
 
         SDL_RenderFillRect(renderer, &renderDestination);
     }
@@ -99,8 +105,13 @@ void GUI::DrawBoard() {
             color = theme.darkHighlight;
         }
         renderDestination.w = renderDestination.h = SQ_SIZE;
-        renderDestination.y = (7 - row) * SQ_SIZE;
-        renderDestination.x = col * SQ_SIZE;
+        if (flipBoard) {
+            renderDestination.y = row * SQ_SIZE;
+            renderDestination.x = (7 - col) * SQ_SIZE;
+        } else {
+            renderDestination.y = (7 - row) * SQ_SIZE;
+            renderDestination.x = col * SQ_SIZE;
+        }
 
         SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
         SDL_RenderFillRect(renderer, &renderDestination);
@@ -117,8 +128,14 @@ void GUI::DrawPieces() {
         col = sq % 8;
         SDL_Rect destination;
         destination.w = destination.h = SQ_SIZE;
-        destination.y = (7 - row) * SQ_SIZE;
-        destination.x = col * SQ_SIZE;
+        if (flipBoard) {
+            destination.y = row * SQ_SIZE;
+            destination.x = (7 - col) * SQ_SIZE;
+        } else {
+            destination.y = (7 - row) * SQ_SIZE;
+            destination.x = col * SQ_SIZE;
+        }
+
         index = PieceNum2BitboardIndex.at(gamestate.mailbox[sq]);
         SDL_RenderCopy(renderer, piece_textures[index], nullptr, &destination);
     }
@@ -133,8 +150,13 @@ void GUI::DrawIndicators() {
         col = sq % 8;
         SDL_Rect destination;
         destination.w = destination.h = SQ_SIZE;
-        destination.y = (7 - row) * SQ_SIZE;
-        destination.x = col * SQ_SIZE;
+        if (flipBoard) {
+            destination.y = row * SQ_SIZE;
+            destination.x = (7 - col) * SQ_SIZE;
+        } else {
+            destination.y = (7 - row) * SQ_SIZE;
+            destination.x = col * SQ_SIZE;
+        }
         if (gamestate.mailbox[sq]) {
             SDL_RenderCopy(renderer, piece_textures[13], nullptr, &destination);
         } else {
@@ -149,7 +171,13 @@ void GUI::HandleButtonClick() {
     int mouseX, mouseY, mouseSquare;
     SDL_GetMouseState(&mouseX, &mouseY);
 
-    int selectedSquare = 8 * (7 - ((mouseY) / SQ_SIZE )) + ((mouseX) / SQ_SIZE);
+    int selectedSquare;
+    if (flipBoard) {
+        selectedSquare = 8 * (mouseY / SQ_SIZE) + (7 - mouseX / SQ_SIZE);
+    } else {
+        selectedSquare = 8 * (7 - mouseY / SQ_SIZE) + (mouseX / SQ_SIZE);
+    }
+    std::cout << selectedSquare << '\n';
     MoveGenerator::Get().GenerateLegalMoves();
 
     if ((gamestate.empty_sqs & 1ULL << selectedSquare) && selectedSqs.empty()) {
@@ -257,6 +285,7 @@ void GUI::HandleKeyPress(SDL_Keycode key) {
                 selectedSqs.clear();
             }
             break;
+
         case SDLK_RIGHT:
             if (!backupMoveLog.empty()) {
                 gamestate.MakeMove(backupMoveLog.top());
@@ -266,6 +295,10 @@ void GUI::HandleKeyPress(SDL_Keycode key) {
                 selectedSqs.clear();
             }
             break;
+
+        case SDLK_f:
+            GUI::Get().flipBoard = !GUI::Get().flipBoard;
+
         default:
             break;
 

@@ -36,8 +36,6 @@ private:
         bool isInitialized = false;
     };
 
-    const bool useTable = false;
-
 public:
     static TranspositionTable& Get() {
         static TranspositionTable instance;
@@ -48,6 +46,8 @@ public:
     void StorePosition(int depth, int depthFromRoot, int evaluation, EvaluationType type, Move move);
 
     std::unordered_map<U64, Entry> positions;
+
+    bool useTable = false;
 };
 
 

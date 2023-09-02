@@ -6,12 +6,14 @@
 #include "movegen.h"
 #include "bitUtils.h"
 #include "Zobrist.h"
+#include "Transposition.h"
 
 Gamestate::Gamestate() {
     Seed();
 }
 
 void Gamestate::Seed(const std::string& position) {
+    legality = 0;
     InitFENString(position);
     InitBitboards();
     while(!moveLog.empty()) moveLog.pop();
@@ -234,9 +236,17 @@ void Gamestate::MakeMove(Move move) {
     all_pieces = w_pieces | b_pieces;
     empty_sqs = ~all_pieces;
 
-    gamePhase = 1 - (float(BitUtils::countBits(MinorPieces()) + 2 * BitUtils::countBits(MajorPieces())) / 20);
+    gamePhase = 1 - (float(bit_cnt(MinorPieces()) + 2 * bit_cnt(MajorPieces())) / 20);
+
+    TranspositionTable::Get().useTable = (gamePhase > 0.75);
 
     whiteToMove = !whiteToMove;
+
+    zobristKey = Zobrist::Get().GenerateKey();
+    threefoldHistory[zobristKey] += 1;
+    if (threefoldHistory[zobristKey] == 3) {
+        result = Draw;
+    }
 }
 
 void Gamestate::UndoMove() {
@@ -245,6 +255,12 @@ void Gamestate::UndoMove() {
     int movingPiece = mailbox[move.endSquare];
     int capturedPiece = (legality & legalityBits::capturedPieceMask) >> legalityBits::capturedPieceShift;
     U64 moveSquares = (1ULL << move.startSquare | 1ULL << move.endSquare);
+
+    zobristKey = Zobrist::Get().GenerateKey();
+    threefoldHistory[zobristKey] -= 1;
+    if (threefoldHistory[zobristKey] == 2) {
+        result = Pending;
+    }
 
     switch (move.flag) {
         case MoveFlags::nullMove:
@@ -363,7 +379,9 @@ void Gamestate::UndoMove() {
     all_pieces = w_pieces | b_pieces;
     empty_sqs = ~all_pieces;
 
-    gamePhase = 1 - (float(BitUtils::countBits(MinorPieces()) + 2 * BitUtils::countBits(MajorPieces())) / 20);
+    gamePhase = 1 - (float(bit_cnt(MinorPieces()) + 2 * bit_cnt(MajorPieces())) / 20);
+
+    TranspositionTable::Get().useTable = (gamePhase > 0.75);
 
     whiteToMove = !whiteToMove;
 }

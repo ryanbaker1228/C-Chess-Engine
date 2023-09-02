@@ -39,7 +39,7 @@ namespace legalityBits {
 }
 
 enum Result {
-    BlackWin, Draw, WhiteWin
+    BlackWin, Draw, WhiteWin, Pending
 };
 
 class Gamestate {
@@ -85,6 +85,9 @@ public:
 
     std::stack<Move> moveLog;
     std::stack<int> legalityHistory;
+    std::unordered_map<U64, int> threefoldHistory;
+
+    Result result;
 
     bool whiteToMove;
 

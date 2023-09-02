@@ -177,7 +177,7 @@ void GUI::HandleButtonClick() {
     } else {
         selectedSquare = 8 * (7 - mouseY / SQ_SIZE) + (mouseX / SQ_SIZE);
     }
-    std::cout << selectedSquare << '\n';
+
     MoveGenerator::Get().GenerateLegalMoves();
 
     if ((gamestate.empty_sqs & 1ULL << selectedSquare) && selectedSqs.empty()) {
@@ -195,7 +195,7 @@ void GUI::HandleButtonClick() {
     if (selectedSqs.size() == 1) {
         /* The user selected a piece, check if the piece has any moves */
         moveIndicatorSqs.clear();
-        for (struct Move move: MoveGenerator::Get().legalMoves) {
+        for (struct Move move: MoveGenerator::Get().GenerateLegalMoves()) {
             if (move.startSquare == selectedSquare) {
                 moveIndicatorSqs.push_back(move.endSquare);
             }
@@ -219,7 +219,7 @@ void GUI::HandleButtonClick() {
             return;
         }
 
-        for (struct Move move: MoveGenerator::Get().legalMoves) {
+        for (struct Move move: MoveGenerator::Get().GenerateLegalMoves()) {
             if (move.startSquare == selectedSqs[0] && move.endSquare == selectedSqs[1]) {
                 if (move.flag & MoveFlags::promotion) {
                     int promotionPiece = PollPromotion(move.endSquare);
@@ -257,7 +257,7 @@ void GUI::HandleButtonClick() {
         moveIndicatorSqs.clear();
         selectedSqs = {selectedSquare};
 
-        for (struct Move move: MoveGenerator::Get().legalMoves) {
+        for (struct Move move: MoveGenerator::Get().GenerateLegalMoves()) {
             if (move.startSquare == selectedSquare) {
                 moveIndicatorSqs.push_back(move.endSquare);
             }

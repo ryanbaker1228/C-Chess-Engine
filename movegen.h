@@ -14,9 +14,10 @@
 
 
 #define squareOf(bitboard) _tzcnt_u64(bitboard)
+#define bit_cnt(bitboard) std::popcount(bitboard)
 
 inline int getLSB(const U64 number) {
-    return static_cast<int>(log2(number & -number));
+    return squareOf(number);
 }
 
 inline U64 getMSB(const U64 number) {
@@ -24,9 +25,9 @@ inline U64 getMSB(const U64 number) {
 }
 
 inline int popLSB(U64& number) {
-    int least_significant_bit = static_cast<int>(log2(number & -number));
+    int lsb = squareOf(number);
     number &= number - 1;
-    return least_significant_bit;
+    return lsb;
 }
 
 inline int isCapture(const Gamestate& gamestate, const int endSquare) {
@@ -254,14 +255,15 @@ public:
 
     MoveGenerator(const MoveGenerator&) = delete;
 
-    U64 pinnedPieces, checkMask, enemyAttacks;
+    U64 pinnedPieces = 0, checkMask = 0, enemyAttacks = 0;
     std::array<U64, 64> pinMasks;
     bool king_is_in_double_check;
     bool king_is_in_check;
 
     std::vector<Move> legalMoves;
 
-    void GenerateLegalMoves();
+    std::vector<Move> GenerateLegalMoves(bool capturesOnly = false);
+    float CountLegalMoves();
     int PerftTree(int depthPly);
 
     void CalculateEnemyAttacks();

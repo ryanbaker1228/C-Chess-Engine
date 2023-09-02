@@ -4,11 +4,8 @@
 
 #include "movegen.h"
 #include "bitUtils.h"
-#include <iostream>
-#include <iomanip>
 #include <vector>
 #include <cmath>
-#include <chrono>
 
 
 void MovementTables::LoadTables() {
@@ -88,12 +85,10 @@ void MovementTables::LoadTables() {
 }
 
 MoveGenerator::MoveGenerator() {
-    pinnedPieces = checkMask = enemyAttacks = 0;
-
     legalMoves.reserve(218);
 }
 
-void MoveGenerator::GenerateLegalMoves() {
+std::vector<Move> MoveGenerator::GenerateLegalMoves(bool capturesOnly) {
     legalMoves.clear();
 
     CalculateEnemyAttacks();
@@ -104,7 +99,7 @@ void MoveGenerator::GenerateLegalMoves() {
 
     if (king_is_in_double_check) {
         king_is_in_check = true;
-        return;
+        return legalMoves;
     }
     king_is_in_check = FriendlyKing() & enemyAttacks;
 
@@ -120,8 +115,120 @@ void MoveGenerator::GenerateLegalMoves() {
             move = legalMoves.erase(move);
             continue;
         }
+        if (capturesOnly && !(move->flag & MoveFlags::capture)) {
+            move = legalMoves.erase(move);
+            continue;
+        }
         ++move;
     }
+    return legalMoves;
+}
+
+float MoveGenerator::CountLegalMoves() {
+    float whiteCount = 0, blackCount = 0;
+
+    Gamestate& gamestate = Gamestate::Get();
+
+    U64 whiteBishops = gamestate.w_bishop | gamestate.w_queen;
+    U64 blackBishops = gamestate.b_bishop | gamestate.b_queen;
+    U64 whiteRooks = gamestate.w_rook | gamestate.w_queen;
+    U64 blackRooks = gamestate.b_rook | gamestate.b_queen;
+    U64 whiteKnights = gamestate.w_knight;
+    U64 blackKnights = gamestate.b_knight;
+
+    U64 northwest, southwest, northeast, southeast;
+    U64 north, south, east, west;
+    U64 most_significant_bit, difference, target_squares = 0;
+
+    while (whiteBishops) {
+        target_squares = 0;
+        int bishop = popLSB(whiteBishops);
+
+        northwest = gamestate.all_pieces & MovementTables::bishopMoves[bishop][0];
+        southeast = gamestate.all_pieces & MovementTables::bishopMoves[bishop][2];
+        northeast = gamestate.all_pieces & MovementTables::bishopMoves[bishop][1];
+        southwest = gamestate.all_pieces & MovementTables::bishopMoves[bishop][3];
+
+        most_significant_bit = getMSB(southeast);
+        difference = northwest ^ (northwest - most_significant_bit);
+        target_squares |= difference & MovementTables::bishopMoves[bishop][4] & ~gamestate.w_pieces;
+
+        most_significant_bit = getMSB(southwest);
+        difference = northeast ^ (northeast - most_significant_bit);
+        target_squares |= difference & MovementTables::bishopMoves[bishop][5] & ~gamestate.w_pieces;
+
+        whiteCount += bit_cnt(target_squares);
+    }
+
+    while (blackBishops) {
+        target_squares = 0;
+        int bishop = popLSB(blackBishops);
+
+        northwest = gamestate.all_pieces & MovementTables::bishopMoves[bishop][0];
+        southeast = gamestate.all_pieces & MovementTables::bishopMoves[bishop][2];
+        northeast = gamestate.all_pieces & MovementTables::bishopMoves[bishop][1];
+        southwest = gamestate.all_pieces & MovementTables::bishopMoves[bishop][3];
+
+        most_significant_bit = getMSB(southeast);
+        difference = northwest ^ (northwest - most_significant_bit);
+        target_squares |= difference & MovementTables::bishopMoves[bishop][4] & ~gamestate.b_pieces;
+
+        most_significant_bit = getMSB(southwest);
+        difference = northeast ^ (northeast - most_significant_bit);
+        target_squares |= difference & MovementTables::bishopMoves[bishop][5] & ~gamestate.b_pieces;
+
+        blackCount += bit_cnt(target_squares);
+    }
+
+    while(whiteRooks) {
+        target_squares = 0;
+        int rook = popLSB(whiteRooks);
+
+        north = gamestate.all_pieces & MovementTables::rookMoves[rook][0];
+        south = gamestate.all_pieces & MovementTables::rookMoves[rook][2];
+        east = gamestate.all_pieces & MovementTables::rookMoves[rook][1];
+        west = gamestate.all_pieces & MovementTables::rookMoves[rook][3];
+
+        most_significant_bit = getMSB(south);
+        difference = north ^ (north - most_significant_bit);
+        target_squares |= difference & MovementTables::rookMoves[rook][4] & ~gamestate.w_pieces;
+
+        most_significant_bit = getMSB(west);
+        difference = east ^ (east - most_significant_bit);
+        target_squares |= difference & MovementTables::rookMoves[rook][5] & ~gamestate.w_pieces;
+
+        whiteCount += bit_cnt(target_squares);
+    }
+
+    while(blackRooks) {
+        target_squares = 0;
+        int rook = popLSB(blackRooks);
+
+        north = gamestate.all_pieces & MovementTables::rookMoves[rook][0];
+        south = gamestate.all_pieces & MovementTables::rookMoves[rook][2];
+        east = gamestate.all_pieces & MovementTables::rookMoves[rook][1];
+        west = gamestate.all_pieces & MovementTables::rookMoves[rook][3];
+
+        most_significant_bit = getMSB(south);
+        difference = north ^ (north - most_significant_bit);
+        target_squares |= difference & MovementTables::rookMoves[rook][4] & ~gamestate.b_pieces;
+
+        most_significant_bit = getMSB(west);
+        difference = east ^ (east - most_significant_bit);
+        target_squares |= difference & MovementTables::rookMoves[rook][5] & ~gamestate.b_pieces;
+
+        blackCount += bit_cnt(target_squares);
+    }
+
+    while (whiteKnights) {
+        whiteCount += bit_cnt(MovementTables::knightMoves[popLSB(whiteKnights)] & ~gamestate.w_pieces);
+    }
+
+    while (blackKnights) {
+        blackCount += bit_cnt(MovementTables::knightMoves[popLSB(blackKnights)] & ~gamestate.b_pieces);
+    }
+
+    return (whiteCount + 1) / (blackCount + 1);
 }
 
 void MoveGenerator::CalculateEnemyAttacks() {
@@ -630,14 +737,13 @@ int MoveGenerator::PerftTree(int depthPly) {
     Gamestate& gamestate = Gamestate::Get();
 
     if (depthPly == 1) {
-        GenerateLegalMoves();
+        std::vector<Move> legalMoves = GenerateLegalMoves();
         return static_cast<int>(legalMoves.size());
     }
 
-    GenerateLegalMoves();
+    std::vector<Move> legalMoves = GenerateLegalMoves();
     int nodesFound = 0;
-    std::vector<Move> currentLegalMoves = legalMoves;
-    for (auto move : currentLegalMoves) {
+    for (auto move : legalMoves) {
         gamestate.MakeMove(move);
         nodesFound += PerftTree(depthPly - 1);
         gamestate.UndoMove();

@@ -15,15 +15,6 @@ std::vector<int> BitUtils::getBits(U64 number) {
     return sqs;
 }
 
-int BitUtils::countBits(U64 number) {
-    int count = 0;
-    while (number) {
-        number &= (number - 1);
-        count++;
-    }
-    return count;
-}
-
 U64 BitMasks::segmentMask(int fromSquare, int toSquare) {
     U64 mask = 0;
     int fromRow = fromSquare / 8,

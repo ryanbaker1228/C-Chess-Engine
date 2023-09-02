@@ -16,6 +16,7 @@ class MovePicker {
 private:
     MovePicker();
     int maxDepth = 32;
+
 public:
     static MovePicker& Get() {
         static MovePicker instance;
@@ -23,10 +24,14 @@ public:
     }
 
     int NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta);
-    void IterativeDeepeningSearch();
+    int QuiessenceSearch(int alpha, int beta);
+    void InitSearch();
 
     Move bestMove;
     int bestEval;
+
+    Move bestMoveThisIteration;
+    int bestEvalThisIteration;
 };
 
 class MoveOrderer {
@@ -87,7 +92,7 @@ public:
         return instance;
     }
     int c = 0;
-    void OrderMoves(int depth);
+    void OrderMoves(std::vector<Move>* legalMoves);
     int Promise(Move move);
 };
 

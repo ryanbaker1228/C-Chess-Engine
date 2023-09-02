@@ -14,19 +14,37 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="The error was that when storing an evaluation I didn't set the &quot;isInitialized&quot; bool to true because I failed to use a pointer to the Entry and instead copied the entry">
+    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="Added ability to flip board by pressing 'f'">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GUI/gui.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/gui.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUI/gui.h" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/gui.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Search.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Search.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Search.h" beforeDir="false" afterPath="$PROJECT_DIR$/Search.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Transposition.h" beforeDir="false" afterPath="$PROJECT_DIR$/Transposition.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bitUtils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/bitUtils.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Book.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Book.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Search.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Search.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Test.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Test.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/evaluation.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/evaluation.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gamestate.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gamestate.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/move.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/move.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/movegen.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/movegen.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/evaluation.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/evaluation.h" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gamestate.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/gamestate.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gamestate.h" beforeDir="false" afterPath="$PROJECT_DIR$/gamestate.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/move.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/move.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/move.h" beforeDir="false" afterPath="$PROJECT_DIR$/move.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/movegen.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/movegen.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/movegen.h" beforeDir="false" afterPath="$PROJECT_DIR$/movegen.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,7 +133,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
     <property name="structure.view.defaults.are.configured" value="true" />
   </component>
   <component name="RecentsManager">
@@ -225,6 +243,17 @@
       <workItem from="1691594277147" duration="61193000" />
       <workItem from="1691789898010" duration="7515000" />
       <workItem from="1692388949690" duration="18727000" />
+      <workItem from="1693273902187" duration="523000" />
+      <workItem from="1693323410052" duration="172000" />
+      <workItem from="1693328237570" duration="2197000" />
+      <workItem from="1693330533671" duration="5644000" />
+      <workItem from="1693405127031" duration="868000" />
+      <workItem from="1693415121907" duration="7548000" />
+      <workItem from="1693490360911" duration="104000" />
+      <workItem from="1693578293984" duration="1472000" />
+      <workItem from="1693590114126" duration="400000" />
+      <workItem from="1693590585730" duration="15305000" />
+      <workItem from="1693659209372" duration="1000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed GUI bugs with highlighted squares.">
       <created>1690487531163</created>

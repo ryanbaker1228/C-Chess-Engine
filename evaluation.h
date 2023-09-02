@@ -16,6 +16,8 @@ private:
     void CountMaterial();
     int EvaluatePcSqTables();
     int MopUpEvaluation();
+    int EvaluateMobility();
+    int EvaluateStructure();
 
     int material;
 

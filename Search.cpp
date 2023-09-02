@@ -9,44 +9,56 @@ MovePicker::MovePicker() {
 
 }
 
-void MovePicker::IterativeDeepeningSearch() {
+void MovePicker::InitSearch() {
+    int searchDepth = 2;
     auto start = std::chrono::steady_clock::now();
-    int depth = 1;
-    for (; depth < maxDepth; ++depth) {
-        NegaMaxSearch(depth, 0, -Infinity, Infinity);
+    for (; searchDepth <= maxDepth; searchDepth += 2) {
+        bestEvalThisIteration = 0;
+        bestMoveThisIteration = {0, 0, 0};
+        NegaMaxSearch(searchDepth, 0, -Infinity, Infinity);
+        bestMove = bestMoveThisIteration;
+        bestEval = bestEvalThisIteration;
+
+        if (isMateEval(bestEval)) {
+            break;
+        }
+
         auto elapsed = std::chrono::steady_clock::now();
-        if (std::chrono::duration_cast<std::chrono::microseconds>(elapsed - start).count() >= 50000) {
+        if (std::chrono::duration_cast<std::chrono::microseconds>(elapsed - start).count() >= 10000) {
             break;
         }
     }
-    std::cout << depth << std::endl;
-    //std::cout << Evaluator::Get().callCount << std::endl;
+    //std::cout << searchDepth << std::endl;
 }
 
 int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta) {
+    if (depthFromRoot > 0) {
+        if (Gamestate::Get().result == Draw) {
+            return 0;
+        }
+        alpha = std::max(alpha, -Infinity + depthFromRoot);
+        beta = std::min(beta, Infinity - depthFromRoot);
+    }
+
     int transpositionEval = TranspositionTable::Get().Lookup(depth, depthFromRoot, alpha, beta);
     if (transpositionEval != LookUpFailed) {
         if (depthFromRoot == 0) {
-            bestEval = transpositionEval;
-            bestMove = TranspositionTable::Get().positions.at(Gamestate::Get().zobristKey).bestMove;
+            bestEvalThisIteration = transpositionEval;
+            bestMoveThisIteration = TranspositionTable::Get().positions.at(Gamestate::Get().zobristKey).bestMove;
         }
         return transpositionEval;
     }
 
     if (depth == 0) {
-        return Evaluator::Get().StaticEvaluation();
+        return QuiessenceSearch(alpha, beta);
     }
 
-    if (depthFromRoot > 0) {
-        alpha = std::max(alpha, -Infinity + depthFromRoot);
-        beta = std::min(beta, Infinity - depthFromRoot);
-    }
     Gamestate &gamestate = Gamestate::Get();
 
-    MoveOrderer::Get().OrderMoves(depthFromRoot);
-    std::vector<Move> orderedMoves = MoveGenerator::Get().legalMoves;
+    std::vector<Move> legalMoves = MoveGenerator::Get().GenerateLegalMoves();
+    MoveOrderer::Get().OrderMoves(&legalMoves);
 
-    if (orderedMoves.empty()) {
+    if (legalMoves.empty()) {
         if (MoveGenerator::Get().king_is_in_check) {
             return -(Infinity - depthFromRoot);
         }
@@ -56,7 +68,8 @@ int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta)
     Move currentBestMove;
     EvaluationType currentType = BestCase;
 
-    for (Move move : orderedMoves) {
+    for (Move move: legalMoves) {
+
         gamestate.MakeMove(move);
         int eval = -NegaMaxSearch(depth - 1, depthFromRoot + 1, -beta, -alpha);
         gamestate.UndoMove();
@@ -72,14 +85,43 @@ int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta)
             alpha = eval;
 
             if (depthFromRoot == 0) {
-                bestEval = eval;
-                bestMove = move;
+                bestEvalThisIteration = eval;
+                bestMoveThisIteration = move;
             }
+        }
+        if (beta <= alpha) break;
+    }
+
+    TranspositionTable::Get().StorePosition(depth, depthFromRoot, alpha, currentType, currentBestMove);
+    return alpha;
+}
+
+int MovePicker::QuiessenceSearch(int alpha, int beta) {
+    int current_eval = Evaluator::Get().StaticEvaluation();
+
+    if (current_eval >= beta) return beta;
+    if (current_eval > alpha) alpha = current_eval;
+
+    Gamestate &gamestate = Gamestate::Get();
+    std::vector<Move> legalMoves = MoveGenerator::Get().GenerateLegalMoves(true);
+    MoveOrderer::Get().OrderMoves(&legalMoves);
+
+    for (Move move : legalMoves) {
+        gamestate.MakeMove(move);
+        int eval = -QuiessenceSearch(-beta, -alpha);
+        gamestate.UndoMove();
+
+        if (eval >= beta) {
+            return beta;
+        }
+
+        if (eval > alpha) {
+            alpha = eval;
         }
 
         if (beta <= alpha) break;
     }
-    TranspositionTable::Get().StorePosition(depth, depthFromRoot, alpha, currentType, currentBestMove);
+
     return alpha;
 }
 
@@ -87,14 +129,15 @@ MoveOrderer::MoveOrderer() {
 
 }
 
-void MoveOrderer::OrderMoves(int depth) {
-    MoveGenerator::Get().GenerateLegalMoves();
+void MoveOrderer::OrderMoves(std::vector<Move>* legalMoves) {
+    if (!legalMoves->size()) {
+        return;
+    }
 
-    currentDepth = depth;
     enemyPawnAttacks = PawnMoves::allCaptures(!Gamestate::Get().whiteToMove, EnemyPawns());
     //ComputeGuardHeuristic();
 
-    std::sort(MoveGenerator::Get().legalMoves.begin(), MoveGenerator::Get().legalMoves.end(), std::greater<>());
+    std::sort(legalMoves->begin(), legalMoves->end(), std::greater<>());
 }
 
 int MoveOrderer::Promise(Move move) {
@@ -121,6 +164,11 @@ int MoveOrderer::Promise(Move move) {
     if (Gamestate::Get().legality & legalityBits::capturedPieceMask &&
         Gamestate::Get().moveLog.top().endSquare == move.endSquare) {
         promise += EvaluatePiece(capturedPiece);
+    }
+
+    if (move.startSquare == MovePicker::Get().bestMoveThisIteration.startSquare &&
+        move.endSquare == MovePicker::Get().bestMoveThisIteration.endSquare) {
+        promise += pow(10, 6);
     }
 
     return promise;

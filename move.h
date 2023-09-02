@@ -38,6 +38,21 @@ public:
 };
 
 std::string AlgebraicNotation(Move move);
+std::string PGNNotation(Move move);
 
+inline std::unordered_map<int, std::string> PieceNum2Char {
+        {1, ""},
+        {2, "N"},
+        {3, "B"},
+        {4, "R"},
+        {5, "Q"},
+        {6, "K"},
+        {9, ""},
+        {10, "N"},
+        {11, "B"},
+        {12, "R"},
+        {13, "Q"},
+        {14, "K"},
+};
 
 #endif //CHESS_ENGINE_MOVE_H

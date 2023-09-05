@@ -43,17 +43,30 @@ void GUI::LoadTextures() {
                                     "empty_indicator",
                                     "full_indicator",
                                     "kill_indicator"};
+    const std::string arrows[1] = {"vertical_arrow_2"};
+
     for (int i = 0; i < 14; ++i) {
         std::string filepath = "/Users/ryanbaker/CLionProjects/C++ Chess Engine/GUI/piece_images/" + pieces[i] + ".png";
         SDL_Surface* piece_surface = IMG_Load(filepath.c_str());
         if (piece_surface == nullptr) {
             std::cout << "Failed to load image: " << filepath << ", Error: " << IMG_GetError() << std::endl;
-            continue;  // Skip to the next iteration if loading fails
+            continue;
         }
         piece_textures[i] = SDL_CreateTextureFromSurface(renderer, piece_surface);
         SDL_FreeSurface(piece_surface);
     }
 
+    for (int i = 1; i <= 32; ++i) {
+        std::string filepath = "/Users/ryanbaker/CLionProjects/C++ Chess Engine/GUI/arrow_sprites/arrow_" +
+                std::to_string(i) + ".png";
+        SDL_Surface* arrow_surface = IMG_Load(filepath.c_str());
+        if (arrow_surface == nullptr) {
+            std::cout << "Failed to load image: " << filepath << ", Error: " << IMG_GetError() << std::endl;
+            continue;
+        }
+        arrow_textures[i - 1] = SDL_CreateTextureFromSurface(renderer, arrow_surface);
+        SDL_FreeSurface(arrow_surface);
+    }
 }
 
 void GUI::DrawGame() {
@@ -63,6 +76,8 @@ void GUI::DrawGame() {
     DrawBoard();
     DrawPieces();
     DrawIndicators();
+    DrawArrows();
+
     SDL_RenderPresent(renderer);
 }
 
@@ -165,9 +180,24 @@ void GUI::DrawIndicators() {
     }
 }
 
-void GUI::HandleButtonClick() {
-    Gamestate& gamestate = Gamestate::Get();
+void GUI::DrawArrows() {
+    for (std::pair<int, int> arrow : drawnArrows) {
+        int start_sq = arrow.first;
+        int end_sq = arrow.second;
 
+        SDL_Rect destination;
+        destination.w = (1 + std::abs(start_sq % 8 - end_sq % 8)) * SQ_SIZE;
+        destination.h = (1 + std::abs(start_sq / 8 - end_sq / 8)) * SQ_SIZE;
+        destination.x = std::min(start_sq % 8, end_sq % 8) * SQ_SIZE;
+        destination.y = (7 - std::max(start_sq / 8, end_sq / 8)) * SQ_SIZE;
+
+        std::string hash_key = "{" + std::to_string(end_sq / 8 - start_sq / 8) + ", " + std::to_string(end_sq % 8 - start_sq % 8) + "}";
+        std::pair<int, SDL_RendererFlip> arrow_info = arrow_map.at(hash_key);
+        SDL_RenderCopyEx(renderer, arrow_textures[arrow_info.first], nullptr, &destination, 0.0, nullptr, arrow_info.second);
+    }
+}
+
+void GUI::HandleButtonClick(SDL_MouseButtonEvent event) {
     int mouseX, mouseY, mouseSquare;
     SDL_GetMouseState(&mouseX, &mouseY);
 
@@ -178,8 +208,28 @@ void GUI::HandleButtonClick() {
         selectedSquare = 8 * (7 - mouseY / SQ_SIZE) + (mouseX / SQ_SIZE);
     }
 
+    if (event.button == SDL_BUTTON_RIGHT) {
+        if (event.type == SDL_MOUSEBUTTONDOWN) {
+            arrow_start_square = selectedSquare;
+        } else if (event.type == SDL_MOUSEBUTTONUP) {
+            std::pair<int, int> arrow = {arrow_start_square, selectedSquare};
+
+            if (std::find(drawnArrows.begin(), drawnArrows.end(), arrow) != drawnArrows.end()) {
+                drawnArrows.erase(std::find(drawnArrows.begin(), drawnArrows.end(), arrow));
+            } else {
+                drawnArrows.push_back({arrow_start_square, selectedSquare});
+            }
+        }
+        return;
+    }
+
+    if (event.type == SDL_MOUSEBUTTONUP) return;
+
+    Gamestate& gamestate = Gamestate::Get();
+
     MoveGenerator::Get().GenerateLegalMoves();
 
+    drawnArrows.clear();
     if ((gamestate.empty_sqs & 1ULL << selectedSquare) && selectedSqs.empty()) {
         /* The user has selected an empty square */
         selectedSqs.clear();
@@ -378,6 +428,76 @@ int GUI::PollPromotion(int promotionSquare) {
     }
     return 0;
 }
+/*
+void GUI::DrawArrow(int start_sq, int end_sq) {
+
+    int arrowhead_size = 30;
+    int line_thickness = 10;
+    float arrowhead_sharpness = 20 * M_PI / 180;
+
+    int startX = (start_sq % 8) * SQ_SIZE + SQ_SIZE / 2;
+    int startY = (7 - (start_sq / 8)) * SQ_SIZE + SQ_SIZE / 2;
+    int endX = (end_sq % 8) * SQ_SIZE + SQ_SIZE / 2;
+    int endY = (7 - (end_sq / 8)) * SQ_SIZE + SQ_SIZE / 2;
+
+    SDL_SetRenderDrawColor(renderer, 99, 175, 70, 255);  // Red color
+
+    // Calculate the angle of the arrow
+    double angle = atan2(endY - startY, endX - startX);
+
+    // Calculate the arrowhead points
+    int arrowX1 = endX - arrowhead_size * cos(angle - M_PI / 6);
+    int arrowY1 = endY - arrowhead_size * sin(angle - M_PI / 6);
+
+    int arrowX2 = endX;
+    int arrowY2 = endY;
+
+    int arrowX3 = endX - arrowhead_size * cos(angle + M_PI / 6);
+    int arrowY3 = endY - arrowhead_size * sin(angle + M_PI / 6);
+
+    // Draw the arrow line as multiple filled rectangles to create thickness
+    int numLines = line_thickness;
+    int lineSpacing = line_thickness - 1;  // Adjust for the spacing between lines
+
+    int offsetX, offsetY;
+    for (int i = 0; i < numLines; ++i) {
+        offsetX = ((i - (numLines - 1) / 2) * lineSpacing * -sin(angle)) / 10;
+        offsetY = ((i - (numLines - 1) / 2) * lineSpacing * -cos(angle)) / 10;
+
+        // Calculate the coordinates of the current line
+        int lineStartX = startX + offsetX;
+        int lineStartY = startY + offsetY;
+        int lineEndX = endX + offsetX;
+        int lineEndY = endY + offsetY;
+
+        SDL_RenderDrawLine(renderer, lineStartX, lineStartY, lineEndX, lineEndY);
+    }
+
+    // Draw the arrowhead as a triangle
+    SDL_RenderDrawLine(renderer, arrowX1, arrowY1, arrowX2, arrowY2);
+    SDL_RenderDrawLine(renderer, arrowX2, arrowY2, arrowX3, arrowY3);
+    SDL_RenderDrawLine(renderer, arrowX3, arrowY3, arrowX1, arrowY1);
+}
+
+    float angle = atan2(endY - startY, endX - startX);
+    float side_len = (arrowhead_size / 2) / cos(arrowhead_sharpness);
+
+    Point point_1 = {endX, endY};
+    Point point_2 = {endX + int(cos(M_PI + angle - arrowhead_sharpness) * arrowhead_size),
+                     endY + int(sin(M_PI + angle - arrowhead_sharpness) * arrowhead_size)};
+    Point point_3 = {endX + int(-cos(angle) * side_len), endY + int(-sin(angle) * side_len)};
+    Point point_4 = {endX + int(cos(M_PI + angle + arrowhead_sharpness) * arrowhead_size),
+                     endY + int(sin(M_PI + angle + arrowhead_sharpness) * arrowhead_size)};
+
+    PolygonShape arrowhead_1 = {{point_1, point_2, point_3}};
+    PolygonShape arrowhead_2 = {{point_1, point_3, point_4}};
+
+    DrawFilledPolygon(arrowhead_1, BoardThemes::blueTheme.lightHighlight, renderer);
+    DrawFilledPolygon(arrowhead_2, BoardThemes::blueTheme.lightHighlight, renderer);
+
+    return;
+}
+*/
 
 void GUI::UpdateHighlights() {
     if (Gamestate::Get().moveLog.empty()) {

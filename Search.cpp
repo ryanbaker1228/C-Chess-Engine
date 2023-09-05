@@ -13,8 +13,7 @@ void MovePicker::InitSearch() {
     int searchDepth = 2;
     auto start = std::chrono::steady_clock::now();
     for (; searchDepth <= maxDepth; searchDepth += 2) {
-        bestEvalThisIteration = 0;
-        bestMoveThisIteration = {0, 0, 0};
+        bestEvalThisIteration = Gamestate::Get().whiteToMove ? -Infinity : Infinity;
         NegaMaxSearch(searchDepth, 0, -Infinity, Infinity);
         bestMove = bestMoveThisIteration;
         bestEval = bestEvalThisIteration;
@@ -24,7 +23,7 @@ void MovePicker::InitSearch() {
         }
 
         auto elapsed = std::chrono::steady_clock::now();
-        if (std::chrono::duration_cast<std::chrono::microseconds>(elapsed - start).count() >= 10000) {
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed - start).count() >= 10) {
             break;
         }
     }
@@ -33,9 +32,6 @@ void MovePicker::InitSearch() {
 
 int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta) {
     if (depthFromRoot > 0) {
-        if (Gamestate::Get().result == Draw) {
-            return 0;
-        }
         alpha = std::max(alpha, -Infinity + depthFromRoot);
         beta = std::min(beta, Infinity - depthFromRoot);
     }
@@ -58,6 +54,10 @@ int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta)
     std::vector<Move> legalMoves = MoveGenerator::Get().GenerateLegalMoves();
     MoveOrderer::Get().OrderMoves(&legalMoves);
 
+    if (MoveGenerator::Get().king_is_in_check) {
+        depth += 1;
+    }
+
     if (legalMoves.empty()) {
         if (MoveGenerator::Get().king_is_in_check) {
             return -(Infinity - depthFromRoot);
@@ -65,7 +65,7 @@ int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta)
         return 0;
     }
 
-    Move currentBestMove;
+    Move currentBestMove = legalMoves[0];
     EvaluationType currentType = BestCase;
 
     for (Move move: legalMoves) {

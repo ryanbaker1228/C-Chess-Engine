@@ -87,7 +87,7 @@ public:
     std::stack<int> legalityHistory;
     std::unordered_map<U64, int> threefoldHistory;
 
-    Result result;
+    Result result = Pending;
 
     bool whiteToMove;
 

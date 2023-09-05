@@ -12,6 +12,8 @@ int Evaluator::StaticEvaluation() {
     ++callCount;
     Gamestate& gamestate = Gamestate::Get();
 
+    if (gamestate.result == Draw) return 0;
+
     int perspective = gamestate.whiteToMove ? 1 : -1;
 
     /* Count Material */

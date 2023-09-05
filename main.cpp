@@ -10,11 +10,15 @@
 
 
 int main() {
+    std::cout << atan2(0, 1) * 180 / 3.14159 << std::endl;
+    std::cout << atan2(1, 0) * 180 / 3.14159265358979 << std::endl;
+    std::cout << atan2(0.5, 0.5) * 180 / 3.14159 << std::endl;
+
     Gamestate& gamestate = Gamestate::Get();
     MovementTables::LoadTables();
     GUI& gui = GUI::Get();
     SDL_Event event;
-    //MoveGenTest::TestPerft();
+    //SearchTest::TestSearch();
     gamestate.Seed();
     gamestate.zobristKey = Zobrist::Get().GenerateKey();
 
@@ -26,7 +30,8 @@ int main() {
                     running = false;
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    gui.HandleButtonClick();
+                case SDL_MOUSEBUTTONUP:
+                    gui.HandleButtonClick(event.button);
                     break;
                 case SDL_KEYDOWN:
                     SDL_Keycode key = event.key.keysym.sym;
@@ -36,9 +41,9 @@ int main() {
         }
         gui.DrawGame();
         MoveGenerator::Get().GenerateLegalMoves();
-        if (!Gamestate::Get().whiteToMove or true) {
+        if ((Gamestate::Get().whiteToMove) and false and gamestate.result == Pending) {
             MovePicker::Get().InitSearch();
-            //std::cout << PGNNotation(MovePicker::Get().bestMove) << ", ";
+            std::cout << PGNNotation(MovePicker::Get().bestMove) << ", ";
            // std::cout << float(TranspositionTable::Get().positions.size() * sizeof(TranspositionTable::Get().positions[0])) / 1000000  << '\n';
             gamestate.MakeMove(MovePicker::Get().bestMove);
             GUI::Get().UpdateHighlights();

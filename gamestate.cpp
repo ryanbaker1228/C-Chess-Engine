@@ -238,7 +238,7 @@ void Gamestate::MakeMove(Move move) {
 
     gamePhase = 1 - (float(bit_cnt(MinorPieces()) + 2 * bit_cnt(MajorPieces())) / 20);
 
-    TranspositionTable::Get().useTable = (gamePhase > 0.75);
+    //TranspositionTable::Get().useTable = (gamePhase > 0.75);
 
     whiteToMove = !whiteToMove;
 
@@ -381,7 +381,7 @@ void Gamestate::UndoMove() {
 
     gamePhase = 1 - (float(bit_cnt(MinorPieces()) + 2 * bit_cnt(MajorPieces())) / 20);
 
-    TranspositionTable::Get().useTable = (gamePhase > 0.75);
+    //TranspositionTable::Get().useTable = (gamePhase > 0.75);
 
     whiteToMove = !whiteToMove;
 }

@@ -6,7 +6,7 @@
 #include "../gamestate.h"
 #include "../Zobrist.h"
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL_image.h>
 #include <string>
 #include <vector>
 #include <array>
@@ -41,6 +41,7 @@ private:
     void DrawBoard();
     void DrawPieces();
     void DrawIndicators();
+    void DrawArrows();
 
     int PollPromotion(int promotionSquare);
 
@@ -49,6 +50,7 @@ private:
     const int SQ_SIZE = 96;
 
     std::array<SDL_Texture*, 15> piece_textures;
+    std::array<SDL_Texture*, 32> arrow_textures;
 
     SDL_Renderer* renderer;
     SDL_Window* window;
@@ -57,19 +59,92 @@ private:
 
     std::vector<int> highlightedSqs;
     std::vector<int> selectedSqs;
+    int arrow_start_square;
     std::vector<int> moveIndicatorSqs;
+    std::vector<std::pair<int, int>> drawnArrows;
+    BoardThemes::ColorTheme theme = BoardThemes::brownTheme;
 
-    BoardThemes::ColorTheme theme = BoardThemes::blueTheme;
 public:
     static GUI& Get() {
         static GUI instance;
         return instance;
     }
 
-    void HandleButtonClick();
+    void HandleButtonClick(SDL_MouseButtonEvent event);
     void HandleKeyPress(SDL_Keycode key);
     void DrawGame();
     void UpdateHighlights();
 
     bool flipBoard = false;
+};
+
+inline std::unordered_map<std::string, std::pair<int, SDL_RendererFlip>> arrow_map{
+        {"{1, 0}", {0, SDL_FLIP_NONE}},
+        {"{2, 0}", {1, SDL_FLIP_NONE}},
+        {"{3, 0}", {2, SDL_FLIP_NONE}},
+        {"{4, 0}", {3, SDL_FLIP_NONE}},
+        {"{5, 0}", {4, SDL_FLIP_NONE}},
+        {"{6, 0}", {5, SDL_FLIP_NONE}},
+        {"{7, 0}", {6, SDL_FLIP_NONE}},
+        {"{-1, 0}", {0, SDL_FLIP_VERTICAL}},
+        {"{-2, 0}", {1, SDL_FLIP_VERTICAL}},
+        {"{-3, 0}", {2, SDL_FLIP_VERTICAL}},
+        {"{-4, 0}", {3, SDL_FLIP_VERTICAL}},
+        {"{-5, 0}", {4, SDL_FLIP_VERTICAL}},
+        {"{-6, 0}", {5, SDL_FLIP_VERTICAL}},
+        {"{-7, 0}", {6, SDL_FLIP_VERTICAL}},
+
+        {"{0, 1}", {7, SDL_FLIP_NONE}},
+        {"{0, 2}", {8, SDL_FLIP_NONE}},
+        {"{0, 3}", {9, SDL_FLIP_NONE}},
+        {"{0, 4}", {10, SDL_FLIP_NONE}},
+        {"{0, 5}", {11, SDL_FLIP_NONE}},
+        {"{0, 6}", {12, SDL_FLIP_NONE}},
+        {"{0, 7}", {13, SDL_FLIP_NONE}},
+        {"{0, -1}", {7, SDL_FLIP_HORIZONTAL}},
+        {"{0, -2}", {8, SDL_FLIP_HORIZONTAL}},
+        {"{0, -3}", {9, SDL_FLIP_HORIZONTAL}},
+        {"{0, -4}", {10, SDL_FLIP_HORIZONTAL}},
+        {"{0, -5}", {11, SDL_FLIP_HORIZONTAL}},
+        {"{0, -6}", {12, SDL_FLIP_HORIZONTAL}},
+        {"{0, -7}", {13, SDL_FLIP_HORIZONTAL}},
+
+        {"{1, 1}", {14, SDL_FLIP_NONE}},
+        {"{2, 2}", {15, SDL_FLIP_NONE}},
+        {"{3, 3}", {16, SDL_FLIP_NONE}},
+        {"{4, 4}", {17, SDL_FLIP_NONE}},
+        {"{5, 5}", {18, SDL_FLIP_NONE}},
+        {"{6, 6}", {19, SDL_FLIP_NONE}},
+        {"{7, 7}", {20, SDL_FLIP_NONE}},
+        {"{-1, 1}", {14, SDL_FLIP_VERTICAL}},
+        {"{-2, 2}", {15, SDL_FLIP_VERTICAL}},
+        {"{-3, 3}", {16, SDL_FLIP_VERTICAL}},
+        {"{-4, 4}", {17, SDL_FLIP_VERTICAL}},
+        {"{-5, 5}", {18, SDL_FLIP_VERTICAL}},
+        {"{-6, 6}", {19, SDL_FLIP_VERTICAL}},
+        {"{-7, 7}", {20, SDL_FLIP_VERTICAL}},
+
+        {"{1, -1}", {21, SDL_FLIP_NONE}},
+        {"{2, -2}", {22, SDL_FLIP_NONE}},
+        {"{3, -3}", {23, SDL_FLIP_NONE}},
+        {"{4, -4}", {24, SDL_FLIP_NONE}},
+        {"{5, -5}", {25, SDL_FLIP_NONE}},
+        {"{6, -6}", {26, SDL_FLIP_NONE}},
+        {"{7, -7}", {27, SDL_FLIP_NONE}},
+        {"{-1, -1}", {21, SDL_FLIP_VERTICAL}},
+        {"{-2, -2}", {22, SDL_FLIP_VERTICAL}},
+        {"{-3, -3}", {23, SDL_FLIP_VERTICAL}},
+        {"{-4, -4}", {24, SDL_FLIP_VERTICAL}},
+        {"{-5, -5}", {25, SDL_FLIP_VERTICAL}},
+        {"{-6, -6}", {26, SDL_FLIP_VERTICAL}},
+        {"{-7, -7}", {27, SDL_FLIP_VERTICAL}},
+
+        {"{1, 2}", {28, SDL_FLIP_NONE}},
+        {"{-1, 2}", {28, SDL_FLIP_VERTICAL}},
+        {"{2, 1}", {29, SDL_FLIP_NONE}},
+        {"{-2, 1}", {29, SDL_FLIP_VERTICAL}},
+        {"{2, -1}", {30, SDL_FLIP_NONE}},
+        {"{-2, -1}", {30, SDL_FLIP_VERTICAL}},
+        {"{1, -2}", {31, SDL_FLIP_NONE}},
+        {"{-1, -2}", {31, SDL_FLIP_VERTICAL}},
 };

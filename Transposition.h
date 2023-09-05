@@ -32,6 +32,7 @@ private:
         EvaluationType evalType;
         Move bestMove;
         int depth;
+        int age;
 
         bool isInitialized = false;
     };
@@ -50,6 +51,22 @@ public:
     bool useTable = false;
 };
 
+inline void CleanUp(TranspositionTable* tt) {
+    if (!tt->useTable) return;
 
+    while (Gamestate::Get().result == Pending) {
+        const int age = Gamestate::Get().moveLog.size() - 5;
+        if (tt->positions.empty()) {
+            continue;
+        }
+        auto it = tt->positions.begin();
+        while (it != tt->positions.end()) {
+            if (it->second.age < age) {
+                tt->positions.erase(it);
+                ++it;
+            }
+        }
+    }
+}
 
 #endif //CHESS_ENGINE_TRANSPOSITION_H

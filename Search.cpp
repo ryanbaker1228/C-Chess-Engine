@@ -4,6 +4,7 @@
 
 #include "Search.h"
 #include "evaluation.h"
+#include <thread>
 
 MovePicker::MovePicker() {
 
@@ -23,11 +24,11 @@ void MovePicker::InitSearch() {
         }
 
         auto elapsed = std::chrono::steady_clock::now();
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed - start).count() >= 10) {
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed - start).count() > 10) {
             break;
         }
     }
-    //std::cout << searchDepth << std::endl;
+    std::cout << searchDepth << std::endl;
 }
 
 int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta) {
@@ -171,9 +172,13 @@ int MoveOrderer::Promise(Move move) {
         promise += pow(10, 6);
     }
 
-    promise += PcSqTables::midGameTables[movingPiece][move.endSquare] - PcSqTables::midGameTables[movingPiece][move.startSquare];
-
-    promise -= PcSqTables::centerManhattanDistance[move.endSquare];
+    if (!(movingPiece & 0b1000)) {
+        promise += PcSqTables::midGameTables[PieceNum2BitboardIndex.at(movingPiece)][move.endSquare] -
+                   PcSqTables::midGameTables[PieceNum2BitboardIndex.at(movingPiece)][move.startSquare];
+    } else {
+        promise -= PcSqTables::midGameTables[PieceNum2BitboardIndex.at(movingPiece)][move.endSquare] -
+                   PcSqTables::midGameTables[PieceNum2BitboardIndex.at(movingPiece)][move.startSquare];
+    }
 
     return promise;
 }

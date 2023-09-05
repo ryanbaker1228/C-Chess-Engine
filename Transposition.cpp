@@ -47,7 +47,9 @@ void TranspositionTable::StorePosition(int depth, int depthFromRoot, int evaluat
     position->bestMove = move;
     position->depth = depth;
     position->isInitialized = true;
+    position->age = Gamestate::Get().moveLog.size();
 }
+
 
 int TranspositionTable::AdjustLookupMateEval(int eval, int depthFromRoot) {
     if (isMateEval(eval)) {

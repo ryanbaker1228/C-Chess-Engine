@@ -14,7 +14,7 @@ GUI::GUI() {
         std::cout << "Failed to initialize SDL_image: " << IMG_GetError() << std::endl;
     }
     window = SDL_CreateWindow("C++ Chess Engine", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                              WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+                              windowWidth, windowHeight, SDL_WINDOW_SHOWN);
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
     LoadTextures();
@@ -85,8 +85,8 @@ void GUI::DrawGame() {
 }
 
 void GUI::DrawBoard() {
-    /* Draw a light square across the entire board then cover with dark squares */
-    SDL_Rect board = { 0, 0, 8 * SQ_SIZE, 8 * SQ_SIZE };
+    // Draw a light square across the entire board then cover with dark squares
+    SDL_Rect board = {0, 0, 8 * sqSize, 8 * sqSize };
     SDL_Color color = theme.lightSquareColor;
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &board);
@@ -101,13 +101,13 @@ void GUI::DrawBoard() {
         col = square % 8;
         if ((row + col) % 2) continue;
 
-        renderDestination.w = renderDestination.h = SQ_SIZE;
+        renderDestination.w = renderDestination.h = sqSize;
         if (flipBoard) {
-            renderDestination.y = row * SQ_SIZE;
-            renderDestination.x = (7 - col) * SQ_SIZE;
+            renderDestination.y = row * sqSize;
+            renderDestination.x = (7 - col) * sqSize;
         } else {
-            renderDestination.y = (7 - row) * SQ_SIZE;
-            renderDestination.x = col * SQ_SIZE;
+            renderDestination.y = (7 - row) * sqSize;
+            renderDestination.x = col * sqSize;
         }
 
         SDL_RenderFillRect(renderer, &renderDestination);
@@ -122,13 +122,13 @@ void GUI::DrawBoard() {
         } else {
             color = theme.darkHighlight;
         }
-        renderDestination.w = renderDestination.h = SQ_SIZE;
+        renderDestination.w = renderDestination.h = sqSize;
         if (flipBoard) {
-            renderDestination.y = row * SQ_SIZE;
-            renderDestination.x = (7 - col) * SQ_SIZE;
+            renderDestination.y = row * sqSize;
+            renderDestination.x = (7 - col) * sqSize;
         } else {
-            renderDestination.y = (7 - row) * SQ_SIZE;
-            renderDestination.x = col * SQ_SIZE;
+            renderDestination.y = (7 - row) * sqSize;
+            renderDestination.x = col * sqSize;
         }
 
         SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
@@ -145,13 +145,13 @@ void GUI::DrawPieces() {
         row = sq / 8;
         col = sq % 8;
         SDL_Rect destination;
-        destination.w = destination.h = SQ_SIZE;
+        destination.w = destination.h = sqSize;
         if (flipBoard) {
-            destination.y = row * SQ_SIZE;
-            destination.x = (7 - col) * SQ_SIZE;
+            destination.y = row * sqSize;
+            destination.x = (7 - col) * sqSize;
         } else {
-            destination.y = (7 - row) * SQ_SIZE;
-            destination.x = col * SQ_SIZE;
+            destination.y = (7 - row) * sqSize;
+            destination.x = col * sqSize;
         }
 
         index = PieceNum2BitboardIndex.at(gamestate.mailbox[sq]);
@@ -167,13 +167,13 @@ void GUI::DrawIndicators() {
         row = sq / 8;
         col = sq % 8;
         SDL_Rect destination;
-        destination.w = destination.h = SQ_SIZE;
+        destination.w = destination.h = sqSize;
         if (flipBoard) {
-            destination.y = row * SQ_SIZE;
-            destination.x = (7 - col) * SQ_SIZE;
+            destination.y = row * sqSize;
+            destination.x = (7 - col) * sqSize;
         } else {
-            destination.y = (7 - row) * SQ_SIZE;
-            destination.x = col * SQ_SIZE;
+            destination.y = (7 - row) * sqSize;
+            destination.x = col * sqSize;
         }
         if (gamestate.mailbox[sq]) {
             SDL_RenderCopy(renderer, piece_textures[13], nullptr, &destination);
@@ -189,10 +189,10 @@ void GUI::DrawArrows() {
         int end_sq = arrow.second;
 
         SDL_Rect destination;
-        destination.w = (1 + std::abs(start_sq % 8 - end_sq % 8)) * SQ_SIZE;
-        destination.h = (1 + std::abs(start_sq / 8 - end_sq / 8)) * SQ_SIZE;
-        destination.x = std::min(start_sq % 8, end_sq % 8) * SQ_SIZE;
-        destination.y = (7 - std::max(start_sq / 8, end_sq / 8)) * SQ_SIZE;
+        destination.w = (1 + std::abs(start_sq % 8 - end_sq % 8)) * sqSize;
+        destination.h = (1 + std::abs(start_sq / 8 - end_sq / 8)) * sqSize;
+        destination.x = std::min(start_sq % 8, end_sq % 8) * sqSize;
+        destination.y = (7 - std::max(start_sq / 8, end_sq / 8)) * sqSize;
 
         std::string hash_key = "{" + std::to_string(end_sq / 8 - start_sq / 8) + ", " + std::to_string(end_sq % 8 - start_sq % 8) + "}";
 
@@ -212,9 +212,9 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event) {
 
     int selectedSquare;
     if (flipBoard) {
-        selectedSquare = 8 * (mouseY / SQ_SIZE) + (7 - mouseX / SQ_SIZE);
+        selectedSquare = 8 * (mouseY / sqSize) + (7 - mouseX / sqSize);
     } else {
-        selectedSquare = 8 * (7 - mouseY / SQ_SIZE) + (mouseX / SQ_SIZE);
+        selectedSquare = 8 * (7 - mouseY / sqSize) + (mouseX / sqSize);
     }
 
     if (event.button == SDL_BUTTON_RIGHT) {
@@ -371,7 +371,7 @@ int GUI::PollPromotion(int promotionSquare) {
     SDL_Rect queenDestination, knightDestination, rookDestination, bishopDestination, dimmingMask;
     SDL_Color color;
 
-    dimmingMask.h = dimmingMask.w = 8 * SQ_SIZE;
+    dimmingMask.h = dimmingMask.w = 8 * sqSize;
     dimmingMask.x = dimmingMask.y = 0;
     SDL_SetRenderDrawColor(renderer, 43, 43, 43, 200);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -379,20 +379,20 @@ int GUI::PollPromotion(int promotionSquare) {
 
     if (row == 7) {
         promotingPiece = 1;
-        queenDestination = {col * SQ_SIZE, SQ_SIZE * 0, SQ_SIZE, SQ_SIZE};
-        knightDestination = {col * SQ_SIZE, SQ_SIZE * 1, SQ_SIZE, SQ_SIZE};
-        rookDestination = {col * SQ_SIZE, SQ_SIZE * 2, SQ_SIZE, SQ_SIZE};
-        bishopDestination = {col * SQ_SIZE, SQ_SIZE * 3, SQ_SIZE, SQ_SIZE};
+        queenDestination = {col * sqSize, sqSize * 0, sqSize, sqSize};
+        knightDestination = {col * sqSize, sqSize * 1, sqSize, sqSize};
+        rookDestination = {col * sqSize, sqSize * 2, sqSize, sqSize};
+        bishopDestination = {col * sqSize, sqSize * 3, sqSize, sqSize};
         queenDestSquare = promotionSquare - 8 * 0;
         knightDestSquare = promotionSquare - 8 * 1;
         rookDestSquare = promotionSquare - 8 * 2;
         bishopDestSquare = promotionSquare - 8 * 3;
     } else {
         promotingPiece = 9;
-        queenDestination = {col * SQ_SIZE, SQ_SIZE * 7, SQ_SIZE, SQ_SIZE};
-        knightDestination = {col * SQ_SIZE, SQ_SIZE * 6, SQ_SIZE, SQ_SIZE};
-        rookDestination = {col * SQ_SIZE, SQ_SIZE * 5, SQ_SIZE, SQ_SIZE};
-        bishopDestination = {col * SQ_SIZE, SQ_SIZE * 4, SQ_SIZE, SQ_SIZE};
+        queenDestination = {col * sqSize, sqSize * 7, sqSize, sqSize};
+        knightDestination = {col * sqSize, sqSize * 6, sqSize, sqSize};
+        rookDestination = {col * sqSize, sqSize * 5, sqSize, sqSize};
+        bishopDestination = {col * sqSize, sqSize * 4, sqSize, sqSize};
         queenDestSquare = promotionSquare + 8 * 0;
         knightDestSquare = promotionSquare + 8 * 1;
         rookDestSquare = promotionSquare + 8 * 2;
@@ -426,7 +426,7 @@ int GUI::PollPromotion(int promotionSquare) {
                     selected = true;
                     int mouseX, mouseY, mouseSquare;
                     SDL_GetMouseState(&mouseX, &mouseY);
-                    mouseSquare = 8 * (7 - mouseY / SQ_SIZE) + mouseX / SQ_SIZE;
+                    mouseSquare = 8 * (7 - mouseY / sqSize) + mouseX / sqSize;
                     if (mouseSquare == queenDestSquare) return promotingPiece + 4;
                     if (mouseSquare == knightDestSquare) return promotingPiece + 1;
                     if (mouseSquare == rookDestSquare) return promotingPiece + 3;
@@ -444,10 +444,10 @@ void GUI::DrawArrow(int start_sq, int end_sq) {
     int line_thickness = 10;
     float arrowhead_sharpness = 20 * M_PI / 180;
 
-    int startX = (start_sq % 8) * SQ_SIZE + SQ_SIZE / 2;
-    int startY = (7 - (start_sq / 8)) * SQ_SIZE + SQ_SIZE / 2;
-    int endX = (end_sq % 8) * SQ_SIZE + SQ_SIZE / 2;
-    int endY = (7 - (end_sq / 8)) * SQ_SIZE + SQ_SIZE / 2;
+    int startX = (start_sq % 8) * sqSize + sqSize / 2;
+    int startY = (7 - (start_sq / 8)) * sqSize + sqSize / 2;
+    int endX = (end_sq % 8) * sqSize + sqSize / 2;
+    int endY = (7 - (end_sq / 8)) * sqSize + sqSize / 2;
 
     SDL_SetRenderDrawColor(renderer, 99, 175, 70, 255);  // Red color
 
@@ -514,4 +514,43 @@ void GUI::UpdateHighlights() {
         return;
     }
     highlightedSqs = {Gamestate::Get().moveLog.top().startSquare, Gamestate::Get().moveLog.top().endSquare};
+    drawnArrows.clear();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

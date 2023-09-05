@@ -45,9 +45,9 @@ private:
 
     int PollPromotion(int promotionSquare);
 
-    const int WINDOW_WIDTH = 768;
-    const int WINDOW_HEIGHT = 768;
-    const int SQ_SIZE = 96;
+    const int windowWidth = 768;
+    const int windowHeight = 768;
+    const int sqSize = 96;
 
     std::array<SDL_Texture*, 15> piece_textures;
     std::array<SDL_Texture*, 33> arrow_textures;

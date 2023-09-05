@@ -84,57 +84,44 @@ void GUI::DrawGame() {
     SDL_RenderPresent(renderer);
 }
 
-void GUI::DrawBoard() {
-    // Draw a light square across the entire board then cover with dark squares
-    SDL_Rect board = {0, 0, 8 * sqSize, 8 * sqSize };
-    SDL_Color color = theme.lightSquareColor;
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(renderer, &board);
 
-    SDL_Rect renderDestination;
-    color = theme.darkSquareColor;
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-    int row, col;
 
-    for (int square = 0; square < 64; ++square) {
-        row = square / 8;
-        col = square % 8;
-        if ((row + col) % 2) continue;
 
-        renderDestination.w = renderDestination.h = sqSize;
-        if (flipBoard) {
-            renderDestination.y = row * sqSize;
-            renderDestination.x = (7 - col) * sqSize;
-        } else {
-            renderDestination.y = (7 - row) * sqSize;
-            renderDestination.x = col * sqSize;
-        }
 
-        SDL_RenderFillRect(renderer, &renderDestination);
-    }
 
-    for (int square : highlightedSqs) {
-        row = square / 8;
-        col = square % 8;
 
-        if ((row + col) % 2) {
-            color = theme.lightHighlight;
-        } else {
-            color = theme.darkHighlight;
-        }
-        renderDestination.w = renderDestination.h = sqSize;
-        if (flipBoard) {
-            renderDestination.y = row * sqSize;
-            renderDestination.x = (7 - col) * sqSize;
-        } else {
-            renderDestination.y = (7 - row) * sqSize;
-            renderDestination.x = col * sqSize;
-        }
 
-        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-        SDL_RenderFillRect(renderer, &renderDestination);
-    }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void GUI::DrawPieces() {
     Gamestate& gamestate = Gamestate::Get();
@@ -516,41 +503,3 @@ void GUI::UpdateHighlights() {
     highlightedSqs = {Gamestate::Get().moveLog.top().startSquare, Gamestate::Get().moveLog.top().endSquare};
     drawnArrows.clear();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -31,6 +31,9 @@ GUI::~GUI() {
     for (auto &piece_texture : piece_textures) {
         SDL_DestroyTexture(piece_texture);
     }
+    for (auto &arrow_texture : arrow_textures) {
+        SDL_DestroyTexture(arrow_texture);
+    }
     std::cout << "Quitting SDL..." << std::endl;
     IMG_Quit();
     SDL_Quit();
@@ -56,7 +59,7 @@ void GUI::LoadTextures() {
         SDL_FreeSurface(piece_surface);
     }
 
-    for (int i = 1; i <= 32; ++i) {
+    for (int i = 1; i <= 33; ++i) {
         std::string filepath = "/Users/ryanbaker/CLionProjects/C++ Chess Engine/GUI/arrow_sprites/arrow_" +
                 std::to_string(i) + ".png";
         SDL_Surface* arrow_surface = IMG_Load(filepath.c_str());
@@ -192,6 +195,12 @@ void GUI::DrawArrows() {
         destination.y = (7 - std::max(start_sq / 8, end_sq / 8)) * SQ_SIZE;
 
         std::string hash_key = "{" + std::to_string(end_sq / 8 - start_sq / 8) + ", " + std::to_string(end_sq % 8 - start_sq % 8) + "}";
+
+        if (!arrow_map.contains(hash_key)) {
+            drawnArrows.erase(std::find(drawnArrows.begin(), drawnArrows.end(), arrow));
+            continue;
+        }
+
         std::pair<int, SDL_RendererFlip> arrow_info = arrow_map.at(hash_key);
         SDL_RenderCopyEx(renderer, arrow_textures[arrow_info.first], nullptr, &destination, 0.0, nullptr, arrow_info.second);
     }

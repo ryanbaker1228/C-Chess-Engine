@@ -14,59 +14,19 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="Added quiesence search">
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_12.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_13.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_14.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_15.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_16.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_17.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_18.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_19.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_20.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_21.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_22.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_23.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_24.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_25.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_26.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_27.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_28.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_29.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_30.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_31.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_32.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_9.png" afterDir="false" />
+    <list default="true" id="30ae3d6f-3e86-478e-81ca-3c53733268e5" name="Changes" comment="Added arrows for gui with right click. TODO: check for illegal arrows and single square arrow">
+      <change afterPath="$PROJECT_DIR$/GUI/arrow_sprites/arrow_33.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GUI/gui.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/gui.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GUI/gui.h" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/gui.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Search.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Search.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-59f4e244ae1cd22e699d.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/index-2023-08-28T16-30-07-0241.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/target-Chess_Engine-Debug-72bbb1c3858f10dc06f7.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Search.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/Search.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/evaluation.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/evaluation.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gamestate.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/gamestate.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Chess_Engine.dir/main.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Chess_Engine" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/build.ninja" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/evaluation.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gamestate.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/gamestate.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gamestate.h" beforeDir="false" afterPath="$PROJECT_DIR$/gamestate.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -164,6 +124,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/GUI/arrow_sprites" />
       <recent name="$PROJECT_DIR$/GUI/arrows" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/GUI/piece_images" />
@@ -171,12 +132,12 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="Chess_Engine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Chess_Engine" TARGET_NAME="Chess_Engine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Chess_Engine" RUN_TARGET_NAME="Chess_Engine">
       <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Chess_Engine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Chess_Engine" TARGET_NAME="Chess_Engine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Chess_Engine" RUN_TARGET_NAME="Chess_Engine">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -286,7 +247,8 @@
       <workItem from="1693689601182" duration="16419000" />
       <workItem from="1693834184147" duration="183000" />
       <workItem from="1693835232038" duration="1342000" />
-      <workItem from="1693858355201" duration="9627000" />
+      <workItem from="1693858355201" duration="12068000" />
+      <workItem from="1693920595676" duration="5000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed GUI bugs with highlighted squares.">
       <created>1690487531163</created>
@@ -456,7 +418,14 @@
       <option name="project" value="LOCAL" />
       <updated>1693659256104</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Added arrows for gui with right click. TODO: check for illegal arrows and single square arrow">
+      <created>1693883700895</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1693883700895</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -501,7 +470,8 @@
     <MESSAGE value="Added a transposition table and zobrist hashing to help with endgame positions, something must be wrong because it is not helping much even in K vs KBB position." />
     <MESSAGE value="The error was that when storing an evaluation I didn't set the &quot;isInitialized&quot; bool to true because I failed to use a pointer to the Entry and instead copied the entry" />
     <MESSAGE value="Added quiesence search" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added quiesence search" />
+    <MESSAGE value="Added arrows for gui with right click. TODO: check for illegal arrows and single square arrow" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added arrows for gui with right click. TODO: check for illegal arrows and single square arrow" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

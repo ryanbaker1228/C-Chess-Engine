@@ -171,6 +171,10 @@ int MoveOrderer::Promise(Move move) {
         promise += pow(10, 6);
     }
 
+    promise += PcSqTables::midGameTables[movingPiece][move.endSquare] - PcSqTables::midGameTables[movingPiece][move.startSquare];
+
+    promise -= PcSqTables::centerManhattanDistance[move.endSquare];
+
     return promise;
 }
 

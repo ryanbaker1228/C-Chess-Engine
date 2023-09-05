@@ -50,7 +50,7 @@ private:
     const int SQ_SIZE = 96;
 
     std::array<SDL_Texture*, 15> piece_textures;
-    std::array<SDL_Texture*, 32> arrow_textures;
+    std::array<SDL_Texture*, 33> arrow_textures;
 
     SDL_Renderer* renderer;
     SDL_Window* window;
@@ -62,7 +62,7 @@ private:
     int arrow_start_square;
     std::vector<int> moveIndicatorSqs;
     std::vector<std::pair<int, int>> drawnArrows;
-    BoardThemes::ColorTheme theme = BoardThemes::brownTheme;
+    BoardThemes::ColorTheme theme = BoardThemes::blueTheme;
 
 public:
     static GUI& Get() {
@@ -74,6 +74,9 @@ public:
     void HandleKeyPress(SDL_Keycode key);
     void DrawGame();
     void UpdateHighlights();
+    void DrawArrow(int start_sq, int end_sq) {
+        drawnArrows.push_back({start_sq, end_sq});
+    }
 
     bool flipBoard = false;
 };
@@ -147,4 +150,6 @@ inline std::unordered_map<std::string, std::pair<int, SDL_RendererFlip>> arrow_m
         {"{-2, -1}", {30, SDL_FLIP_VERTICAL}},
         {"{1, -2}", {31, SDL_FLIP_NONE}},
         {"{-1, -2}", {31, SDL_FLIP_VERTICAL}},
+
+        {"{0, 0}", {32, SDL_FLIP_NONE}},
 };

@@ -41,12 +41,20 @@ int main() {
         }
         gui.DrawGame();
         MoveGenerator::Get().GenerateLegalMoves();
-        if ((Gamestate::Get().whiteToMove) and false and gamestate.result == Pending) {
-            MovePicker::Get().InitSearch();
-            std::cout << PGNNotation(MovePicker::Get().bestMove) << ", ";
+        if ((Gamestate::Get().whiteToMove) or true or gamestate.result == Pending) {
+            std::vector<Move> legalMoves = MoveGenerator::Get().GenerateLegalMoves();
+            MoveOrderer::Get().OrderMoves(&legalMoves);
+            int i = 0;
+            for (auto move : legalMoves) {
+                ++i;
+                if (i > 5) break;
+                gui.DrawArrow(move.startSquare, move.endSquare);
+            }
+            //MovePicker::Get().InitSearch();
+            //std::cout << PGNNotation(MovePicker::Get().bestMove) << ", ";
            // std::cout << float(TranspositionTable::Get().positions.size() * sizeof(TranspositionTable::Get().positions[0])) / 1000000  << '\n';
-            gamestate.MakeMove(MovePicker::Get().bestMove);
-            GUI::Get().UpdateHighlights();
+            //gamestate.MakeMove(MovePicker::Get().bestMove);
+            //GUI::Get().UpdateHighlights();
         }
     }
 }

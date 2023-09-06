@@ -17,8 +17,11 @@ public:
     }
 
     bool bot_to_play = true;
-    bool playing_white = false;
+    bool playing_white = true;
     bool playing_black = true;
+
+    float call_count;
+    float total_time;
 
     void PlayMove();
 };

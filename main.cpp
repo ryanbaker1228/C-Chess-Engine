@@ -20,7 +20,7 @@ int main() {
     TranspositionTable& tt = TranspositionTable::Get();
     SDL_Event event;
     //SearchTest::TestSearch();
-    gamestate.Seed("r1bqk2r/ppppbppp/2nn4/1B2N3/8/8/PPPP1PPP/RNBQR1K1 w kq - 1 7");
+    gamestate.Seed(/*"r1bqk2r/ppppbppp/2nn4/1B2N3/8/8/PPPP1PPP/RNBQR1K1 w kq - 1 7"*/);
     gamestate.zobristKey = Zobrist::Get().GenerateKey();
     std::thread ttCleaner (CleanUp, &tt);
 
@@ -45,6 +45,6 @@ int main() {
         Bot::Get().PlayMove();
         MoveGenerator::Get().GenerateLegalMoves();
     }
-
+    ttCleaner.join();
     return 0;
 }

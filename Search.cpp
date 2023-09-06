@@ -12,10 +12,20 @@ MovePicker::MovePicker() {
 
 void MovePicker::InitSearch() {
     int searchDepth = 2;
-    auto start = std::chrono::steady_clock::now();
-    for (; searchDepth <= maxDepth; searchDepth += 2) {
+    start = std::chrono::steady_clock::now();
+    abortSearch = false;
+    while (true) {
         bestEvalThisIteration = Gamestate::Get().whiteToMove ? -Infinity : Infinity;
-        NegaMaxSearch(searchDepth, 0, -Infinity, Infinity);
+        int curr_eval = NegaMaxSearch(searchDepth, 0, -Infinity, Infinity);
+
+        if (abortSearch) {
+            if (curr_eval > bestEval) {
+                bestEval = bestEvalThisIteration;
+                bestMove = bestMoveThisIteration;
+            }
+            break;
+        }
+
         bestMove = bestMoveThisIteration;
         bestEval = bestEvalThisIteration;
 
@@ -23,77 +33,80 @@ void MovePicker::InitSearch() {
             break;
         }
 
-        auto elapsed = std::chrono::steady_clock::now();
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed - start).count() > 10) {
-            break;
-        }
+        searchDepth += 2;
     }
-    std::cout << searchDepth << std::endl;
 }
 
-int MovePicker::NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta) {
-    if (depthFromRoot > 0) {
-        alpha = std::max(alpha, -Infinity + depthFromRoot);
-        beta = std::min(beta, Infinity - depthFromRoot);
+int MovePicker::NegaMaxSearch(int depth_to_search, int depth_from_root, int alpha, int beta) {
+    abortSearch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > search_time;
+    if (abortSearch) {
+        return alpha;
     }
 
-    int transpositionEval = TranspositionTable::Get().Lookup(depth, depthFromRoot, alpha, beta);
-    if (transpositionEval != LookUpFailed) {
-        if (depthFromRoot == 0) {
-            bestEvalThisIteration = transpositionEval;
+    if (depth_from_root > 0) {
+        alpha = std::max(alpha, -Infinity + depth_from_root);
+        beta = std::min(beta, Infinity - depth_from_root);
+    }
+
+    int transposition_eval = TranspositionTable::Get().Lookup(depth_to_search, depth_from_root, alpha, beta);
+    if (transposition_eval != LookUpFailed) {
+        if (depth_from_root == 0) {
+            bestEvalThisIteration = transposition_eval;
             bestMoveThisIteration = TranspositionTable::Get().positions.at(Gamestate::Get().zobristKey).bestMove;
         }
-        return transpositionEval;
+        return transposition_eval;
     }
 
-    if (depth == 0) {
-        return QuiessenceSearch(alpha, beta);
+    if (depth_to_search == 0) {
+        int eval = QuiessenceSearch(alpha, beta);
+        TranspositionTable::Get().StorePosition(depth_to_search, depth_from_root, eval, Exact, {0, 0, 0});
+        return eval;
     }
 
-    Gamestate &gamestate = Gamestate::Get();
+    Gamestate& gamestate = Gamestate::Get();
 
-    std::vector<Move> legalMoves = MoveGenerator::Get().GenerateLegalMoves();
-    MoveOrderer::Get().OrderMoves(&legalMoves);
+    std::vector<Move> legal_moves = MoveGenerator::Get().GenerateLegalMoves();
+    MoveOrderer::Get().OrderMoves(&legal_moves);
 
     if (MoveGenerator::Get().king_is_in_check) {
-        depth += 1;
+        ++depth_to_search;
     }
 
-    if (legalMoves.empty()) {
+    if (legal_moves.empty()) {
         if (MoveGenerator::Get().king_is_in_check) {
-            return -(Infinity - depthFromRoot);
+            return -Infinity + depth_from_root;
         }
         return 0;
     }
 
-    Move currentBestMove = legalMoves[0];
-    EvaluationType currentType = BestCase;
+    Move current_best_move = legal_moves[0];
+    EvaluationType type = BestCase;
 
-    for (Move move: legalMoves) {
-
+    for (Move move : legal_moves) {
         gamestate.MakeMove(move);
-        int eval = -NegaMaxSearch(depth - 1, depthFromRoot + 1, -beta, -alpha);
+        int eval = -NegaMaxSearch(depth_to_search - 1, depth_from_root + 1, -beta, -alpha);
         gamestate.UndoMove();
 
         if (eval >= beta) {
-            TranspositionTable::Get().StorePosition(depth, depthFromRoot, beta, WorstCase, move);
+            TranspositionTable::Get().StorePosition(depth_to_search, depth_from_root, beta, WorstCase, move);
             return beta;
         }
 
         if (eval > alpha) {
-            currentBestMove = move;
-            currentType = Exact;
+            current_best_move = move;
+            type = Exact;
             alpha = eval;
 
-            if (depthFromRoot == 0) {
+            if (depth_from_root == 0) {
                 bestEvalThisIteration = eval;
                 bestMoveThisIteration = move;
             }
         }
+
         if (beta <= alpha) break;
     }
 
-    TranspositionTable::Get().StorePosition(depth, depthFromRoot, alpha, currentType, currentBestMove);
+    TranspositionTable::Get().StorePosition(depth_to_search, depth_from_root, alpha, type, current_best_move);
     return alpha;
 }
 

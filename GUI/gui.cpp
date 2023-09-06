@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "gui.h"
 #include "../movegen.h"
+#include "../Bot.h"
 
 
 GUI::GUI() {
@@ -76,6 +77,7 @@ void GUI::DrawGame() {
     Gamestate& gamestate = Gamestate::Get();
 
     SDL_RenderClear(renderer);
+
     DrawBoard();
     DrawPieces();
     DrawIndicators();
@@ -306,7 +308,9 @@ void GUI::HandleButtonClick(SDL_MouseButtonEvent event) {
                             return;
                     }
                 }
+                std::cout << PGNNotation(move) << ", ";
                 gamestate.MakeMove(move);
+                Bot::Get().bot_to_play = true;
                 highlightedSqs = {move.startSquare, move.endSquare};
                 selectedSqs.clear();
                 moveIndicatorSqs.clear();
@@ -342,6 +346,7 @@ void GUI::HandleKeyPress(SDL_Keycode key) {
                 UpdateHighlights();
                 moveIndicatorSqs.clear();
                 selectedSqs.clear();
+                Bot::Get().bot_to_play = false;
             }
             break;
 
@@ -352,6 +357,7 @@ void GUI::HandleKeyPress(SDL_Keycode key) {
                 highlightedSqs = {gamestate.moveLog.top().startSquare, gamestate.moveLog.top().endSquare};
                 moveIndicatorSqs.clear();
                 selectedSqs.clear();
+                if (backupMoveLog.empty()) Bot::Get().bot_to_play = true;
             }
             break;
 
@@ -437,76 +443,6 @@ int GUI::PollPromotion(int promotionSquare) {
     }
     return 0;
 }
-/*
-void GUI::DrawArrow(int start_sq, int end_sq) {
-
-    int arrowhead_size = 30;
-    int line_thickness = 10;
-    float arrowhead_sharpness = 20 * M_PI / 180;
-
-    int startX = (start_sq % 8) * sqSize + sqSize / 2;
-    int startY = (7 - (start_sq / 8)) * sqSize + sqSize / 2;
-    int endX = (end_sq % 8) * sqSize + sqSize / 2;
-    int endY = (7 - (end_sq / 8)) * sqSize + sqSize / 2;
-
-    SDL_SetRenderDrawColor(renderer, 99, 175, 70, 255);  // Red color
-
-    // Calculate the angle of the arrow
-    double angle = atan2(endY - startY, endX - startX);
-
-    // Calculate the arrowhead points
-    int arrowX1 = endX - arrowhead_size * cos(angle - M_PI / 6);
-    int arrowY1 = endY - arrowhead_size * sin(angle - M_PI / 6);
-
-    int arrowX2 = endX;
-    int arrowY2 = endY;
-
-    int arrowX3 = endX - arrowhead_size * cos(angle + M_PI / 6);
-    int arrowY3 = endY - arrowhead_size * sin(angle + M_PI / 6);
-
-    // Draw the arrow line as multiple filled rectangles to create thickness
-    int numLines = line_thickness;
-    int lineSpacing = line_thickness - 1;  // Adjust for the spacing between lines
-
-    int offsetX, offsetY;
-    for (int i = 0; i < numLines; ++i) {
-        offsetX = ((i - (numLines - 1) / 2) * lineSpacing * -sin(angle)) / 10;
-        offsetY = ((i - (numLines - 1) / 2) * lineSpacing * -cos(angle)) / 10;
-
-        // Calculate the coordinates of the current line
-        int lineStartX = startX + offsetX;
-        int lineStartY = startY + offsetY;
-        int lineEndX = endX + offsetX;
-        int lineEndY = endY + offsetY;
-
-        SDL_RenderDrawLine(renderer, lineStartX, lineStartY, lineEndX, lineEndY);
-    }
-
-    // Draw the arrowhead as a triangle
-    SDL_RenderDrawLine(renderer, arrowX1, arrowY1, arrowX2, arrowY2);
-    SDL_RenderDrawLine(renderer, arrowX2, arrowY2, arrowX3, arrowY3);
-    SDL_RenderDrawLine(renderer, arrowX3, arrowY3, arrowX1, arrowY1);
-}
-
-    float angle = atan2(endY - startY, endX - startX);
-    float side_len = (arrowhead_size / 2) / cos(arrowhead_sharpness);
-
-    Point point_1 = {endX, endY};
-    Point point_2 = {endX + int(cos(M_PI + angle - arrowhead_sharpness) * arrowhead_size),
-                     endY + int(sin(M_PI + angle - arrowhead_sharpness) * arrowhead_size)};
-    Point point_3 = {endX + int(-cos(angle) * side_len), endY + int(-sin(angle) * side_len)};
-    Point point_4 = {endX + int(cos(M_PI + angle + arrowhead_sharpness) * arrowhead_size),
-                     endY + int(sin(M_PI + angle + arrowhead_sharpness) * arrowhead_size)};
-
-    PolygonShape arrowhead_1 = {{point_1, point_2, point_3}};
-    PolygonShape arrowhead_2 = {{point_1, point_3, point_4}};
-
-    DrawFilledPolygon(arrowhead_1, BoardThemes::blueTheme.lightHighlight, renderer);
-    DrawFilledPolygon(arrowhead_2, BoardThemes::blueTheme.lightHighlight, renderer);
-
-    return;
-}
-*/
 
 void GUI::UpdateHighlights() {
     if (Gamestate::Get().moveLog.empty()) {

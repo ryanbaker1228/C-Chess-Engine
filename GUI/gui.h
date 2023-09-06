@@ -46,7 +46,7 @@ private:
     int PollPromotion(int promotionSquare);
 
     const int windowWidth = 768;
-    const int windowHeight = 768;
+    const int windowHeight = 800;
     const int sqSize = 96;
 
     std::array<SDL_Texture*, 15> piece_textures;
@@ -62,7 +62,7 @@ private:
     int arrow_start_square;
     std::vector<int> moveIndicatorSqs;
     std::vector<std::pair<int, int>> drawnArrows;
-    BoardThemes::ColorTheme theme = BoardThemes::blueTheme;
+    BoardThemes::ColorTheme theme = BoardThemes::brownTheme;
 
 public:
     static GUI& Get() {

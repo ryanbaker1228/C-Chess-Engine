@@ -16,6 +16,11 @@ public:
         return instance;
     }
 
+    bool bot_to_play = true;
+    bool playing_white = false;
+    bool playing_black = true;
+
+    void PlayMove();
 };
 
 

@@ -170,6 +170,13 @@ build CMakeFiles/Chess_Engine.dir/Zobrist.cpp.o: CXX_COMPILER__Chess_Engine_Debu
   OBJECT_DIR = CMakeFiles/Chess_Engine.dir
   OBJECT_FILE_DIR = CMakeFiles/Chess_Engine.dir
 
+build CMakeFiles/Chess_Engine.dir/recording.cpp.o: CXX_COMPILER__Chess_Engine_Debug /Users/ryanbaker/CLionProjects/C++$ Chess$ Engine/recording.cpp || cmake_object_order_depends_target_Chess_Engine
+  DEP_FILE = CMakeFiles/Chess_Engine.dir/recording.cpp.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -std=gnu++2a
+  INCLUDES = -I/usr/local/Cellar/sdl2/2.28.2/include -isystem /usr/local/Cellar/sdl2/2.28.2/include/SDL2 -isystem /usr/local/include/SDL2
+  OBJECT_DIR = CMakeFiles/Chess_Engine.dir
+  OBJECT_FILE_DIR = CMakeFiles/Chess_Engine.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Chess_Engine
@@ -178,7 +185,7 @@ build CMakeFiles/Chess_Engine.dir/Zobrist.cpp.o: CXX_COMPILER__Chess_Engine_Debu
 #############################################
 # Link the executable Chess_Engine
 
-build Chess_Engine: CXX_EXECUTABLE_LINKER__Chess_Engine_Debug CMakeFiles/Chess_Engine.dir/main.cpp.o CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o CMakeFiles/Chess_Engine.dir/gamestate.cpp.o CMakeFiles/Chess_Engine.dir/movegen.cpp.o CMakeFiles/Chess_Engine.dir/evaluation.cpp.o CMakeFiles/Chess_Engine.dir/move.cpp.o CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o CMakeFiles/Chess_Engine.dir/Search.cpp.o CMakeFiles/Chess_Engine.dir/Test.cpp.o CMakeFiles/Chess_Engine.dir/Bot.cpp.o CMakeFiles/Chess_Engine.dir/GUI/Button.cpp.o CMakeFiles/Chess_Engine.dir/Book.cpp.o CMakeFiles/Chess_Engine.dir/Transposition.cpp.o CMakeFiles/Chess_Engine.dir/Zobrist.cpp.o | /usr/local/Cellar/sdl2/2.28.2/lib/libSDL2.dylib /usr/local/Cellar/sdl2/2.28.2/lib/libSDL2main.a /usr/local/Cellar/sdl2_image/2.6.3_2/lib/libSDL2_image.dylib
+build Chess_Engine: CXX_EXECUTABLE_LINKER__Chess_Engine_Debug CMakeFiles/Chess_Engine.dir/main.cpp.o CMakeFiles/Chess_Engine.dir/GUI/gui.cpp.o CMakeFiles/Chess_Engine.dir/gamestate.cpp.o CMakeFiles/Chess_Engine.dir/movegen.cpp.o CMakeFiles/Chess_Engine.dir/evaluation.cpp.o CMakeFiles/Chess_Engine.dir/move.cpp.o CMakeFiles/Chess_Engine.dir/bitUtils.cpp.o CMakeFiles/Chess_Engine.dir/Search.cpp.o CMakeFiles/Chess_Engine.dir/Test.cpp.o CMakeFiles/Chess_Engine.dir/Bot.cpp.o CMakeFiles/Chess_Engine.dir/GUI/Button.cpp.o CMakeFiles/Chess_Engine.dir/Book.cpp.o CMakeFiles/Chess_Engine.dir/Transposition.cpp.o CMakeFiles/Chess_Engine.dir/Zobrist.cpp.o CMakeFiles/Chess_Engine.dir/recording.cpp.o | /usr/local/Cellar/sdl2/2.28.2/lib/libSDL2.dylib /usr/local/Cellar/sdl2/2.28.2/lib/libSDL2main.a /usr/local/Cellar/sdl2_image/2.6.3_2/lib/libSDL2_image.dylib
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk
   LINK_LIBRARIES = -Wl,-rpath,/usr/local/Cellar/sdl2/2.28.2/lib  /usr/local/Cellar/sdl2/2.28.2/lib/libSDL2.dylib  /usr/local/Cellar/sdl2/2.28.2/lib/libSDL2main.a  /usr/local/Cellar/sdl2_image/2.6.3_2/lib/libSDL2_image.dylib
   LINK_PATH = -L/usr/local/Cellar/sdl2/2.28.2/lib

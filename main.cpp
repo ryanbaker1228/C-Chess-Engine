@@ -3,6 +3,7 @@
 #include "Search.h"
 #include "Test.h"
 #include "movegen.h"
+#include "Bot.h"
 #include "bitUtils.h"
 #include "evaluation.h"
 #include "Transposition.h"
@@ -19,7 +20,7 @@ int main() {
     TranspositionTable& tt = TranspositionTable::Get();
     SDL_Event event;
     //SearchTest::TestSearch();
-    gamestate.Seed();
+    gamestate.Seed("r1bqk2r/ppppbppp/2nn4/1B2N3/8/8/PPPP1PPP/RNBQR1K1 w kq - 1 7");
     gamestate.zobristKey = Zobrist::Get().GenerateKey();
     std::thread ttCleaner (CleanUp, &tt);
 
@@ -41,22 +42,9 @@ int main() {
             }
         }
         gui.DrawGame();
+        Bot::Get().PlayMove();
         MoveGenerator::Get().GenerateLegalMoves();
-        if (!(Gamestate::Get().whiteToMove) and gamestate.result == Pending) {
-            std::vector<Move> legalMoves = MoveGenerator::Get().GenerateLegalMoves();
-            MoveOrderer::Get().OrderMoves(&legalMoves);
-            int i = 0;
-            for (auto move : legalMoves) {
-                ++i;
-                if (i > 5) break;
-                gui.DrawArrow(move.startSquare, move.endSquare);
-            }
-            gui.DrawGame();
-            MovePicker::Get().InitSearch();
-            std::cout << PGNNotation(MovePicker::Get().bestMove) << ", ";
-            std::cout << float(TranspositionTable::Get().positions.size() * sizeof(TranspositionTable::Get().positions[0])) / 1000000  << '\n';
-            gamestate.MakeMove(MovePicker::Get().bestMove);
-            GUI::Get().UpdateHighlights();
-        }
     }
+
+    return 0;
 }

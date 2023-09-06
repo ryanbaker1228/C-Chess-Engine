@@ -38,7 +38,7 @@ set(SOURCES
         GUI/Button.cpp
         GUI/Button.h
         Book.cpp
-        Book.h Transposition.cpp Transposition.h Zobrist.cpp Zobrist.h)
+        Book.h Transposition.cpp Transposition.h Zobrist.cpp Zobrist.h recording.cpp)
 
 add_executable(Chess_Engine ${SOURCES})
 

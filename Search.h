@@ -17,13 +17,17 @@ private:
     MovePicker();
     int maxDepth = 32;
 
+    bool abortSearch;
+    int search_time = 1000; //ms
+    std::chrono::steady_clock::time_point start;
+
 public:
     static MovePicker& Get() {
         static MovePicker instance;
         return instance;
     }
 
-    int NegaMaxSearch(int depth, int depthFromRoot, int alpha, int beta);
+    int NegaMaxSearch(int depth_to_search, int depth_from_root, int alpha, int beta);
     int QuiessenceSearch(int alpha, int beta);
     void InitSearch();
 
